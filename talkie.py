@@ -59,7 +59,7 @@ def main():
     # To deal with permission
     voice.record_audio(0.1)
 
-    proc = subprocess.Popen(['dfrotz', '-m', '-w', '1000', './anchor.z8'],
+    proc = subprocess.Popen(['dfrotz', '-m', '-w', '1000', './zork.z3'],
                            stdin=subprocess.PIPE,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT)
@@ -82,8 +82,12 @@ def main():
     vtt_future: Future[str] | None = None
     while pix.run_loop():
         screen.draw(drawable=console, top_left=(0,0), size=screen.size)
+        if pix.was_pressed(pix.key.ESCAPE):
+            tts.stop_playing()
         if pix.is_pressed(pix.key.F5):
-            screen.filled_circle(center=(10,10), radius=8)
+            screen.draw_color = pix.color.LIGHT_GREEN
+            screen.filled_circle(center=(20,20), radius=18)
+            screen.draw_color = pix.color.WHITE
             if not recording:
                 voice.start_transribe()
                 recording = True
@@ -125,10 +129,14 @@ This is the current situation to which the command probably relates:
             fields = parse_adventure_description(stripped)
             print(fields)
             desc = fields["text"]
-            tts.speak(desc)
+            for paragraph in desc.split("\n\n"):
+                print(paragraph)
+                tts.speak(paragraph)
             if console.reading_line:
                 console.cancel_line()
-            console.write(stripped)
+            console.write("\n")
+            console.write(desc)
+            console.write("\n>")
             console.read_line()
         except queue.Empty:
             pass
