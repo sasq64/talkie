@@ -2,6 +2,7 @@ import pytest
 import tempfile
 import shutil
 import time
+import json
 from pathlib import Path
 from cache import FileCache
 
@@ -209,3 +210,178 @@ class TestFileCache:
             temp_cache.add(key, data)
             retrieved = temp_cache.get(key)
             assert retrieved == data
+
+    def test_constructor_metadata(self, temp_cache):
+        """Test metadata set at constructor level."""
+        temp_dir = tempfile.mkdtemp()
+        try:
+            cache = FileCache(cache_dir=temp_dir, meta={"version": "1.0", "source": "test"})
+            
+            # Add data without method-level metadata
+            cache.add("key1", b"data1")
+            
+            # Should be able to retrieve with same constructor metadata
+            assert cache.get("key1") == b"data1"
+            assert cache.exists("key1")
+            
+            # Should not be retrievable with different metadata
+            assert cache.get("key1", {"version": "2.0"}) is None
+            assert not cache.exists("key1", {"version": "2.0"})
+            
+        finally:
+            shutil.rmtree(temp_dir)
+
+    def test_method_metadata(self, temp_cache):
+        """Test metadata passed to individual methods."""
+        key = "test_key"
+        data = b"test data"
+        meta = {"user": "alice", "type": "image"}
+        
+        # Add with metadata
+        temp_cache.add(key, data, meta)
+        
+        # Should retrieve with same metadata
+        assert temp_cache.get(key, meta) == data
+        assert temp_cache.exists(key, meta)
+        
+        # Should not retrieve without metadata or with different metadata
+        assert temp_cache.get(key) is None
+        assert temp_cache.get(key, {"user": "bob"}) is None
+        assert not temp_cache.exists(key)
+        assert not temp_cache.exists(key, {"user": "bob"})
+
+    def test_metadata_merging(self, temp_cache):
+        """Test that method metadata overrides constructor metadata."""
+        temp_dir = tempfile.mkdtemp()
+        try:
+            cache = FileCache(cache_dir=temp_dir, meta={"version": "1.0", "env": "test"})
+            
+            key = "merge_key"
+            data = b"merge data"
+            method_meta = {"env": "prod", "user": "alice"}  # env overrides constructor
+            
+            # Add with method metadata that overrides constructor
+            cache.add(key, data, method_meta)
+            
+            # Expected merged metadata: {"version": "1.0", "env": "prod", "user": "alice"}
+            expected_meta = {"version": "1.0", "env": "prod", "user": "alice"}
+            assert cache.get(key, method_meta) == data
+            assert cache.exists(key, method_meta)
+            
+            # Should not retrieve with just constructor metadata
+            assert cache.get(key) is None
+            
+        finally:
+            shutil.rmtree(temp_dir)
+
+    def test_metadata_creates_different_cache_entries(self, temp_cache):
+        """Test that same key with different metadata creates different entries."""
+        key = "same_key"
+        data1 = b"data with meta1"
+        data2 = b"data with meta2"
+        data3 = b"data without meta"
+        
+        meta1 = {"type": "image", "format": "png"}
+        meta2 = {"type": "text", "format": "json"}
+        
+        # Add same key with different metadata
+        temp_cache.add(key, data1, meta1)
+        temp_cache.add(key, data2, meta2)
+        temp_cache.add(key, data3)  # No metadata
+        
+        # Should retrieve different data based on metadata
+        assert temp_cache.get(key, meta1) == data1
+        assert temp_cache.get(key, meta2) == data2
+        assert temp_cache.get(key) == data3
+        
+        # All should exist independently
+        assert temp_cache.exists(key, meta1)
+        assert temp_cache.exists(key, meta2)
+        assert temp_cache.exists(key)
+
+    def test_metadata_in_json_storage(self, temp_cache):
+        """Test that metadata is stored in JSON when present and omitted when empty."""
+        key1 = "key_with_meta"
+        key2 = "key_without_meta"
+        data = b"test data"
+        meta = {"user": "alice", "type": "test"}
+        
+        # Add with metadata
+        temp_cache.add(key1, data, meta)
+        # Add without metadata  
+        temp_cache.add(key2, data)
+        
+        # Check the JSON files directly
+        file_with_meta = temp_cache._get_file_path(key1, meta)
+        file_without_meta = temp_cache._get_file_path(key2)
+        
+        # Parse JSON content
+        data_with_meta = json.loads(file_with_meta.read_text())
+        data_without_meta = json.loads(file_without_meta.read_text())
+        
+        # File with metadata should have meta field
+        assert "meta" in data_with_meta
+        assert data_with_meta["meta"] == meta
+        
+        # File without metadata should not have meta field
+        assert "meta" not in data_without_meta
+
+    def test_metadata_remove_operations(self, temp_cache):
+        """Test remove operations with metadata."""
+        key = "remove_key"
+        data = b"data to remove"
+        meta = {"temp": "true", "user": "test"}
+        
+        # Add with metadata
+        temp_cache.add(key, data, meta)
+        assert temp_cache.exists(key, meta)
+        
+        # Remove with correct metadata should work
+        assert temp_cache.remove(key, meta) is True
+        assert not temp_cache.exists(key, meta)
+        
+        # Add again and try removing with wrong metadata
+        temp_cache.add(key, data, meta)
+        assert temp_cache.remove(key, {"wrong": "meta"}) is False
+        assert temp_cache.exists(key, meta)  # Should still exist
+        
+        # Remove with no metadata when entry has metadata should fail
+        assert temp_cache.remove(key) is False
+        assert temp_cache.exists(key, meta)  # Should still exist
+
+    def test_empty_metadata_handling(self, temp_cache):
+        """Test handling of empty metadata."""
+        key = "empty_meta_key"
+        data = b"test data"
+        
+        # Empty dict should be treated as no metadata
+        temp_cache.add(key, data, {})
+        assert temp_cache.get(key) == data
+        assert temp_cache.get(key, {}) == data
+        assert temp_cache.exists(key)
+        assert temp_cache.exists(key, {})
+        
+        # Check JSON doesn't have meta field
+        file_path = temp_cache._get_file_path(key)
+        cache_data = json.loads(file_path.read_text())
+        assert "meta" not in cache_data
+
+    def test_metadata_with_constructor_and_empty_method(self, temp_cache):
+        """Test constructor metadata with empty method metadata."""
+        temp_dir = tempfile.mkdtemp()
+        try:
+            cache = FileCache(cache_dir=temp_dir, meta={"version": "1.0"})
+            
+            key = "test_key"
+            data = b"test data"
+            
+            # Add with empty method metadata - should use constructor metadata
+            cache.add(key, data, {})
+            
+            # Should retrieve with constructor metadata
+            assert cache.get(key) == data
+            assert cache.get(key, {}) == data
+            assert cache.exists(key)
+            
+        finally:
+            shutil.rmtree(temp_dir)

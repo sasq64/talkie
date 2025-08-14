@@ -1,5 +1,5 @@
 import unittest
-from talkie import parse_text, parse_adventure_description
+from talkie import parse_text, parse_adventure_description, unwrap_text
 
 
 class TestTalkie(unittest.TestCase):
@@ -69,11 +69,25 @@ class TestTalkie(unittest.TestCase):
     def test_real_game(self):
         text ='Using normal formatting.\nLoading ./deadline.z3.\n South Lawn                                                 Time:  8:00 am\n\nDEADLINE: An INTERLOGIC Mystery\nCopyright 1982 by Infocom, Inc. All rights reserved.\nDEADLINE and INTERLOGIC are trademarks of Infocom, Inc.\nRelease 27 / Serial number 831005\n\nSouth Lawn\nYou are on a wide lawn just north of the entrance to the Robner estate. Directly\nnorth at the end of a pebbled path is the Robner house, flanked to the northeast\nand northwest by a vast expanse of well-kept lawn. Beyond the house can be seen\nthe lakefront.\n\n>'
         result = parse_adventure_description(text)
-        print(result)
+        #print(result)
 
         self.assertIn("Time", result["title"])
         self.assertIn("1982", result["copyright"])
 
+        text =""" Foyer                                                                                                                                                                                                              Time:  8:02 am
+
+You hear footsteps inside the house. Mrs. Robner, dressed in black, opens the door and greets you.
+"Hello," she says, "I'm Mrs. Robner. Please come in. I'm afraid I really can't help you much. This is surely a terrible waste of time, not to mention upsetting, having all these police marching around the house. This has been a
+trying time, as I suppose you can understand. As I told Mr. Coates and the other detective, you may look around but you must be out by 8 o'clock at the latest. Oh, I almost forgot...Mr. Coates will be reading my husband's will at
+noon in the living room. You may attend if you wish."
+Mrs. Robner leads you into the house and closes the door behind you.
+>"""
+        result = parse_adventure_description(text)
+
+        unwrapped = unwrap_text(result["text"])
+        self.assertEqual(unwrapped, """You hear footsteps inside the house. Mrs. Robner, dressed in black, opens the door and greets you.
+"Hello," she says, "I'm Mrs. Robner. Please come in. I'm afraid I really can't help you much. This is surely a terrible waste of time, not to mention upsetting, having all these police marching around the house. This has been a trying time, as I suppose you can understand. As I told Mr. Coates and the other detective, you may look around but you must be out by 8 o'clock at the latest. Oh, I almost forgot...Mr. Coates will be reading my husband's will at noon in the living room. You may attend if you wish."
+Mrs. Robner leads you into the house and closes the door behind you.""")
 
 
 if __name__ == "__main__":

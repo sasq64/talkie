@@ -1,3 +1,4 @@
+import logging
 import pyaudio
 import wave
 import os
@@ -37,8 +38,6 @@ class VoiceToText:
         self._current_recording = []
         self._is_recording = True
         
-        print("Recording started...")
-        
         def callback(in_data, frame_count, time_info, status):
             if self._is_recording:
                 self._current_recording.append(in_data)
@@ -69,7 +68,6 @@ class VoiceToText:
 
         audio_data = b''.join(self._current_recording)
         
-        print("Recording complete!")
         self._current_recording = None
         return audio_data
 
@@ -77,7 +75,6 @@ class VoiceToText:
         self, duration: float = 5, sample_rate: float = 16000
     ) -> bytes:
         """Record audio for specified duration"""
-        print(f"Recording for {duration} seconds...")
         
         frames : list[bytes] = []
         
@@ -98,7 +95,6 @@ class VoiceToText:
         
         # Convert to numpy array
         audio_data = b''.join(frames)
-        print("Recording complete!")
         return audio_data
 
     def transcribe_audio(self, audio_file_path: str, prompt: str | None) -> str:
@@ -108,11 +104,11 @@ class VoiceToText:
                 transcript = self.client.audio.transcriptions.create(
                     language="en",
                     temperature=0,
-                    response_format="verbose_json",
+                    response_format="json",
                     prompt=NOT_GIVEN if prompt is None else prompt,
                     model="whisper-1", file=audio_file
                 )
-            print(transcript)
+            logging.info(f"Transcribe result {transcript}")
             return transcript.text
         except Exception as e:
             raise Exception(f"Error during transcription: {e}")
@@ -122,7 +118,6 @@ class VoiceToText:
 
     def end_transcribe(self, prompt : str | None = None) -> Future[str]:
         audio_data = self.stop_recording()
-        print(len(audio_data))
         if len(audio_data) < 12000:
             return self._executor.submit(lambda : "\n")
 
@@ -132,12 +127,11 @@ class VoiceToText:
         #    sf.write(file=temp_path, data=audio_data, samplerate=sample_rate)
 
         # Save to temporary WAV file
-        print("WRITING WAV")
         temp_path = "out.wav"
         self._save_wav(temp_path, audio_data, self._sample_rate)
         
         # Transcribe on worker thread
-        print(f"Transcribing... {temp_path}\n{prompt}")
+        logging.info(f"Transcribing... {temp_path}\n{prompt}")
         future = self._executor.submit(self._transcribe_and_cleanup, temp_path, prompt)
         return future
 

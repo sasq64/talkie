@@ -4,7 +4,7 @@ def wrap_lines(lines: list[str], max_len: int, break_chars: str = " ") -> list[s
     result: list[str] = []
     for line in lines:
         start = 0
-        while start < len(line):
+        while start <= len(line):
             # Try to find a break point
             end = min(start + max_len, len(line))
             if end == len(line):

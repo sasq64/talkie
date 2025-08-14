@@ -7,7 +7,7 @@ from pathlib import Path
 import uuid
 
 class FileCache:
-    def __init__(self, cache_dir: Path | str | None = None, name: str | None = None, max_files: int = 100):
+    def __init__(self, cache_dir: Path | str | None = None, name: str | None = None, max_files: int = 100, meta: dict[str, str] | None = None):
         self.temporary = False
         if cache_dir is None:
             if name is None:
@@ -19,6 +19,7 @@ class FileCache:
 
         self.cache_dir : Path = cache_dir 
         self.max_files : int = max_files
+        self.meta: dict[str, str] = meta or {}
         self.cache_dir.mkdir(exist_ok=True, parents=True)
 
         # Track access times for LRU eviction (using MD5 safe_key as index)
@@ -35,9 +36,28 @@ class FileCache:
                 mod_time = file_path.stat().st_mtime
                 self._access_times[safe_key] = mod_time
 
-    def _get_file_path(self, key: str) -> Path:
-        """Generate safe filename from key using hash."""
-        safe_key = hashlib.md5(key.encode()).hexdigest()
+    def _merge_metadata(self, meta: dict[str, str] | None = None) -> dict[str, str]:
+        """Merge constructor metadata with method-level metadata."""
+        if meta is None:
+            return self.meta.copy()
+        merged = self.meta.copy()
+        merged.update(meta)
+        return merged
+
+    def _create_cache_key(self, key: str, meta: dict[str, str] | None = None) -> str:
+        """Create cache key by combining original key with metadata."""
+        merged_meta = self._merge_metadata(meta)
+        if not merged_meta:
+            return key
+        
+        # Sort metadata items for consistent hashing
+        meta_str = "&".join(f"{k}={v}" for k, v in sorted(merged_meta.items()))
+        return f"{key}|meta:{meta_str}"
+
+    def _get_file_path(self, key: str, meta: dict[str, str] | None = None) -> Path:
+        """Generate safe filename from key and metadata using hash."""
+        cache_key = self._create_cache_key(key, meta)
+        safe_key = hashlib.md5(cache_key.encode()).hexdigest()
         return self.cache_dir / f"{safe_key}.json"
 
     def _evict_oldest_files(self):
@@ -53,11 +73,12 @@ class FileCache:
                 file_path.unlink()
             del self._access_times[oldest_safe_key]
 
-    def add(self, key: str, data: bytes) -> None:
+    def add(self, key: str, data: bytes, meta: dict[str, str] | None = None) -> None:
         """Store bytes data with string key to disk."""
         self._evict_oldest_files()
 
-        file_path = self._get_file_path(key)
+        merged_meta = self._merge_metadata(meta)
+        file_path = self._get_file_path(key, meta)
         
         # Update access time
         current_time = time.time()
@@ -69,21 +90,27 @@ class FileCache:
             "created_time": current_time
         }
         
+        # Only include meta field if metadata is not empty
+        if merged_meta:
+            cache_data["meta"] = merged_meta
+        
         file_path.write_text(json.dumps(cache_data))
-        safe_key = hashlib.md5(key.encode()).hexdigest()
+        cache_key = self._create_cache_key(key, meta)
+        safe_key = hashlib.md5(cache_key.encode()).hexdigest()
         self._access_times[safe_key] = current_time
         os.utime(file_path, (current_time, current_time))
 
-    def get(self, key: str) -> bytes | None:
+    def get(self, key: str, meta: dict[str, str] | None = None) -> bytes | None:
         """Retrieve cached bytes data by key."""
-        file_path = self._get_file_path(key)
+        file_path = self._get_file_path(key, meta)
 
         if not file_path.exists():
             return None
 
         # Update access time for LRU using file modification time
         current_time = time.time()
-        safe_key = hashlib.md5(key.encode()).hexdigest()
+        cache_key = self._create_cache_key(key, meta)
+        safe_key = hashlib.md5(cache_key.encode()).hexdigest()
         self._access_times[safe_key] = current_time
         os.utime(file_path, (current_time, current_time))
 
@@ -94,17 +121,18 @@ class FileCache:
         except (json.JSONDecodeError, KeyError, ValueError):
             return None
 
-    def exists(self, key: str) -> bool:
+    def exists(self, key: str, meta: dict[str, str] | None = None) -> bool:
         """Check if key exists in cache."""
-        return self._get_file_path(key).exists()
+        return self._get_file_path(key, meta).exists()
 
-    def remove(self, key: str) -> bool:
+    def remove(self, key: str, meta: dict[str, str] | None = None) -> bool:
         """Remove cached item by key. Returns True if removed, False if not found."""
-        file_path = self._get_file_path(key)
+        file_path = self._get_file_path(key, meta)
 
         if file_path.exists():
             file_path.unlink()
-            safe_key = hashlib.md5(key.encode()).hexdigest()
+            cache_key = self._create_cache_key(key, meta)
+            safe_key = hashlib.md5(cache_key.encode()).hexdigest()
             _ = self._access_times.pop(safe_key, None)
             return True
         return False
