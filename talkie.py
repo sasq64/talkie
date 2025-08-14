@@ -5,7 +5,7 @@ import pixpy as pix
 import re
 
 from utils.wrap import wrap_lines
-from tts_handler import TextToSpeech
+from text_to_speech import TextToSpeech
 from voice_recorder import VoiceToText
 from if_player import IFPlayer
 from image_gen import ImageGen
