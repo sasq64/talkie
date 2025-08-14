@@ -1,3 +1,4 @@
+import argparse
 from concurrent.futures import Future
 import logging
 from pathlib import Path
@@ -30,6 +31,10 @@ This is the current situation to which the command probably relates:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Talkie - AI Interactive Fiction player")
+    _ = parser.add_argument("-g", "--game", type=str, default="curses.z5", 
+                      help="Game file to load ")
+    args = parser.parse_args()
 
     logging.getLogger().setLevel(logging.INFO)
     screen = pix.open_display(size=(1280, 1024))
@@ -45,7 +50,7 @@ def main():
     # To deal with permission
     # voice.record_audio(0.1)
 
-    player = IFPlayer(Path("curses.z5"))
+    player = IFPlayer(Path(args.game))
     current_image : None | pix.Image = None
 
     image_gen = ImageGen()
