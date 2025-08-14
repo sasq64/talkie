@@ -71,9 +71,10 @@ class TextToSpeech:
         while True:
             try:
                 audio_data = self.audio_queue.get()
+                self.stop_event.clear()
                 if audio_data:
-                    Path(f"file{counter}.mp3").write_bytes(audio_data)
-                    counter += 1
+                    # Path(f"file{counter}.mp3").write_bytes(audio_data)
+                    # counter += 1
 
                     # Convert MP3 bytes to AudioSegment
                     audio_segment = AudioSegment.from_mp3(io.BytesIO(audio_data))
@@ -119,6 +120,10 @@ class TextToSpeech:
                 self.audio_queue.get_nowait()
             except queue.Empty:
                 break
+
+    def stop_all(self):
+        self.clear_all()
+        self.stop_playing()
 
     def cleanup(self):
         self.stop_playing()

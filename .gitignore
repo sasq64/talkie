@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.env
+.env.*
+
+# Tools
+.pyrightcache/
+.mypy_cache/
+.ruff_cache/
+pytest_cache/
+
+# Local cache and app artifacts
+.cache/
+.crush/

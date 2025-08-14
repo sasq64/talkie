@@ -1,211 +1,17 @@
-import base64
 from concurrent.futures import Future
 import logging
 from pathlib import Path
-from typing import Literal
-import openai
-from openai.types.responses import response_status
 import pixpy as pix
-import subprocess
-import threading
-import queue
 import re
 
-from cache import FileCache
 from utils.wrap import wrap_lines
 from tts_handler import TextToSpeech
 from voice_recorder import VoiceToText
+from if_player import IFPlayer
+from image_gen import ImageGen
+from text_utils import parse_adventure_description, unwrap_text, trim_lines
 
-ImageSize = Literal["auto", "1024x1024", "1536x1024", "1024x1536", "256x256", "512x512", "1792x1024", "1024x1792"]
-
-ImageModel = Literal["dall-e-3", "gpt-image-1"]
-
-class ImageGen:
-    def __init__(self):
-        self.client = None
-        self.model : ImageModel = "gpt-image-1"
-        self.size : ImageSize ="1024x1024"
-        self.quality="medium"
-
-        self.cache = FileCache(
-            Path(".cache/img"), meta={
-                "model": self.model,
-                "size": self.size,
-                "quality": self.quality,
-            }
-        )
-        self.stop_event = threading.Event()
-
-        # Load OpenAI API key
-        key_path = Path.home() / ".openai.key"
-        if key_path.exists():
-            with open(key_path, "r") as f:
-                api_key = f.read().strip()
-            self.client = openai.OpenAI(api_key=api_key)
-
-    def _make_image_file(self, data: bytes) -> Path:
-        target = Path("temp.png")
-        target.parent.mkdir(parents=True, exist_ok=True)
-        with open(target, 'wb') as f:
-            f.write(data)
-        return target
-    
-    def generate_image(self, description) -> Path:
-        if not self.client:
-            raise RuntimeError("OpenAI client not initialized. Check if ~/.openai.key exists.")
-        
-        cached_data = self.cache.get(description)
-        if cached_data:
-            return self._make_image_file(cached_data)
-        
-        logging.info("Generating image")
-        try:
-            response = self.client.images.generate(
-                model=self.model,
-                prompt=description,
-                size=self.size,
-                quality=self.quality,
-                # style="natural",
-                n=1,
-            )
-            logging.info("Generating done")
-            
-            if not response.data: # or not response.data[0].url:
-                raise RuntimeError("No image URL returned from OpenAI API")
-                
-            base_64 = response.data[0].b64_json
-            if base_64:
-                data = base64.b64decode(base_64)
-            else:
-                image_url = response.data[0].url
-                
-                import requests
-                img_response = requests.get(image_url)
-                img_response.raise_for_status()
-                data = img_response.content
-            
-            self.cache.add(description, data)
-            return self._make_image_file(data)
-            
-        except Exception as e:
-            raise RuntimeError(f"Failed to generate image: {e}")
-
-    def get_image(self, description: str) -> None | Path:
-        cached_data = self.cache.get(description)
-        if cached_data:
-            return self._make_image_file(cached_data)
-        return None
-
-
-def parse_text(text: str, patterns: dict[str, str]) -> dict[str, str]:
-    """Parse a description by matching named regex patterns and removing matches from text.
-
-    Args:
-        text: The input text to parse
-        patterns: Dict mapping names to regex patterns
-
-    Returns:
-        Dict with 'text' key containing remaining text and other keys for named matches
-    """
-    result = {}
-    remaining_text = text
-
-    for name, pattern in patterns.items():
-        match = re.search(pattern, remaining_text, re.MULTILINE)
-        if match:
-            result[name] = match.group(0)
-            # Remove the match and any trailing newline to avoid double newlines
-            match_text = match.group(0)
-            if remaining_text[match.start() : match.end() + 1].endswith("\n"):
-                match_text += "\n"
-            remaining_text = remaining_text.replace(match_text, "", 1).strip()
-        else:
-            result[name] = ""
-
-    result["text"] = remaining_text
-    return result
-
-
-def parse_adventure_description(text: str) -> dict[str, str]:
-    return parse_text(
-        text,
-        {
-            "title": r"^(.*)\s{5,}(.*)$",
-            "header": r"^Using normal.*\nLoading.*$",
-            "trademark": r"^.*trademark.*nfocom.*$",
-            "release": r"^Release.*Serial.*$",
-            "prompt": r"\n+>",
-            "copyright": r"^Copyright (.*)",
-        },
-    )
-
-def unwrap_text(text: str, colum: int = 200) -> str:
-    """
-    Try to unwrap wrapped text. Assumes any line that is longer than 'column' and does not end in punctuation should be joined with the next line.
-    """
-
-    pattern = re.compile(r"[.?!>:]$")
-    new_lines : list[str] = []
-    last_line: str  = ""
-    for line in text.splitlines():
-        if len(line) > colum and not pattern.search(line):
-            if last_line != "":
-                last_line = last_line + " " + line
-            else:
-                last_line = line
-        else:
-            if last_line != "":
-                new_lines.append(last_line + " " + line) 
-                last_line = ""
-            else:
-                new_lines.append(line)
-    if last_line != "":
-        new_lines.append(last_line) 
-
-    return "\n".join(new_lines)
-
-def trim_lines(text: str) -> str:
-    """Trim spaces from the beginning and end of all lines in 'text'"""
-    lines = [line.strip() for line in text.splitlines()]
-    return "\n".join(lines)
-
-class IFPlayer:
-    def __init__(self, file_name: Path):
-        zcode = re.compile(r"\.z(ode|[123456789])$")
-        self.proc = subprocess.Popen(
-            ["dfrotz", "-m", "-w", "1000", file_name.as_posix()],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        self.output_queue: queue.Queue[bytes] = queue.Queue()
-
-        def read_output():
-            if self.proc.stdout:
-                while True:
-                    data : bytes = self.proc.stdout.read1(16384)  # type: ignore
-                    if not data:
-                        break
-                    logging.info(f"OUT: '{data.decode()}'")
-                    self.output_queue.put(data)
-
-        self.output_thread = threading.Thread(target=read_output, daemon=True)
-        self.output_thread.start()
-
-    def read(self) -> str | None:
-        try:
-            text = self.output_queue.get_nowait()
-            return text.decode()
-        except queue.Empty:
-            pass
-        return None
-
-    def write(self, text: str):
-        if self.proc.stdin is not None:
-            logging.info(f"IN: '{text}'")
-            _ = self.proc.stdin.write(text.encode())
-            self.proc.stdin.flush()
-
+image_prompt = "Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details. NOTE: *Dont* include distinct objects in the foreground that are not part of the description. *Dont* include text from the description in the image.\n```\n{text}\n```"
 
 whisper_prompt = """
 The following recording is a single sentence command to control text adventure or interactive fiction story.
@@ -239,11 +45,10 @@ def main():
     # To deal with permission
     # voice.record_audio(0.1)
 
-    player = IFPlayer(Path("lurkinghorror.z3"))
+    player = IFPlayer(Path("curses.z5"))
     current_image : None | pix.Image = None
 
     image_gen = ImageGen()
-    image_prompt = ""
 
     console.read_line() 
     recording = False
@@ -279,8 +84,6 @@ def main():
             text = unwrap_text(text)
             fields = parse_adventure_description(text)
             desc = fields["text"]
-            image_prompt = f"Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details. NOTE: *Dont* include distinct objects in the foreground that are not part of the description. *Dont* include text from the description in the image.\n```\n{desc}\n```"
-
             for paragraph in desc.split("\n\n"):
                 if len(paragraph.strip()) > 0:
                     if not pattern.search(paragraph):
@@ -294,7 +97,7 @@ def main():
                 console.write(line + "\n")
             console.write("\n>")
             console.read_line()
-            image_file = image_gen.get_image(image_prompt)
+            image_file = image_gen.get_image(image_prompt.format(**fields))
             if image_file:
                 current_image = pix.load_png(image_file)
 
@@ -312,6 +115,7 @@ def main():
                         image = image_gen.generate_image(image_prompt)
                         current_image = pix.load_png(image)
                 else:
+                    tts.stop_all()
                     player.write(e.text)
                 console.read_line()
 

@@ -1,8 +1,12 @@
 import unittest
-from talkie import parse_text, parse_adventure_description, unwrap_text
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from text_utils import parse_text, parse_adventure_description, unwrap_text
 
 
-class TestTalkie(unittest.TestCase):
+class TestTextUtils(unittest.TestCase):
     
     def test_parse_text_basic(self):
         text = "Hello world! Score: 42 Time: 10:30"
