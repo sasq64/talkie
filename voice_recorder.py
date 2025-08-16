@@ -41,10 +41,12 @@ class VoiceToText:
 
         # _StreamCallback: TypeAlias = Callable[[bytes | None, int, Mapping[str, float], int], tuple[bytes | None, int]]
         def callback(in_data : bytes | None, _frame_count : int, _time_info : Mapping[str, float], _status: int) -> tuple[bytes | None, int]:
-            if self._is_recording and self._current_recording and in_data:
+            #print(f"CALLBACK {self._is_recording} {self._current_recording} {len(in_data)}")
+            if self._is_recording and self._current_recording is not None and in_data:
                 self._current_recording.append(in_data)
             return (in_data, pyaudio.paContinue)
 
+        print("STARTING STREAM")
         self._stream = self._pyaudio.open(
             format=pyaudio.paInt16,
             channels=1,
@@ -119,6 +121,7 @@ class VoiceToText:
 
     def end_transcribe(self, prompt: str | None = None) -> Future[str]:
         audio_data = self.stop_recording()
+        logging.info(f"Recorded {len(audio_data)} bytes")
         if len(audio_data) < 12000:
             return self._executor.submit(lambda: "\n")
 

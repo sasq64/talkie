@@ -12,7 +12,12 @@ from if_player import IFPlayer
 from image_gen import ImageGen
 from text_utils import parse_adventure_description, unwrap_text, trim_lines
 
-image_prompt = "Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details. NOTE: *Dont* include distinct objects in the foreground that are not part of the description. *Dont* include text from the description in the image.\n```\n{text}\n```"
+image_prompt = """
+"Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details. NOTE: *Dont* include distinct objects in the foreground that are not part of the description. *Dont* include text from the description in the image.
+```
+{text}
+```
+"""
 
 whisper_prompt = """
 The following recording is a single sentence command to control text adventure or interactive fiction story.
