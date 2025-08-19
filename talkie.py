@@ -1,41 +1,25 @@
+#!/usr/bin/env python
 import argparse
 from concurrent.futures import Future
 import logging
 from pathlib import Path
 import pixpy as pix
 import re
+import yaml
 
+from adventure_guy import AdventureGuy
 from utils.wrap import wrap_lines
 from text_to_speech import TextToSpeech
 from voice_recorder import VoiceToText
 from if_player import IFPlayer
 from image_gen import ImageGen
-from text_utils import parse_adventure_description, unwrap_text, trim_lines
-
-image_prompt = """
-"Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details. NOTE: *Dont* include distinct objects in the foreground that are not part of the description. *Dont* include text from the description in the image.
-```
-{text}
-```
-"""
-
-whisper_prompt = """
-The following recording is a single sentence command to control text adventure or interactive fiction story.
-It is usually in the form <verb> <noun> or <verb> <noun> <preposition> <noun>.
-
-Common commands
-- Look, examine <object>
-- go north / south / east / west
-- drop sword, take scroll
-
-This is the current situation to which the command probably relates:
-```
-{text}
-```
-"""
-
 
 def main():
+
+    prompts : dict[str, str] = yaml.safe_load(open("prompts.yaml"))
+    image_prompt = prompts['image_prompt']
+    whisper_prompt = prompts['whisper_prompt']
+
     parser = argparse.ArgumentParser(description="Talkie - AI Interactive Fiction player")
     _ = parser.add_argument("-g", "--game", type=str, default="curses.z5", 
                       help="Game file to load ")
@@ -47,6 +31,7 @@ def main():
     con_size = (screen.size / tile_set.tile_size).toi()
     console = pix.Console(tile_set=tile_set, cols=con_size.x, rows=con_size.y)
 
+    adventure_guy = AdventureGuy(prompts['talk_prompt'])
     tts = TextToSpeech(voice="alloy")
     voice = VoiceToText()
     desc = ""
@@ -65,6 +50,21 @@ def main():
     vtt_future: Future[str] | None = None
     pattern = re.compile(r"[.?!>:]$")
     while pix.run_loop():
+        if adventure_guy.update():
+
+            command = adventure_guy.get_command()
+            if command:
+                print("Got command")
+                command += "\n"
+                console.cancel_line()
+                console.write(command)
+                player.write(command)
+                console.read_line()
+
+            question = adventure_guy.get_question()
+            if question:
+                pass
+
         screen.draw(drawable=console, top_left=(0, 0), size=console.size)
         if pix.was_pressed(pix.key.ESCAPE):
             tts.stop_playing()
@@ -82,20 +82,19 @@ def main():
         if vtt_future is not None and vtt_future.done():
             text = vtt_future.result()
             vtt_future = None
-            text += "\n"
-            console.cancel_line()
-            console.write(text)
-            player.write(text)
-            console.read_line()
+            adventure_guy.set_input(text, desc)
 
-        text = player.read()
-        if text:
-            text = trim_lines(text)
-            text = unwrap_text(text)
-            fields = parse_adventure_description(text)
+        result = player.read()
+        if result:
+            fields = result
             desc = fields["text"]
             for paragraph in desc.split("\n\n"):
-                if len(paragraph.strip()) > 0:
+                paragraph = paragraph.strip()
+                if len(paragraph) > 0:
+                    image_file = image_gen.get_image(paragraph)
+                    logging.info(f"'{paragraph}' gave image {image_file}")
+                    if image_file and not current_image:
+                        current_image = pix.load_png(image_file)
                     if not pattern.search(paragraph):
                         paragraph += ". "
                         paragraph = paragraph.replace("ZORK I", "ZORK ONE").replace("A N C H O R H E A D", "### ANCHORHEAD")
@@ -122,8 +121,13 @@ def main():
                     cmd = e.text[1:].strip()
                     print(cmd)
                     if cmd == "image":
-                        image = image_gen.generate_image(image_prompt)
-                        current_image = pix.load_png(image)
+                        para = desc.split("\n\n")[0].strip()
+                        if len(para) > 0:
+                            logging.info(f"Generate image with key '{para}'")
+                            image = image_gen.generate_image(image_prompt.format(**fields), para)
+                            current_image = pix.load_png(image)
+                    elif cmd == "transcript":
+                        print(player.get_transcript())
                 else:
                     tts.stop_all()
                     player.write(e.text)

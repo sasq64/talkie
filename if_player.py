@@ -5,6 +5,8 @@ import re
 import logging
 from pathlib import Path
 
+from text_utils import parse_adventure_description, trim_lines, unwrap_text
+
 
 class IFPlayer:
     def __init__(self, file_name: Path):
@@ -16,6 +18,7 @@ class IFPlayer:
             stderr=subprocess.STDOUT,
         )
         self.output_queue: queue.Queue[bytes] = queue.Queue()
+        self.transcript : list[tuple[str, str]] = []
 
         def read_output():
             if self.proc.stdout:
@@ -29,10 +32,15 @@ class IFPlayer:
         self.output_thread = threading.Thread(target=read_output, daemon=True)
         self.output_thread.start()
 
-    def read(self) -> str | None:
+    def read(self) -> dict[str, str] | None:
         try:
             text = self.output_queue.get_nowait()
-            return text.decode()
+            result = text.decode()
+            text = trim_lines(result)
+            text = unwrap_text(text)
+            fields = parse_adventure_description(text)
+            self.transcript.append((':', fields['text']))
+            return fields
         except queue.Empty:
             pass
         return None
@@ -41,4 +49,14 @@ class IFPlayer:
         if self.proc.stdin is not None:
             logging.info(f"IN: '{text}'")
             _ = self.proc.stdin.write(text.encode())
+            self.transcript.append(('>', text))
             self.proc.stdin.flush()
+
+    def get_transcript(self) -> str:
+        lines : list[str] = []
+        for c,line in self.transcript:
+            if c == '>':
+                lines.append("\n>"+line)
+            else:
+                lines.append(line)
+        return "\n".join(lines)

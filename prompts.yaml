@@ -1,0 +1,45 @@
+
+# This prompt is used when parsing transcribed text.
+# `text` - Result from transcribe
+# `context` - The last text seen by the user
+talk_prompt: |
+  Here follows the transcribed voice input from the player of an interactive fiction game. Analyze the text, then:
+  * If this is a direct command to the interpeter, such as 'go north' or 'examine painting': call set_command().
+  * if this is a question to the AI, such as 'when did I last save?' or 'who is mister andersen?': call set_ai_question().
+
+  Just answer "OK" if you could identify the input.
+
+  Assume it must be one of these things, and try to correct transcription errors by figuring out what the user actually said.
+
+  This is the transription:
+  ```
+  {text}
+  ```
+
+# This prompt is used when generating image from room descriptions.
+image_prompt: |
+  Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details.
+  NOTE:
+    *Dont* include distinct objects in the foreground that are not part of the description.
+    *Dont* include text from the description in the image, unless it is actually described as text (sign, magazine etc)
+  ```
+  {text}
+  ```
+  """
+
+# This is the prompt to whisper, when transcribin audio
+whisper_prompt: |
+  The following recording is a single sentence command to control text adventure or interactive fiction story.
+  It is usually in the form <verb> <noun> or <verb> <noun> <preposition> <noun>.
+
+  Common commands
+  - Look, examine <object>
+  - go north / south / east / west
+  - drop sword, take scroll
+
+  This is the current situation to which the command probably relates:
+  ```
+  {text}
+  ```
+  """
+

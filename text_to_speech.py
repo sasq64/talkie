@@ -41,6 +41,7 @@ class TextToSpeech:
         self.audio_thread.start()
 
     def speak(self, text: str):
+        """Queue text for speaking."""
         text = text.strip()
         if self.client and text:
             self.tts_queue.put(text)
@@ -76,7 +77,7 @@ class TextToSpeech:
                     # counter += 1
 
                     # Convert MP3 bytes to AudioSegment
-                    audio_segment = AudioSegment.from_mp3(io.BytesIO(audio_data))
+                    audio_segment  : AudioSegment = AudioSegment.from_mp3(io.BytesIO(audio_data))
 
                     # Convert to raw audio data for pyaudio
                     raw_data : bytes = audio_segment.raw_data

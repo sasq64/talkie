@@ -42,9 +42,11 @@ class ImageGen:
         _ = target.write_bytes(data)
         return target
 
-    def generate_image(self, description: str) -> Path:
+    def generate_image(self, description: str, key: str | None = None) -> Path:
 
-        cached_data = self.cache.get(description)
+        if key is None:
+            key = description
+        cached_data = self.cache.get(key)
         if cached_data:
             return self._make_image_file(cached_data)
 
@@ -78,14 +80,14 @@ class ImageGen:
             if data is None:
                 raise RuntimeError("No image data found")
 
-            self.cache.add(description, data)
+            self.cache.add(key, data)
             return self._make_image_file(data)
 
         except Exception as e:
             raise RuntimeError(f"Failed to generate image: {e}")
 
-    def get_image(self, description: str) -> None | Path:
-        cached_data = self.cache.get(description)
+    def get_image(self, key: str) -> None | Path:
+        cached_data = self.cache.get(key)
         if cached_data:
             return self._make_image_file(cached_data)
         return None

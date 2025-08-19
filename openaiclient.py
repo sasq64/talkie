@@ -1,6 +1,7 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 import json
 import inspect
+import logging
 from pathlib import Path
 from typing import Callable, Literal, TypeGuard
 from urllib import request
@@ -127,6 +128,7 @@ class OpenAIClient:
 
     def add_line(self, text_line: str):
         """Add a user: message to the conversation and send it to GPT"""
+        logging.info(f"GPT:\n{text_line}")
         self.messages.append(message(text_line))
         self._send_request()
 
