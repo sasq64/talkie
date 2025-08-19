@@ -34,8 +34,8 @@ class IFPlayer:
 
     def read(self) -> dict[str, str] | None:
         try:
-            text = self.output_queue.get_nowait()
-            result = text.decode()
+            raw_text = self.output_queue.get_nowait()
+            result = raw_text.decode()
             text = trim_lines(result)
             text = unwrap_text(text)
             fields = parse_adventure_description(text)
