@@ -1,4 +1,5 @@
 import re
+
 import pixpy
 
 
@@ -18,14 +19,14 @@ class MarkdownRenderer:
         self.console = console
         if colors is None:
             self.colors = {
-                'h1': pixpy.color.CYAN,
-                'h2': pixpy.color.LIGHT_GREY,
-                'h3': pixpy.color.WHITE,
-                'bold': pixpy.color.YELLOW,
-                'italic': pixpy.color.GREEN,
-                'code': pixpy.color.ORANGE,
-                'link': pixpy.color.BLUE,
-                'normal': pixpy.color.WHITE
+                "h1": pixpy.color.CYAN,
+                "h2": pixpy.color.LIGHT_GREY,
+                "h3": pixpy.color.WHITE,
+                "bold": pixpy.color.YELLOW,
+                "italic": pixpy.color.GREEN,
+                "code": pixpy.color.ORANGE,
+                "link": pixpy.color.BLUE,
+                "normal": pixpy.color.WHITE,
             }
         else:
             self.colors = colors.copy()
@@ -37,7 +38,7 @@ class MarkdownRenderer:
         Args:
             markdown: The markdown text to parse and render
         """
-        lines = markdown.split('\n')
+        lines = markdown.split("\n")
         i = 0
 
         while i < len(lines):
@@ -50,21 +51,23 @@ class MarkdownRenderer:
                 continue
 
             # Fenced code blocks
-            if line.strip().startswith('```'):
-                code_lines, format_type, end_index = self._extract_fenced_code_block(lines, i)
+            if line.strip().startswith("```"):
+                code_lines, format_type, end_index = self._extract_fenced_code_block(
+                    lines, i
+                )
                 self._render_fenced_code_block(code_lines, format_type)
                 i = end_index + 1
                 continue
 
             # Headers
-            if line.startswith('# '):
-                self.console.fg_color = self.colors['h1']
+            if line.startswith("# "):
+                self.console.fg_color = self.colors["h1"]
                 self._render_text(line[2:].strip())
-            elif line.startswith('## '):
-                self.console.fg_color = self.colors['h2']
+            elif line.startswith("## "):
+                self.console.fg_color = self.colors["h2"]
                 self._render_text(line[3:].strip())
-            elif line.startswith('### '):
-                self.console.fg_color = self.colors['h3']
+            elif line.startswith("### "):
+                self.console.fg_color = self.colors["h3"]
                 self._render_text(line[4:].strip())
             else:
                 # Process inline formatting with wrapping
@@ -73,7 +76,6 @@ class MarkdownRenderer:
             # Move to next line
             self.console.write("\n")
             i += 1
-
 
     def _render_text(self, text: str):
         """
@@ -111,17 +113,17 @@ class MarkdownRenderer:
         """
         # Check if line has any formatting
         patterns = [
-            (r'\*\*(.*?)\*\*', 'bold'),      # **bold**
-            (r'\*(.*?)\*', 'italic'),        # *italic*
-            (r'`(.*?)`', 'code'),            # `code`
-            (r'\[(.*?)\]\(.*?\)', 'link'),   # [text](url)
+            (r"\*\*(.*?)\*\*", "bold"),  # **bold**
+            (r"\*(.*?)\*", "italic"),  # *italic*
+            (r"`(.*?)`", "code"),  # `code`
+            (r"\[(.*?)\]\(.*?\)", "link"),  # [text](url)
         ]
 
         has_formatting = any(re.search(pattern, line) for pattern, _ in patterns)
 
         if not has_formatting:
             # No formatting, just render with wrapping
-            self.console.fg_color = self.colors['normal']
+            self.console.fg_color = self.colors["normal"]
             self._render_text(line)
         else:
             # Has formatting - parse into segments and wrap with formatting preserved
@@ -143,14 +145,18 @@ class MarkdownRenderer:
 
             for i, word in enumerate(words):
                 # Add space before word if not first word in segment and not first word on line
-                space_before = " " if i > 0 or (current_line_length > 0 and segment_text.strip()) else ""
+                space_before = (
+                    " "
+                    if i > 0 or (current_line_length > 0 and segment_text.strip())
+                    else ""
+                )
                 word_with_space = space_before + word
 
                 # Check if word fits on current line
                 if current_line_length + len(word_with_space) <= console_width:
                     # Word fits, write it
                     if space_before:
-                        self.console.fg_color = self.colors['normal']
+                        self.console.fg_color = self.colors["normal"]
                         self.console.write(space_before)
                         current_line_length += len(space_before)
 
@@ -173,13 +179,13 @@ class MarkdownRenderer:
         Returns list of (text, format_type) tuples.
         """
         patterns = [
-            (r'\*\*(.*?)\*\*', 'bold'),      # **bold**
-            (r'\*(.*?)\*', 'italic'),        # *italic*
-            (r'`(.*?)`', 'code'),            # `code`
-            (r'\[(.*?)\]\(.*?\)', 'link'),   # [text](url)
+            (r"\*\*(.*?)\*\*", "bold"),  # **bold**
+            (r"\*(.*?)\*", "italic"),  # *italic*
+            (r"`(.*?)`", "code"),  # `code`
+            (r"\[(.*?)\]\(.*?\)", "link"),  # [text](url)
         ]
 
-        segments : list[tuple[str, str]] = []
+        segments: list[tuple[str, str]] = []
         pos = 0
 
         while pos < len(line):
@@ -198,7 +204,7 @@ class MarkdownRenderer:
             if next_match and next_type:
                 # Add text before formatting
                 if next_pos > pos:
-                    segments.append((line[pos:next_pos], 'normal'))
+                    segments.append((line[pos:next_pos], "normal"))
 
                 # Add formatted text
                 segments.append((next_match.group(1), next_type))
@@ -208,12 +214,14 @@ class MarkdownRenderer:
             else:
                 # No more formatting, add remaining text
                 if pos < len(line):
-                    segments.append((line[pos:], 'normal'))
+                    segments.append((line[pos:], "normal"))
                 break
 
         return segments
 
-    def _extract_fenced_code_block(self, lines: list[str], start_index: int) -> tuple[list[str], str, int]:
+    def _extract_fenced_code_block(
+        self, lines: list[str], start_index: int
+    ) -> tuple[list[str], str, int]:
         """
         Extract a fenced code block from the lines starting at start_index.
 
@@ -223,11 +231,11 @@ class MarkdownRenderer:
         start_line = lines[start_index].strip()
         format_type = start_line[3:].strip()  # Extract format after ```
 
-        code_lines : list[str] = []
+        code_lines: list[str] = []
         i = start_index + 1
 
         while i < len(lines):
-            if lines[i].strip() == '```':
+            if lines[i].strip() == "```":
                 return code_lines, format_type, i
             code_lines.append(lines[i])
             i += 1
@@ -235,7 +243,7 @@ class MarkdownRenderer:
         # If no closing ```, treat rest of document as code
         return code_lines, format_type, len(lines) - 1
 
-    def _render_fenced_code_block(self, code_lines: list[str], format_type: str):
+    def _render_fenced_code_block(self, code_lines: list[str], _format_type: str):
         """
         Render a fenced code block. Currently just renders as code color.
 
@@ -243,12 +251,12 @@ class MarkdownRenderer:
             code_lines: The lines of code to render
             format_type: The format specified after ``` (for future syntax highlighting)
         """
-        self.console.fg_color =  pixpy.color.YELLOW
+        self.console.fg_color = pixpy.color.YELLOW
 
         self.console.bg_color = pixpy.color.DARK_GREY
         for line in code_lines:
             cp = self.console.cursor_pos
-            self.console.clear_area(0, cp.y, self.console.grid_size.x, 1) 
+            self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
             self.console.write(line)
             self.console.write("\n")
         self.console.bg_color = pixpy.color.BLACK

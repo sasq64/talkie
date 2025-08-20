@@ -1,12 +1,13 @@
 import logging
-from typing import Final, Mapping
-import pyaudio
-import wave
 import os
-from openai import NOT_GIVEN, OpenAI
-import tempfile
 import time
+import wave
+from collections.abc import Mapping
 from concurrent.futures import Future, ThreadPoolExecutor
+from typing import Final
+
+import pyaudio
+from openai import NOT_GIVEN, OpenAI
 
 
 class VoiceToText:
@@ -16,21 +17,21 @@ class VoiceToText:
         self.client: OpenAI = OpenAI(api_key=self.api_key)
         self._current_recording: list[bytes] | None = None
         self._sample_rate: float = 32000
-        self._executor : Final = ThreadPoolExecutor(max_workers=2)
-        self._pyaudio : Final = pyaudio.PyAudio()
-        self._stream : pyaudio.Stream | None = None
-        self._is_recording : bool = False
+        self._executor: Final = ThreadPoolExecutor(max_workers=2)
+        self._pyaudio: Final = pyaudio.PyAudio()
+        self._stream: pyaudio.Stream | None = None
+        self._is_recording: bool = False
 
     def _read_openai_key(self) -> str:
         """Read OpenAI API key from ~/.openai.key"""
         key_path = os.path.expanduser("~/.openai.key")
         try:
-            with open(key_path, "r") as f:
+            with open(key_path) as f:
                 return f.read().strip()
-        except FileNotFoundError:
-            raise FileNotFoundError(f"OpenAI API key file not found at {key_path}")
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"OpenAI API key file not found at {key_path}") from e
         except Exception as e:
-            raise Exception(f"Error reading API key: {e}")
+            raise Exception("Error reading API key:") from e
 
     def start_recording(self, sample_rate: float | None = None) -> None:
         """Start recording audio"""
@@ -40,8 +41,13 @@ class VoiceToText:
         self._is_recording = True
 
         # _StreamCallback: TypeAlias = Callable[[bytes | None, int, Mapping[str, float], int], tuple[bytes | None, int]]
-        def callback(in_data : bytes | None, _frame_count : int, _time_info : Mapping[str, float], _status: int) -> tuple[bytes | None, int]:
-            #print(f"CALLBACK {self._is_recording} {self._current_recording} {len(in_data)}")
+        def callback(
+            in_data: bytes | None,
+            _frame_count: int,
+            _time_info: Mapping[str, float],
+            _status: int,
+        ) -> tuple[bytes | None, int]:
+            # print(f"CALLBACK {self._is_recording} {self._current_recording} {len(in_data)}")
             if self._is_recording and self._current_recording is not None and in_data:
                 self._current_recording.append(in_data)
             return (in_data, pyaudio.paContinue)
@@ -114,7 +120,7 @@ class VoiceToText:
             logging.info(f"Transcribe result {transcript}")
             return transcript.text
         except Exception as e:
-            raise Exception(f"Error during transcription: {e}")
+            raise Exception("Error during transcription") from e
 
     def start_transribe(self):
         self.start_recording()

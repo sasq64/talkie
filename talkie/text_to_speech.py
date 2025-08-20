@@ -1,42 +1,48 @@
-from typing import Final, Literal
-import openai
-import logging
-import pyaudio
 import io
-import threading
+import logging
 import queue
-from queue import Queue
+import threading
 from pathlib import Path
+from queue import Queue
+from typing import Final, Literal
+
+import openai
+import pyaudio
 from pydub import AudioSegment
+
 from .cache import FileCache
 
-Voice = Literal["alloy", "ash", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse"]
+Voice = Literal[
+    "alloy", "ash", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse"
+]
 
 
 class TextToSpeech:
     def __init__(self, voice: Voice = "alloy", model: str = "tts-1"):
-        self.tts_queue : Final = Queue[str]()
-        self.audio_queue : Final = Queue[bytes]()
-        self.pyaudio_instance : Final = pyaudio.PyAudio()
-        self.voice : str = voice
-        self.model : str = model
-        self.cache : Final = FileCache(
+        self.tts_queue: Final = Queue[str]()
+        self.audio_queue: Final = Queue[bytes]()
+        self.pyaudio_instance: Final = pyaudio.PyAudio()
+        self.voice: str = voice
+        self.model: str = model
+        self.cache: Final = FileCache(
             Path(".cache/tts"), meta={"voice": voice, "model": model}
         )
 
-        self.stop_event : Final = threading.Event()
+        self.stop_event: Final = threading.Event()
 
         # Load OpenAI API key
         api_key = ""
         key_path = Path.home() / ".openai.key"
         if key_path.exists():
-            with open(key_path, "r") as f:
+            with open(key_path) as f:
                 api_key = f.read().strip()
-        self.client : Final = openai.OpenAI(api_key=api_key)
+        self.client: Final = openai.OpenAI(api_key=api_key)
 
         # Start worker threads
-        self.tts_thread : Final = threading.Thread(target=self._tts_worker, daemon=True)
-        self.audio_thread : Final = threading.Thread(target=self._audio_worker, daemon=True)
+        self.tts_thread: Final = threading.Thread(target=self._tts_worker, daemon=True)
+        self.audio_thread: Final = threading.Thread(
+            target=self._audio_worker, daemon=True
+        )
         self.tts_thread.start()
         self.audio_thread.start()
 
@@ -56,7 +62,9 @@ class TextToSpeech:
                         logging.info(f"TTS: '{text}' found in cache!")
                         self.audio_queue.put(fn)
                     else:
-                        logging.info(f"TTS: Using '{self.voice}' to generate audio for '{text}'")
+                        logging.info(
+                            f"TTS: Using '{self.voice}' to generate audio for '{text}'"
+                        )
                         response = self.client.audio.speech.create(
                             model=self.model, voice=self.voice, input=text
                         )
@@ -77,10 +85,15 @@ class TextToSpeech:
                     # counter += 1
 
                     # Convert MP3 bytes to AudioSegment
-                    audio_segment  : AudioSegment = AudioSegment.from_mp3(io.BytesIO(audio_data))
+                    audio_segment: AudioSegment = AudioSegment.from_mp3(
+                        io.BytesIO(audio_data)
+                    )
+
+                    if not audio_segment.raw_data:
+                        raise RuntimeError("Illegal AudioSegment")
 
                     # Convert to raw audio data for pyaudio
-                    raw_data : bytes = audio_segment.raw_data
+                    raw_data: bytes = audio_segment.raw_data
 
                     # Set up pyaudio stream with correct format
                     current_stream = self.pyaudio_instance.open(

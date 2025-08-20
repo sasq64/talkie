@@ -44,30 +44,29 @@ def parse_adventure_description(text: str) -> dict[str, str]:
         },
     )
 
+
 def unwrap_text(text: str, colum: int = 200) -> str:
     """
     Try to unwrap wrapped text. Assumes any line that is longer than 'column' and does not end in punctuation should be joined with the next line.
     """
 
     pattern = re.compile(r"[.?!>:]$")
-    new_lines : list[str] = []
-    last_line: str  = ""
+    new_lines: list[str] = []
+    last_line: str = ""
     for line in text.splitlines():
         if len(line) > colum and not pattern.search(line):
-            if last_line != "":
-                last_line = last_line + " " + line
-            else:
-                last_line = line
+            last_line = last_line + " " + line if last_line != "" else line
         else:
             if last_line != "":
-                new_lines.append(last_line + " " + line) 
+                new_lines.append(last_line + " " + line)
                 last_line = ""
             else:
                 new_lines.append(line)
     if last_line != "":
-        new_lines.append(last_line) 
+        new_lines.append(last_line)
 
     return "\n".join(new_lines)
+
 
 def trim_lines(text: str) -> str:
     """Trim spaces from the beginning and end of all lines in 'text'"""

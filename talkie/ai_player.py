@@ -1,56 +1,62 @@
-from concurrent.futures import Future
-from dataclasses import dataclass
 import logging
+import re
+from concurrent.futures import Future  # noqa: TC003
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
-import re
 
 from .adventure_guy import AdventureGuy
-from .text_to_speech import TextToSpeech
-from .voice_recorder import VoiceToText
 from .if_player import IFPlayer
 from .image_gen import ImageGen
+from .text_to_speech import TextToSpeech
+from .voice_recorder import VoiceToText
+
 
 @dataclass
 class TextOutput:
     text: str
 
+
 @dataclass
 class AudioOuptut:
     audio: bytes
+
 
 @dataclass
 class ImageOutput:
     file_name: Path
 
+
 @dataclass
 class PromptOutput:
     text: str
 
+
 AIOutput = TextOutput | AudioOuptut | ImageOutput | PromptOutput
+
 
 class AIPlayer:
     def __init__(self, prompts: dict[str, str], game_path: Path):
-        self.prompts : Final = prompts
-        self.image_prompt : Final = prompts['image_prompt']
-        self.whisper_prompt : Final = prompts['whisper_prompt']
+        self.prompts: Final = prompts
+        self.image_prompt: Final = prompts["image_prompt"]
+        self.whisper_prompt: Final = prompts["whisper_prompt"]
 
         # AI components
-        self.adventure_guy : Final = AdventureGuy(prompts['talk_prompt'])
-        self.smart_parse : bool = False
-        self.tts : Final = TextToSpeech(voice="alloy")
-        self.voice : Final = VoiceToText()
-        self.player : Final = IFPlayer(game_path)
-        self.image_gen : Final = ImageGen()
+        self.adventure_guy: Final = AdventureGuy(prompts["talk_prompt"])
+        self.smart_parse: bool = False
+        self.tts: Final = TextToSpeech(voice="alloy")
+        self.voice: Final = VoiceToText()
+        self.player: Final = IFPlayer(game_path)
+        self.image_gen: Final = ImageGen()
 
-        self.output : list[AIOutput] = []
+        self.output: list[AIOutput] = []
 
         # State
-        self.desc : str = ""
+        self.desc: str = ""
         self.fields: dict[str, str] = {}
-        self.recording : bool = False
+        self.recording: bool = False
         self.vtt_future: Future[str] | None = None
-        self.pattern : Final = re.compile(r"[.?!>:]$")
+        self.pattern: Final = re.compile(r"[.?!>:]$")
 
     def update(self):
         """Update AI and return command if available"""
@@ -82,15 +88,15 @@ class AIPlayer:
 
                     if not self.pattern.search(paragraph):
                         paragraph += ". "
-                        paragraph = paragraph.replace("ZORK I", "ZORK ONE").replace("A N C H O R H E A D", "### ANCHORHEAD")
+                        paragraph = paragraph.replace("ZORK I", "ZORK ONE").replace(
+                            "A N C H O R H E A D", "### ANCHORHEAD"
+                        )
                     self.tts.speak(paragraph)
-
 
     def get_next_output(self) -> AIOutput | None:
         if len(self.output) == 0:
             return None
         return self.output.pop(0)
-
 
     def start_voice_recording(self):
         """Start voice recording"""
@@ -117,7 +123,7 @@ class AIPlayer:
                 self.output.append(PromptOutput(text))
                 self.write_command(text + "\n")
 
-    def generate_scene_image(self) -> str | None:
+    def generate_scene_image(self) -> Path | None:
         """Generate image for current scene"""
         return self.image_gen.get_image(self.image_prompt.format(**self.fields))
 
@@ -127,16 +133,16 @@ class AIPlayer:
             para = self.desc.split("\n\n")[0].strip()
             if len(para) > 0:
                 logging.info(f"Generate image with key '{para}'")
-                file_name = self.image_gen.generate_image(self.image_prompt.format(**self.fields), para)
+                file_name = self.image_gen.generate_image(
+                    self.image_prompt.format(**self.fields), para
+                )
                 self.output.append(ImageOutput(file_name))
-
 
         elif cmd == "transcript":
             print(self.player.get_transcript())
         return None
 
     def write_command(self, text: str):
-
         """Write command to game"""
         self.player.write(text)
 

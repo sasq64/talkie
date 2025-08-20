@@ -1,10 +1,12 @@
-from concurrent.futures import Future, ThreadPoolExecutor
-import json
 import inspect
+import json
 import logging
+from collections.abc import Callable
+from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
-from typing import Callable, Literal, TypeGuard
-from urllib import request
+from typing import Literal, TypeGuard
+
+from openai import OpenAI
 from openai.types.responses import (
     FunctionToolParam,
     Response,
@@ -17,7 +19,6 @@ from openai.types.responses.easy_input_message_param import (
     EasyInputMessageParam,
 )
 from openai.types.responses.response_input_item_param import FunctionCallOutput
-from openai import OpenAI
 
 
 def is_function_call(
@@ -41,6 +42,7 @@ def message(text: str, role: Role = "user") -> EasyInputMessageParam:
         "role": role,
         "type": "message",
     }
+
 
 def create_function(
     fn: Callable[..., object],
@@ -67,9 +69,8 @@ def create_function(
                 param_type = "object"
 
         properties[param_name] = {"type": param_type}
-        if arg_desc:
-            if param_name in arg_desc:
-                properties[param_name]["description"] = arg_desc[param_name]
+        if arg_desc and param_name in arg_desc:
+            properties[param_name]["description"] = arg_desc[param_name]
 
         if param.default == inspect.Parameter.empty:
             required.append(param_name)
@@ -90,10 +91,9 @@ def create_function(
 
 
 class OpenAIClient:
-
     ## Public API
 
-    def __init__(self, api_key: str = "", model = "gpt5-mini"):
+    def __init__(self, api_key: str = "", model : str = "gpt5-mini"):
         self.executor = ThreadPoolExecutor(max_workers=2)
 
         # Initialize OpenAI client
@@ -110,6 +110,7 @@ class OpenAIClient:
         self.messages: list[ResponseInputItemParam] = []
         self.tools: list[FunctionToolParam] = []
         self.functions: dict[str, Callable[..., object]] = {}
+        self.model : str = model
 
     def add_function(
         self,
@@ -149,12 +150,10 @@ class OpenAIClient:
         read_id = ""
         for msg in self.messages:
             if "type" in msg:
-                if is_function_call(msg):
-                    if msg["name"] == function_name:
-                        read_id = msg["call_id"]
-                if is_function_call_output(msg):
-                    if msg["call_id"] == read_id:
-                        msg["output"] = new_output
+                if is_function_call(msg) and msg["name"] == function_name:
+                    read_id = msg["call_id"]
+                elif is_function_call_output(msg) and msg["call_id"] == read_id:
+                    msg["output"] = new_output
 
     def _handle_function_call(
         self, fcall: ResponseFunctionToolCall
@@ -183,7 +182,7 @@ class OpenAIClient:
 
     def _send_request(self):
         """Send a request to OpenAI and return a Future for the response"""
-        assert(self.request is None)
+        assert self.request is None
 
         messages = self.messages.copy()
 

@@ -1,13 +1,20 @@
-import os
-import time
+import base64
 import hashlib
 import json
-import base64
-from pathlib import Path
+import os
+import time
 import uuid
+from pathlib import Path
+
 
 class FileCache:
-    def __init__(self, cache_dir: Path | str | None = None, name: str | None = None, max_files: int = 100, meta: dict[str, str] | None = None):
+    def __init__(
+        self,
+        cache_dir: Path | str | None = None,
+        name: str | None = None,
+        max_files: int = 100,
+        meta: dict[str, str] | None = None,
+    ):
         self.temporary = False
         if cache_dir is None:
             if name is None:
@@ -17,8 +24,8 @@ class FileCache:
         elif isinstance(cache_dir, str):
             cache_dir = Path(cache_dir)
 
-        self.cache_dir : Path = cache_dir 
-        self.max_files : int = max_files
+        self.cache_dir: Path = cache_dir
+        self.max_files: int = max_files
         self.meta: dict[str, str] = meta or {}
         self.cache_dir.mkdir(exist_ok=True, parents=True)
 
@@ -49,7 +56,7 @@ class FileCache:
         merged_meta = self._merge_metadata(meta)
         if not merged_meta:
             return key
-        
+
         # Sort metadata items for consistent hashing
         meta_str = "&".join(f"{k}={v}" for k, v in sorted(merged_meta.items()))
         return f"{key}|meta:{meta_str}"
@@ -64,8 +71,9 @@ class FileCache:
         """Remove oldest files until under max_files limit."""
         while len(self._access_times) >= self.max_files:
             # Find oldest file by access time
-            oldest_safe_key = min(self._access_times.keys(),
-                                key=lambda k: self._access_times[k])
+            oldest_safe_key = min(
+                self._access_times.keys(), key=lambda k: self._access_times[k]
+            )
 
             # Remove file and tracking
             file_path = self.cache_dir / f"{oldest_safe_key}.json"
@@ -79,21 +87,21 @@ class FileCache:
 
         merged_meta = self._merge_metadata(meta)
         file_path = self._get_file_path(key, meta)
-        
+
         # Update access time
         current_time = time.time()
-        
+
         # Create JSON structure with key, data, and creation time
         cache_data = {
             "key": key,
-            "data": base64.b64encode(data).decode('utf-8'),
-            "created_time": current_time
+            "data": base64.b64encode(data).decode("utf-8"),
+            "created_time": current_time,
         }
-        
+
         # Only include meta field if metadata is not empty
         if merged_meta:
             cache_data["meta"] = merged_meta
-        
+
         file_path.write_text(json.dumps(cache_data))
         cache_key = self._create_cache_key(key, meta)
         safe_key = hashlib.md5(cache_key.encode()).hexdigest()
@@ -146,7 +154,7 @@ class FileCache:
     def size(self) -> int:
         """Return total bytes of cached data."""
         total_bytes = 0
-        for safe_key in self._access_times.keys():
+        for safe_key in self._access_times:
             file_path = self.cache_dir / f"{safe_key}.json"
             if file_path.exists():
                 try:
@@ -160,7 +168,7 @@ class FileCache:
     def keys(self) -> list[str]:
         """Return list of all cached keys."""
         keys = []
-        for safe_key in self._access_times.keys():
+        for safe_key in self._access_times:
             file_path = self.cache_dir / f"{safe_key}.json"
             if file_path.exists():
                 try:
