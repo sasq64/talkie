@@ -1,0 +1,827 @@
+[Image: The cover of the game "The Lurking Horror". It is a black and white illustration featuring a large, central eyeball. The reflection in the eyeball shows a hooded figure with a skull-like face. The words "THE LURKING HORROR" are in a large, stylized, blocky font surrounding the eyeball. Below the main image is the Infocom logo and the text "SOFTWARE FOR YOUR AMIGA (3½" DISK) WD-844-08" and "INTERACTIVE FICTION BY DAVE LEBLING".]
+
+---
+
+Technical Manual for The Lurking Horror
+
+---
+
+TABLE OF CONTENTS
+
+Section I: About The Lurking Horror
+Preface to the Story Page 3
+About the Author 3
+Sample Transcript and Map 3
+
+Section II: About Infocom's Interactive Fiction
+An Overview: What is interactive fiction? 6
+Starting and Stopping 6
+- "Booting up"
+- Saving and restoring
+- Quitting and restarting
+Communicating with Infocom's interactive fiction 8
+- Basic sentences
+- Complex sentences
+- Talking to characters in the story
+Special Commands 10
+Tips for Novices 12
+Eleven useful pointers about interactive fiction
+Common Complaints 13
+We're Never Satisfied 14
+If You Have Technical Problems 14
+Copyright and Warranty Information 14
+Quick Reference Guide 15
+This briefly describes the most important things to know about interactive fiction.
+
+---
+
+SECTION I: ABOUT THE LURKING HORROR
+
+Preface to the Story
+
+In The Lurking Horror, you are a student at G.U.E. Tech. You have braved a snowstorm to get to the Computer Center and finish work on an assignment. But the snowstorm has turned into a raging blizzard, and has trapped you in a complex of buildings late at night. You are not alone, fortunately -- or perhaps, unfortunately.
+
+About the Author
+
+Dave Lebling was born in Washington, D.C., in a hospital that was torn down soon thereafter. He grew up in suburban Maryland. He attended the Massachusetts Institute of Technology, and worked at M.I.T.'s Laboratory for Computer Science, where he developed an interest in computer entertainments. He co-authored the original mainframe Zork. He co-authored Zork I, Zork II, Zork III, and Enchanter, and wrote Starcross, Suspect, and Spellbreaker on his own. He is married and lives in a suburb of Boston, on a windblown hill crowned by a covered ring of stones. He hopes the noises in the walls are the heating system.
+
+Sample Transcript and Map
+
+This transcript is not from The Lurking Horror, but it does show many of the usual things you can do in the story. It shows a few simple puzzles and their solutions, and it will give you a good idea of how Infocom's interactive fiction works. The player's commands appear in capital letters after each prompt (>). The map shows the layout of the rooms in the sample transcript as you might have drawn it.
+
+[Image: A hand-drawn map showing three locations. "WORKSHOP" is on the left, connected to "LABORATORY" in the middle. "LABORATORY" is connected to "TOP OF STAIRS" above it. An arrow indicates that going down (D) from "TOP OF STAIRS" leads to "LABORATORY", and going up (U) from "LABORATORY" leads to "TOP OF STAIRS". The workshop contains a screwdriver. The laboratory contains wooden cranks, an operating table, and a computer.]
+
+Top of Stairs
+You are standing on a landing overlooking a crude but spectacular laboratory. Rough stone steps curve down to the laboratory floor, and a closed wooden door leads east.
+
+> GO DOWN
+Laboratory
+This stone laboratory is full of shelves and tables, all cluttered with bubbling beakers, strange machines, and moldy books. Two large wooden cranks are connected to pulleys and ropes that lead up. A stone stairway leads up, and an exit leads west. On a nearby operating table, a sheet covers something large.
+A computer is here, currently turned off.
+
+---
+
+> TURN ON THE COMPUTER
+The computer beeps once, then the screen flickers to life with the unfriendly message: "Login please."
+
+> INVENTORY
+You are carrying a gold key and some biscuits. In your pocket is a note.
+
+> READ THE NOTE
+(taking the note from your pocket first)
+In your own scrawl you read "Login Shelley, Password Byron."
+
+> LOGIN SHELLEY
+The computer whirs a moment, then the message changes to "Password please."
+
+> PASSWORD BYRON
+The computer seems to shudder, either in anticipation or fear. The screen blanks momentarily, then displays a lengthy menu of files. Highlighted by a box is a file called "Life."
+
+> CLICK THE BOX
+The screen displays the message:
+"1. Get body [done]
+2. Get brain [done]
+3. Put brain in body [done]
+4. Attach apparatus to body
+5. Electrify body
+6. LIFE!!"
+From the west a wretched, hunchbacked man enters the laboratory, wheeling before him a cart. "Master!" he says to you. "The apparatus is ready!"
+
+> LOOK AT THE MAN
+Igor (for indeed it is he) is not much to look at. "Master, the apparatus is ready! You promised me a biscuit when I finished!"
+
+> GIVE A BISCUIT TO IGOR
+Igor devours the biscuit greedily.
+
+> LOOK AT THE CART
+This is a stainless-steel cart with wheels. Sitting on it is a complex tangle of wires, electrodes, needles, dials, valves, bags, pumps, spigots, and levers. The apparatus is turned off. Except for one end of a long green wire, everything seems to be connected to everything else.
+Igor fidgets nervously.
+
+> LOOK AT THE OPERATING TABLE
+A sheet covers something large.
+
+> TAKE THE SHEET FROM THE TABLE
+You roll up the sheet, revealing a monstrously large dead man with scars at every joint. A screw is set into the monster's neck.
+Igor cowers behind you. "Master, I'm frightened!"
+
+> ATTACH THE GREEN WIRE TO THE SCREW
+The screw is tightened shut.
+
+> UNSCREW THE SCREW
+(with your hands)
+The screw is too tight to loosen with your bare hands.
+Igor cocks his head as if to listen. "Master! I heard thunder! Hurry!"
+
+> IGOR, GIVE ME A SCREWDRIVER
+"Master, I don't have one, but I saw one a moment ago."
+
+> WEST
+Workshop
+This small workshop looks like a hardware store after an earthquake. Amongst the many tools on a bench, you see a screwdriver.
+
+> TAKE THE SCREWDRIVER
+Taken.
+
+> E
+Laboratory
+A monstrously large dead man lies on the operating table. Next to the table is a cart. A computer is here, currently turned on. Igor is here, fidgeting nervously.
+
+> UNSCREW THE SCREW WITH THE SCREWDRIVER
+You loosen the screw in the monster's neck. It creaks like a nail being pulled from wood with a crowbar.
+
+> ATTACH GREEN WIRE TO SCREW
+As you wrap the wire around the screw, you can't help noticing that the monster's neck is as cold and hard as the stone floor.
+
+> TIGHTEN THE SCRW
+[I don't know the word "scrw."]
+
+> OOPS SCREW
+You tighten the screw into the monster's neck, securing the green wire.
+You hear a clap of thunder. "Master!" cries Igor, frightened.
+
+> LOOK
+Laboratory
+This stone laboratory is full of shelves and tables, all cluttered with bubbling beakers, strange machines, and moldy books. Two large wooden cranks are connected to pulleys and ropes that lead up. A stone stairway leads up, and an exit leads west. A monstrously large dead man lies on the operating table. Next to the table is a cart. A computer is here, currently turned on. Igor is here, fidgeting nervously.
+
+---
+
+> TURN THE WOODEN CRANK
+[Which wooden crank do you mean, the roof wooden crank or the lift wooden crank?]
+
+> ROOF
+You pull with all your weight on the roof crank, but you are unable to move it alone.
+
+> IGOR, TURN THE ROOF CRANK
+Igor cowers nervously behind you.
+
+> SHOW A BISCUIT TO IGOR
+Igor eyes the biscuit greedily.
+
+> IGOR, TURN THE ROOF CRANK
+Igor pushes on the roof crank -- all 95 pounds of him -- and you pull. Nothing happens for several straining seconds. Then the crank moves a little bit, and a little more, and slowly a crack in the ceiling widens. Inch by inch the ceiling opens, until it completely disappears. Rain pours into the laboratory.
+Igor looks at you expectantly.
+
+> GIVE BISCUIT TO IGOR
+Igor devours the biscuit greedily.
+Igor nimbly climbs the rope and crawls outside. Over the rumbling thunder you hear him shout down to you, "Master! The storm is here! Hurry! Hurry!"
+
+> TURN ON THE APPARATUS
+The apparatus drones to life with a rhythmic heartbeat of zap ... zap ... zap ...
+
+> TURN THE LIFT CRANK
+You spit on your hands, take a deep breath, grit your teeth and heave on the crank. It budges a little bit.
+
+> AGAIN
+As you pull on the crank, a sharp CRACK! of lightning illuminates the laboratory like a strobe, and at the same time gives you a jolt of adrenalin which helps you lift the operating table a few inches, a few feet, up high, finally, into the raging storm.
+
+> WAIT
+Time passes...
+Another crack of lightning, directly overhead, shakes the entire building. Igor, soaking wet, tumbles off the roof and lands in a heap beside you.
+
+> TURN THE LIFT CRANK
+You can turn the lift crank easily, and the operating table lowers to the floor.
+
+> LOOK AT THE MONSTER
+Lying on the operating table is a monstrously large man, soaking wet, with scars at every joint. A screw is set into the monster's neck, and a green wire is attached to the screw.
+
+> TOUCH IT
+The monster feels warm to your touch, and you can feel blood coursing through its veins in time to the zaps of the apparatus.
+The monster's hand grips the side of the table.
+
+> DETACH THE WIRE WITH THE SCREWDRIVER
+As you lean over the monster, its eyes open and stare at you coldly. It reaches for you, and you jump back. Clumsily but determinedly, the monster pulls itself to its feet, rips the wire out of its neck, smashes the apparatus with a wave of its arm, and shuffles toward you, growling.
+
+> UP
+Top of Stairs
+The monster looks up at you from the bottom of the stairs and growls at you.
+
+> EAST
+The wooden door is closed.
+The monster begins to climb the stairs.
+
+> OPEN THE DOOR
+The wooden door is locked.
+The monster continues its ascent.
+
+> I
+You are carrying a gold key, a note, a sheet, and a screwdriver.
+The monster is nearing the top of the stairs.
+
+> UNLOCK THE DOOR WITH THE KEY
+Okay, the wooden door is now unlocked.
+The monster reaches the last step and towers over you. It looks at you with hideous contempt and roars at you.
+
+> OPEN THE DOOR
+You swing the door open, revealing a sitting room to the east, a fire ablaze in the fireplace.
+The monster lifts you with ease. It raises you over its head and throws you 30 feet onto the hard stone laboratory floor.
+***You have died.***
+Your score is 50 (out of a possible 100). This gives you the rank of Lab Assistant.
+
+---
+
+SECTION II: ABOUT INFOCOM'S INTERACTIVE FICTION
+
+An Overview
+
+Interactive fiction is a story in which you are the main character. Each interactive story, such as The Lurking Horror, presents you with a series of locations, items, characters, and events. You can affect the direction of the story by moving from place to place, using the objects you find, and interacting with the other characters.
+
+An important element of interactive fiction is puzzle-solving. You should think of a locked door or a ferocious beast not as a permanent obstacle, but merely as a puzzle to be tackled. (Find the key that unlocks the door, or figure out how to tame or defeat the beast.)
+
+In The Lurking Horror, time passes only in response to your input. Nothing happens until you type a sentence and press the RETURN (or ENTER) key, so you can plan your turns as slowly and carefully as you want.
+
+To measure your progress, The Lurking Horror keeps track of your score. You may get points for solving puzzles, performing certain actions, or visiting certain locations. A perfect score of 100 is your goal; making sure you have fun and nightmares getting there is ours.
+
+Starting and Stopping
+
+Starting the story: To load The Lurking Horror, follow the instructions on the Reference Card in your package.
+
+On your screen, you will see a description of the opening location of the story, Terminal Room, followed by the prompt (>), indicating that The Lurking Horror is waiting for your first input.
+
+Here are a few inputs for you to try at the first several prompts. After typing each input, don't forget to press the RETURN (or ENTER) key.
+
+>INVENTORY
+>EXAMINE THE PC
+>GO SOUTH
+>READ THE ASSIGNMENT
+
+---
+
+You should now have a feel for interacting with the story. You decide what to do next.
+
+Saving and restoring: It will probably take you many days to complete The Lurking Horror. Using the SAVE feature, you can continue the story at a later time without having to start over from the beginning, just as you can place a bookmark in a book you are reading. SAVE puts a "snapshot" of your place in the story onto another disk. You should also save your place before (or after) trying something dangerous or tricky. That way, even if you get lost or "killed" in the story, you can return to your saved position.
+
+To save your place in the story, type SAVE at the prompt (>), and then press the RETURN (or ENTER) key. Then follow the instructions for saving and restoring on your Reference Card. Some computers require a blank disk, initialized and formatted, for saves. Using a disk with data on it (not counting other The Lurking Horror saves) may result in the loss of that data, depending on your computer. You can save your position as often as you like by using additional blank disks.
+
+You can restore a saved position any time you want. To do so, type RESTORE at the prompt (>), and press the RETURN (or ENTER) key. Then follow the instructions on your Reference Card. You can then continue the story from the point where you used the SAVE command. You can type LOOK for a description of where you are.
+
+Quitting and restarting: If you want to start over from the beginning, type RESTART and press the RETURN (or ENTER) key. (This is usually faster than re-booting.) Just to make sure, The Lurking Horror will ask if you really want to start over. If you do, type Y or YES and press the RETURN (or ENTER) key.
+
+If you want to stop entirely, type QUIT and press the RETURN (or ENTER) key. Once again, The Lurking Horror will ask if this is really what you want to do.
+
+Remember when you RESTART or QUIT: if you want to be able to return to your current position, you must first use the SAVE command.
+
+---
+
+Communicating with Infocom's Interactive Fiction
+
+In The Lurking Horror, you type your commands in plain English each time you see the prompt (>). The Lurking Horror usually acts as if your commands begin with "I want to...," although you shouldn't actually type those words. You can use words like THE if you want, and you can use capital letters if you want; The Lurking Horror doesn't care either way.
+
+When you have finished typing a command, press the RETURN (or ENTER) key. The Lurking Horror will then respond, telling you whether your request is possible at this point in the story, and what happened as a result. The Lurking Horror recognizes your words by their first six letters, and all subsequent letters are ignored. Therefore, CANDLE, CANDLES, and CANDLESTICK would all be treated as the same word by The Lurking Horror.
+
+To move around, just type the direction you want to go. Directions can be abbreviated: NORTH to N, SOUTH to S, EAST to E, WEST to W, NORTHEAST to NE, NORTHWEST to NW, SOUTHEAST to SE, SOUTHWEST to SW, UP to U, and DOWN to D. Remember that IN and OUT will also work in certain places.
+
+The Lurking Horror understands many different kinds of sentences. Here are some examples. (Note that some of these objects do not actually appear in The Lurking Horror.)
+
+>WALK NORTH
+>DOWN
+>NE
+>GO UP
+>TAKE THE RED CANDLE
+>READ THE SIGN
+>LOOK UNDER THE BED
+>OPEN THE HATCH
+>PRESS THE GREEN BUTTON
+>EXAMINE THE LARGE RED MACHINE
+>TURN ON THE LIGHT
+>KNOCK ON THE DOOR
+>UNLOCK THE DOOR WITH THE KEY
+>CUT THE ROPE WITH THE SCISSORS
+>LOOK INSIDE THE COFFIN
+>SPILL THE GREEN LIQUID
+>HANG THE PICTURE ON THE HOOK
+
+You can use multiple objects with certain verbs if you separate them by the word AND or by a comma. Some examples:
+
+>TAKE BOOK AND IDOL
+>DROP THE YELLOW BALL, THE SPOTTED FROG, AND THE RAT
+>PUT THE LADYBUG AND THE SPIDER IN THE BEAKER
+
+You can include several sentences on one input line if you separate them by the word THEN or by a period. (Note that each sentence will still count as a turn.) You don't need a period at the end of the input line. For example, you could type all of the following at once, before pressing the RETURN (or ENTER) key:
+
+>READ THE SIGN. GO NORTH THEN TAKE THE CROWBAR AND MALLET
+
+If The Lurking Horror doesn't understand one of the sentences on your input line, or if something unusual happens, it will ignore the rest of your input line (see "Common Complaints" on page 13).
+
+---
+
+The words IT, THEM, and ALL can be very useful. For example:
+
+>TAKE THE RAT. PET IT. PUT IT IN THE BOX
+>CLOSE THE HEAVY METAL DOOR. LOCK IT
+>TAKE THE ROBES. EMPTY THEM. PUT THEM ON
+>TAKE ALL
+>TAKE ALL EXCEPT THE WET EGG AND THE KEY
+>TAKE ALL FROM CABINET
+>DROP ALL BUT THE TOMBSTONE
+
+The word ALL refers to every visible object except those inside something else. If there were an apple on the ground and an orange inside a cabinet, TAKE ALL would take the apple but not the orange.
+
+In many Infocom stories, you will meet other characters as you play. You can "talk" to some of them by typing their name, then a comma, then whatever you want to say to them. Here are some examples:
+
+>LOIS, HELLO
+>FRED, GIVE ME A BOWLING BALL
+>SALESMAN, TELL ME ABOUT THE MONSTER KIT
+>YOUNG WOMAN, PUT ON THE GARLIC THEN THROW THE AXE
+>HARRY, TAKE THE GUN. SHOOT THE WEREWOLF
+
+Notice that in the last two examples, you are giving a person more than one command on the same input line. But remember: most people don't care for idle chatter. Your deeds will speak louder than your words.
+
+The Lurking Horror tries to guess what you really mean when you don't give enough information. For example, if you say that you want to do something, but not what you want to do it to or with, The Lurking Horror will sometimes decide that there is only one possible object you could mean. When it does so, it will tell you. For example:
+
+>UNLOCK THE DOOR
+(with the key)
+The door, unlocked, bursts open.
+
+If your command is ambiguous, The Lurking Horror will ask what you really mean. You can answer most of these questions briefly by supplying the missing information, rather than typing the entire input again. You can do this only at the very next prompt. For example:
+
+>CUT THE ROPE
+What do you want to cut the rope with?
+>THE KNIFE
+As you cut the rope, the creature rises to its full height.
+or
+>TAKE THE BOOK
+Which book do you mean, the dusty, blood-stained book or the ancient, leather-bound book?
+>DUSTY
+As you touch the dusty, blood-stained book, a feeling of foreboding washes over you.
+
+The Lurking Horror recognizes over 600 words, nearly all that you are likely to use in your commands. However, The Lurking Horror uses many words in its descriptions that it will not recognize in your commands. For example, you might read, "The full moon is bright and clear, and the apple trees cast eerie shadows." If The Lurking Horror doesn't recognize the words MOON or SHADOWS in your input, you can assume they are not important to your completion of the story, except to provide you with a more vivid description of where you are or what is going on.
+
+---
+
+Special Commands
+
+There are a number of commands which have special meanings. You can use them over and over as needed. Some count as a turn, others do not. Type the command after the prompt (>) and press the RETURN (or ENTER) key.
+
+AGAIN - The Lurking Horror will respond as if you had repeated your previous command. For instance, typing SHOOT THE MONSTER WITH THE LASER GUN then typing AGAIN would be like shooting the monster twice in a row. You can abbreviate AGAIN to G.
+
+BRIEF - This command tells The Lurking Horror to give you the full description of a location only the first time you enter it. On subsequent visits, The Lurking Horror will tell you only the name of the location and the objects present. This is how The Lurking Horror will normally act, unless you tell it otherwise using the VERBOSE or SUPERBRIEF commands. The SUPERBRIEF command tells The Lurking Horror to display only the name of a place you have entered, even if you have never been there before. In this mode, The Lurking Horror will not even mention which objects are present. Of course, you can always get a description of your location and the items there by typing LOOK. In SUPERBRIEF mode, the blank line between turns will be eliminated. This mode is meant for players who are already very familiar with the geography. The VERBOSE command tells The Lurking Horror that you want a complete description of each location, and the objects in it, every time you enter a location, even if you've been there before.
+
+INVENTORY - The Lurking Horror will list what you are carrying. You can abbreviate INVENTORY to I.
+
+LOOK - This tells The Lurking Horror to describe your location in full detail. You can abbreviate LOOK to L.
+
+OOPS - If you accidentally mistype a word, such that The Lurking Horror doesn't understand the word, you can correct yourself on the next line by typing OOPS and the correct word. Suppose, for example, you typed PUT THE LETTER INTO THE NAILBOX and were told "[I don't know the word 'nailbox.']" You could type OOPS MAILBOX rather than retyping the entire sentence. You can abbreviate OOPS to O.
+
+---
+
+QUIT - This lets you stop. If you want to save your position before quitting, follow the instructions in the "Starting and Stopping" section on page 6. You can abbreviate QUIT to Q.
+
+RESTART - This stops the story and starts over from the beginning.
+
+RESTORE - This restores a position made using the SAVE command. See "Starting and Stopping" on page 6 for more details.
+
+SAVE - This puts a "snapshot" of your current position on your storage disk. You can return to a saved position in the future using the RESTORE command. See "Starting and Stopping" on page 6 for more details.
+
+SCORE - The Lurking Horror will show your current score.
+
+SCRIPT - This command tells your printer to begin making a transcript of the story as you venture onwards. A transcript may aid your memory but is not necessary. It will work only on certain computers; read your Reference Card for details.
+
+SUPERBRIEF - See BRIEF above.
+
+UNSCRIPT - This commands your printer to stop making a transcript.
+
+VERBOSE - See BRIEF above.
+
+VERSION - The Lurking Horror responds by showing you the release number and the serial number of your copy of the story. Please include this information if you ever report a "bug" in the story.
+
+WAIT - This will cause time in the story to pass. Normally, between turns, nothing happens in the story. You could leave your computer, take a nap, and return to the story to find that nothing has changed. You can use WAIT to make time pass in the story without doing anything. For example, you can wait for a specific time, or wait for an event to happen, etc. You can abbreviate WAIT to Z.
+
+---
+
+Tips for Novices
+
+1. Draw a map. It should include each location and the directions connecting it to adjoining locations. When you find yourself in a new location, make a note of any interesting objects there. (See the small sample map that goes along with the sample transcript on page 3.) There are 10 possible directions (NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, UP, and DOWN) plus IN and OUT.
+
+2. EXAMINE all objects you come across in the story.
+
+3. TAKE all objects you come across in the story. Most objects that you can pick up are important for solving one or more of the puzzles you'll run into.
+
+4. Save your place often. That way, if you mess up or get "killed," you won't have to start over from the beginning. See page 6 for instructions.
+
+5. Read the story carefully! There are often clues in the descriptions of locations and objects.
+
+6. Try everything you can think of - even strange or dangerous actions may provide clues, and might prove to be fun! You can always save your position first if you want. Here's a silly example:
+
+>GIVE THE VEGETABLE JUICE TO THE VAMPIRE
+The vampire thirstily drinks the juice, but spits it out almost immediately. It coughs angrily, and continues to stare at your neck.
+
+Here you have a clue that maybe giving something else to the vampire (some blood?) would be better.
+
+7. Unlike other "adventure games" you may have played, there are many possible routes to the end of The Lurking Horror. If you get stuck on one puzzle, move on to another. Some puzzles have more than one solution; other puzzles don't need to be solved at all. Sometimes you will have to solve one puzzle in order to obtain the item(s) or information you need to solve another puzzle.
+
+8. You may find it helpful to go through The Lurking Horror with another person. Different people may find different puzzles easy and can often complement each other.
+
+9. If you really have difficulty, you can order a hint booklet and a complete map using the order form in your package. You don't need this booklet to enjoy the story, but it will make solving the puzzles easier.
+
+10. Read the sample transcript on page 3 to get a feel for how Infocom's interactive fiction works.
+
+11. You can word a command in many different ways. For example, if you wanted to pick up an oak stake, you could type in any of the following:
+
+>GET STAKE
+>TAKE THE STAKE
+>PICK UP THE OAK STAKE
+
+If you type in a command that The Lurking Horror doesn't understand, try rephrasing the command or using synonyms. If The Lurking Horror still doesn't understand your command, you are almost certainly trying something that is not important in continuing your adventure.
+
+---
+
+Common Complaints
+
+The Lurking Horror will complain if you type a command that confuses it completely. The Lurking Horror will then ignore the rest of the input line. (Unusual events, such as being attacked, may also cause The Lurking Horror to ignore the rest of your command, since the event may have changed your situation drastically.) Some of The Lurking Horror's complaints:
+
+I don't know the word "___".
+The word you typed is not in the story's vocabulary. Sometimes using a synonym or rephrasing will help. If not, The Lurking Horror probably doesn't know the idea you were trying to get across.
+
+You used the word "___" in a way that I don't understand.
+The Lurking Horror knows the word you typed, but couldn't use it in that sense. Usually this is because The Lurking Horror knows the word as a different part of speech. For example, if you type PRESS THE LOWER BUTTON, you are using LOWER as an adjective, but The Lurking Horror might know LOWER only as a verb, as in LOWER THE FLAG.
+
+There seems to be a noun missing in that sentence.
+This usually means your sentence was incomplete, such as EAT THE BLUE or PUT THE BOOK IN THE.
+
+There were too many nouns in that sentence.
+An example is PUT THE SOUP IN THE BOWL WITH THE LADLE, which has three noun "phrases," one more than The Lurking Horror can digest in a single action.
+
+I beg your pardon?
+You pressed the RETURN (or ENTER) key without typing anything.
+
+You can't see any ___ here.
+The object you referred to was not accessible to you. It may be somewhere else, inside a closed container, and so on.
+
+The other object[s] that you mentioned isn't [aren't] here.
+You referred to one or more objects in the same sentence, some of which aren't present or accessible.
+
+You can't use multiple [in]direct object[s] with "___".
+You can use multiple objects (that is, nouns or noun phrases separated by AND or a comma) or the word ALL only with certain verbs. Among the more useful of these verbs are TAKE, DROP, and PUT. An example of a verb that will not work with multiple objects is EXAMINE; you couldn't say EXAMINE ALL or EXAMINE THE BOWL AND THE SWORD.
+
+That sentence isn't one I recognize.
+The sentence you typed may have been gibberish, such as TAKE ROPE WITH READ. Or you may have typed a reasonable sentence but used a syntax that The Lurking Horror does not recognize, such as WAVE OVER THE MOUNTAIN. Try rephrasing the sentence.
+
+---
+
+We're Never Satisfied
+
+Here at Infocom, we take great pride in the quality of our stories. Even after they're "out the door," we're constantly improving, honing, and perfecting them.
+
+Your input is important. No matter how much testing we do, it seems some "bugs" never crawl into view until thousands of you begin doing all those wild and crazy things to the story. If you find a bug, or if you think a certain puzzle was too hard or too easy, or if you have some other suggestion, or if you'd just like to tell us your opinion of the story, drop us a note! We love every excuse to stop working, and a letter from you is just such an excuse! Write to:
+
+Infocom, Inc.
+125 CambridgePark Drive
+Cambridge, MA 02140
+Attn: LOVECRAFT
+
+If You Have Technical Problems
+
+You can call the Infocom Technical Support Team to report "bugs" and technical problems, but not for hints to solve puzzles, at (617) 576-3190. If your disk develops a problem within ninety (90) days after purchase, we will replace it at no charge. Otherwise, there is a replacement fee of $5 (U.S. funds). If you call to report a bug, please provide your release number, which you can find by typing VERSION. Please return your registration card if you'd like to be on our mailing list and receive our newsletter.
+
+Copyright and Warranty Information
+
+Limited Warranty
+This software product and the attached instructional materials are sold "AS IS," without warranty as to their performance. The entire risk as to the quality and performance of the computer software program is assumed by the user.
+However, to the original purchaser of a disk prepared by Infocom and carrying the Infocom label on the disk jacket, Infocom, Inc. warrants the medium on which the program is recorded to be free from defects in materials and faulty workmanship under normal use and service for a period of ninety (90) days from the date of purchase. If during this period a defect on the medium should occur, the medium may be returned to Infocom, Inc, or to an authorized Infocom, Inc. dealer, and Infocom, Inc. will replace the medium without charge to you. Your sole and exclusive remedy in the event of a defect is expressly limited to replacement of the medium as provided above. This warranty gives you specific legal rights and you may also have other rights which vary from state to state.
+THE ABOVE WARRANTIES FOR GOODS ARE IN LIEU OF ALL WARRANTIES, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE AND OF ANY OTHER WARRANTY OBLIGATION ON THE PART OF INFOCOM, INC. SOME STATES DO NOT ALLOW LIMITATIONS ON HOW LONG AN IMPLIED WARRANTY LASTS, SO THE ABOVE LIMITATION MAY NOT APPLY TO YOU. IN NO EVENT SHALL INFOCOM, INC. OR ANYONE ELSE WHO HAS BEEN INVOLVED IN THE CREATION AND PRODUCTION OF THIS COMPUTER SOFTWARE PROGRAM BE LIABLE FOR INDIRECT, SPECIAL, OR CONSEQUENTIAL DAMAGES, SUCH AS, BUT NOT LIMITED TO, LOSS OF ANTICIPATED PROFITS OR BENEFITS RESULTING FROM THE USE OF THIS PROGRAM, OR ARISING OUT OF ANY BREACH OF THIS WARRANTY. SOME STATES DO NOT ALLOW THE EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THE ABOVE LIMITATION MAY NOT APPLY TO YOU.
+N.B. After the warranty period, a defective Infocom disk may be returned to Infocom, Inc. with a check or money order for $5.00 U.S. funds for replacement.
+
+Copyright
+The enclosed software product is copyrighted and all rights are reserved by Infocom, Inc. It is published exclusively by Infocom, Inc. The distribution and sale of this product are intended for the use of the original purchaser only and for use only on the computer system specified. Lawful users of this program are hereby licensed only to read the program from its medium into memory of a computer solely for the purpose of executing the program. Copying (except for one backup copy on those systems which provide for it -- see Reference Card), duplicating, selling, or otherwise distributing this product is a violation of the law.
+This manual and all other documentation contained herein are copyrighted and all rights reserved by Infocom, Inc. These documents may not, in whole or in part, be copied, photocopied, reproduced, translated, or reduced to any electronic medium or machine-readable form without prior consent, in writing, from Infocom, Inc.
+Willful violations of the Copyright Law of the United States can result in civil damages of up to $50,000 in addition to actual damages, plus criminal penalties of up to one year imprisonment and/or $10,000 fine.
+The Lurking Horror and Spellbreaker are trademarks of Infocom, Inc. Zork, Enchanter, Starcross, and Suspect are registered trademarks of Infocom, Inc.
+© 1987 Infocom, Inc. Printed in U.S.A
+
+---
+
+Quick Reference Guide
+
+1. To start the story ("boot up"), see the separate Reference Card in your The Lurking Horror package.
+
+2. When you see the prompt (>) on your screen, The Lurking Horror is waiting for your input. There are four kinds of sentences or commands that The Lurking Horror understands:
+A. Direction commands: To move from place to place, just type the direction you want to go: NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, UP, DOWN, IN, or OUT.
+B. Actions: Just type whatever you want to do. Some examples: READ THE BOOK or OPEN THE DOOR or LOOK THROUGH THE WINDOW or GIVE THE RAT TO THE CAT. Once you're familiar with simple commands, you'll want to use more complex ones as described in "Communicating with Infocom's Interactive Fiction" on page 8.
+C. Commands given to other characters: To talk to characters in the story, type their name, then a comma, then what you want to say to them. For example: FRED, GIVE ME THE AXE or OLD MAN, HELLO.
+D. Special commands: Some commands, such as INVENTORY or VERBOSE, give you specific information or affect your output. A list of these appears in the "Special Commands" section on page 10.
+
+3. After typing your sentence or command, you must press the RETURN (or ENTER) key before The Lurking Horror will respond.
+
+4. Your location in the story is displayed at the top of your screen on a special line called the status line.
+
+5. You can pick up and carry many of the items you'll find in the story. For example, if you type TAKE THE FLASK, you will be carrying it. Type INVENTORY to see a list of the items you are carrying.
+
+6. When you want to stop, save your place for later, or start over, read the "Starting and Stopping" section on page 6.
+
+7. If you have trouble, refer to the specific section of the manual for more detailed instructions.
+
+---
+
+[Image: A red box containing the words "INFOCOM Proof of Purchase The Lurking Horror" and the code "G-IH1-03".]
+
+---
+
+G.U.E. at a GLANCE
+A GUIDE FOR FRESHMEN
+
+GEORGE UNDERWOOD EDWARDS
+INSTITUTE OF TECHNOLOGY
+
+[Image: The official seal of the George Underwood Edwards Institute of Technology. It is a circular seal with the words "GEORGE UNDERWOOD EDWARDS INSTITUTE OF TECHNOLOGY" around the perimeter. In the center is a complex geometric design, a star, with the year "1692" and the Latin motto "Omne ignotum pro magnifico" (Everything unknown is taken for magnificent).]
+
+Presented as a public service
+by the G.U.E. Tech Social Committee.
+
+IDENTIFICATION
+Record your dormitory, advisor, and class schedule here, then carry this guidebook with you as a handy reference. Your login number for the G.U.E. Technet computer system is the same as your student identification number. You will also have a computer password, which should be kept secret at all times. It's best to memorize your password right away. Never write it down where others might see it.
+
+PERSONAL INFORMATION
+Name:____________________ Dorm/House/Phone:____________________
+Dorm/House:____________________
+Advisor:____________________
+
+EMERGENCY INFORMATION
+Parent's Name:____________________
+Parent's Address:____________________
+Parent's Phone Number:____________________
+
+CLASS SCHEDULE
+[A blank class schedule table with columns for Monday, Tuesday, Wednesday, Thursday, Friday and rows for time slots 7-9, 9-11, 11-1, 1-3, 3-5.]
+
+---
+
+[Image: A black and white photograph of a student in a long coat walking up a grand staircase in front of a building with large columns.]
+
+He who climbs the steps of knowledge stands out among common men like blueberry in a pan of milk.
+- George Underwood Edwards
+
+WELCOME TO G.U.E.!
+
+You've probably been waiting to go to G.U.E. Tech for years - ever since you realized that science and math were more important to you than just about anything (except eating). And now here you are, in a community of people who feel exactly the same way. Of course, the first thing in your mind is academics, whether you can get a seminar with that Nobel Laureate Physics professor, how soon can you have 24-hr access to the Computer Center, whether you can get credit through a work-study program. Most of these questions can be answered by your freshman advisor or by the official student handbook.
+
+There are plenty of other questions, however, that you should also be asking yourself, questions that your advisor will be hard put to answer. Questions like, where can you find the best pizza? Where can you find a date? Which dorms should you avoid? Should you subscribe to the meal plan? Where can you go if you're feeling out of control?
+
+This handbook attempts to answer these questions. Written by upperclass students, G.U.E. At A Glance (sometimes known as GAAG) might tell you things the Administration would rather you didn't know. But we believe that you'll find them out anyway, and that you'll be glad it's sooner rather than later...
+
+In spite of what your roommate will tell you, G.U.E. Tech does not have the highest suicide rate in the country. However, it is a high-pressure school. While you're wondering what happened to the distraught student who used to sit next to you in Introductory Calculus, you might also be wondering how you're going to get through midterms without cracking up.
+
+[Image: A black and white photograph showing two male students in a laboratory setting, looking at what appears to be an electron microscope.]
+
+When things get tough, DON'T PANIC. Help is always available, and no one will think the lesser of you for seeking it. Visits to the Counseling Center don't appear on your permanent record, and complete confidentiality is maintained at all times.
+
+One thing that just might drive you crazy is figuring out how to get around campus. While we've provided a map to help you identify the main dorm and class buildings, you probably won't feel at home until you've gotten lost a few times and stumbled back to familiar ground.
+
+Future Nobel Laureates experiment with the electron microscope. Mitch Clark '89, shown at left, has won several national science awards for his microphotographic studies of magnetic stress on conductive wires.
+
+---
+
+SCHOOL TRADITIONS
+
+Lock Day – In a bizarre twist on Caltech's Ditch Day, seniors leave school, after locking the cafeteria doors with intricate electronic equipment. Underclassmen must undo the electronic puzzles before they can eat.
+
+Slug Stomping – Watch for the first slugs of the year and step on them.
+
+Founder's Day – One night during the last week of spring term, the huge bronze statue of George Underwood Edwards mysteriously disappears from its pedestal and shows up the next day in some totally offbeat spot. A certain rowdy fraternity is rumored to spend the entire year planning this prank.
+
+Final Scream – At a designated time during Final Exam week, everyone screams in unison.
+
+Pigeon Day - The President rings a bell at 6 a.m. one spring morning and puts a statue of a giant pigeon on the lawn. No classes for the day; free food at night.
+
+Streamer Day – Take all the toilet paper rolls from the bathrooms and throw them out of the dorm windows.
+
+[Image: A black and white photograph of a long, straight, and seemingly endless hallway, known as the Infinite Corridor.]
+
+The Infinite Corridor connecting the Aeronautics and Chemistry buildings seems to stretch into infinity. It will soon become as familiar to you as your dorm room.
+
+Large, underground tunnels connect most of the buildings. However, many of these tunnels are very old, and a number have been closed for safety reasons. While you may be tempted to explore, DON'T risk it. Several deaths have been attributed to student explorations in the tunnels. Close tunnels are off-limits; they're closed for a reason, and we encourage students to restrain their curiosity and keep out of them.
+
+It's usually easiest for new students to live in a dormitory and subscribe to the school meal plan. But easiest isn't always the best. In the case of G.U.E.'s food service, it's worst. Food ranges from bad to inedible, and the cafeterias are only open for a few hours around each mealtime. If you haven't signed up for the meal plan, or when you're planning ahead for next year, consider roughing it. Dorm-sized refrigerators are easy to come-by, and the area supermarkets carry a wide variety of both recognizable and exotic items. When you're looking for a hot meal, check our list of favorite hangouts.
+
+First-year students are usually stuck with whatever room they're assigned to. Elrod Bok is the best freshman dorm; Murani House is the worst. Best upper-class dorms are Berkowitz Hall and Lunce House. Chapelgate is well-known as a party dorm. It's a good place to be if you like to party. It's a bad place to be if you plan to get any sleeping or studying done in your room.
+
+Most dorms are co-ed, with men and women housed on separate floors. A few of the smaller upperclass dorms are for men only, and Stella Barton Hall houses fifteen senior women.
+
+You'll also want to consider G.U.E.'s fraternities and sororities. Pledging takes place the first week on campus. Since each house appeals to a different type, you'll need to look into all of them to find one that's good match for you. For more information, contact the Interfraternity Council.
+
+Dorm furniture is strictly functional and, if you're lucky, less than 50 years old. Most students outgrow the door bookshelf within one semester. You can buy cheap but sturdy bookcases at Dave's Discount Decor, along with bean-bag chairs, lava lamps, and designer telephones (one current favorite, a glow-in-the-dark skull with gleaming red eyes, chortles instead of rings).
+
+---
+
+Although you'll be spending most of your time studying, it's important to remember that life exists outside of your textbooks and your computer screen. Take an afternoon to visit the Museum of Contemporary Art on the Loeffler Aquarium. Join the Freshman Drama Group of the Hellenic Club. Write a weekly column for the G.U.E. GNEWS. Take advantage of the Athletic Complex, whose weekly paddleball tournaments draw a lively crowd.
+
+[Image: A black and white photograph of two students relaxing on a grassy quad in front of Edwards Hall, a building with ornate, Victorian-style architecture.]
+
+Students relax on the quad in front of Edwards Hall, one of the architectural gems of G.U.E. Tech. The campus spans a century in building design, ranging from the Victorian opulence of Edwards Hall to the reflective glass facade of the Nutrition Building.
+
+(continued on next page)
+
+[Image: A map of the G.U.E. campus. It shows several buildings arranged around a central "Great Dome" and "Great Court". Buildings include: Computer Center, Temporary Building, Nutrition, Brown Building, Alchemy, Chemistry, Engineering, and Aerospace. The campus is bordered by Massachusetts Avenue, Smith Street, River Street, and Adams Street. Edwards Square is in the top right.]
+
+The bequest of George Underwood Edwards permitted the merger of several venerable institutions, including the famed Hopewell Academy of Natural Science, into the George Underwood Edwards Institute of Technology. Departments were founded in such radical disciplines as Mechanical Engineering, Chemical Biology, and Architecture, and an exciting new campus was built along River Street. Although the campus has since expanded in all directions, nearly all of the original structures remain. This map includes the buildings you're most likely to use every day. For a more detailed (although less portable) map of the area, refer to your Student Handbook.
+
+---
+
+SOME G.U.E. TECH JARGON:
+
+frob. (noun) A thing. Useful when you have two “unspecified objects” on hand. “Stick that frob on the thing over there."
+
+tool. (noun) A nerd. Someone who studies all the time, never taking time for a social life. (verb) To study. "I'm tooling tonight."
+
+hack. (noun) A prank. “Painting the Dean's house pink was a great hack!” (verb) To commit a prank. “We hacked the Dean's house."
+
+-p. (suffix) Adding the -p suffix to a word makes it a question. A derivative of the LISP computer language, where "p" indicates predicate (e.g., “greaterp x y,” meaning “is x greater than y?”). Most commonly heard among tools majoring in Computer Science. “Foodp?” (pronounced “food-pee”) means “Are you hungry?"
+
+grease. (noun) Student politician. (verb) To pass a course without working on it. “I greased Thermodynamics.”
+
+rug rat (or rat). (noun) Freshman. Presumably derives from the use of this term as a synonym for child.
+
+urchin. (noun) A local child or teenager who hangs around campus and often causes object of value to mysteriously disappear.
+
+curdle. (verb) To astonish, usually with a connotation of the surprise being unpleasant. “I was really curdled when I saw my final grades."
+
+flip. (verb) To kill time by some essentially boring means, such as playing “Hearts.” May derive from flipping bottle caps, or perhaps baseball cards. “I spent last night flipping."
+
+midnight. (adjective) Before noon. “Midnight class” is a class held before noon. “Midnight quiz" is an early morning quiz.
+
+Men: Before driving to Oak Heaven Jr. College for the Friday Night Mixer, why not try Rudy's Eating and Drinking Saloon, two blocks down Capital Ave.? Or better yet, say hello to the woman sitting next to you in Bio 100.
+
+Women: There's no need to go anywhere. With a male/female ratio of 6:1, someone WILL say hello to you.
+
+Another way to broaden your college life is to take a class entirely unrelated to your distribution requirements or your major. The “Zinc As Life Force" Seminar in the Department of Alchemy is but one of the many unusual courses you'll find in your catalog.
+
+Whatever you do, avoid Prof. Hampstop's astronomy classes. He's a tenured bore, and you can probably learn more by just gazing at the sky. Also beware of: Prof. Tighe's Intensive Metallurgy course; Dr. Morlock's Introduction to Fuel Gas Engineering; Dr. Negele's Moral Philosophy classes; Prof. Carlsen's seminar in Textile Technology; and any junior instructor.
+
+[Image: A black and white photograph of students in a classroom or laboratory, focused on their work.]
+
+Above all, remember that all of us on the Social Committee were freshmen once, too. Don't feel shy about approaching one of us for wisdom or advice. And don't forget that we all made it through that tough first year at G.U.E. So can you.
+
+Biology students delve into mysteries of the digestive system. This popular course makes full use of G.U.E.'s modern laboratory facilities.
+
+---
+
+FAVORITE HANGOUTS
+
+Crust and Noodles - Best Italian restaurant in town.
+Reilly's Real Irish Pizza – Pizza delivery until 2 a.m.
+Hoagie Shack – Good subs; pastrami and sauerkraut a traditional favorite.
+Rudy's Eating and Drinking Saloon – The local meat market.
+Dot 'n' Dash – 24-hour diner, specializing in late night breakfast.
+House of Roy – In Chinatown. Open late. Great food, and cheap.
+
+[Handwritten note: don't forget snacks for Fri. party!]
+
+DIRECTORY
+
+[A directory with several blank entries and some filled in with handwriting.]
+
+Name: Chris Leu
+Address: Chapelgate
+Tel. No: x8990
+
+Name:
+Address: Chem lab T-TH 1-3
+lab partner-Ardie Knowlton
+Tel. No: x2981
+
+Name:
+Address:
+Tel. No: Intro Calc
+27-302
+
+Name: Mitch
+Address:
+Tel. No: x5417
+
+Name: password UHLERSOTH
+Address:
+Tel. No: (don't tell anyone!!)
+
+---
+
+ALMA MATER
+
+Words and Music by Maj. Chas. Gleason, ret., '22
+Note: At the turn of the century, G.U.E. was commonly pronounced "gooey" (rather than 'gee-you-ee' as it is today). The former pronunciation should be used when singing the alma mater.
+
+[Image: The G.U.E. seal is shown again, faded and overlaid on the page text.]
+
+When Georgie planned his institute
+Upon the river's neck,
+He little guessed the glories
+That would fall on G.U.E. Tech.
+
+(chorus)
+So let's all toast our founder
+Raise high the glass of beer
+There's nothing we would rather be
+Than a G.U.E. engineer.
+
+Our commonwealth of formers
+Held industry on check,
+Until a school for engineers
+Broke ground at G.U.E. Tech
+
+(chorus)
+
+Architects built up the country
+Designing bridge and deck,
+The best were trained and learned right
+Here at old G.U.E. Tech.
+
+(chorus)
+
+But G.U.E.'s more than labs and texts,
+So let's say "What the heck!"
+On Pigeon day we'll take a break
+From class at G.U.E. Tech!"
+
+(chorus)
+
+The G.U.E. buddies that you make
+Will long be at your back.
+You'll not find dearer friendships
+Than those forged at G.U.E. Tech.
+
+(chorus)
+(repeat)
+
+So let's all toast our founder
+Raise high the glass of beer
+There's nothing we would rather be
+Than a G.U.E. engineer.
+
+(It is customary for the chorus to be sung only by seniors and alumni, while the tune is hummed by the underclassmen. The final chorus is repeated, with everyone joining in.)
+
+---
+
+MURRAY'S Limbo BOOKSTORE
+"Serving the Institute since 1954"
+
+[Image: A line-drawing illustration of a man wearing a large, open book like a sandwich board. He is wearing a top hat and sunglasses and holding a walking stick. The cover of the book reads: "How LOW Can YOU Go?". The style is similar to portraits on U.S. currency.]
+
+Thousands of used paperbacks and hardcovers in stock. Used textbooks in all subjects.
+
+How
+LOW
+Can YOU Go?
+
+At Murray's, the prices are always in limbo, because Murray loves to bargain! Make him an offer! See how low he'll go!
+
+Murray's Limbo Bookstore, corner of Capital Avenue and Main Street. Open Monday through Saturday, 9 to 9.
+
+G-IH1-BOOK
+
+---
+
+GEORGE UNDERWOOD EDWARDS
+INSTITUTE OF TECHNOLOGY
+STUDENT I.D. CARD
+
+[Image: The G.U.E. seal.]
+
+The individual whose signature and code appear on this card shall be entitled to all stated benefits of a G.U.E. Tech student, including the use of library and cafeteria facilities. Please present card when using said facilities.
+
+[bar code]
+0 872325412
+
+GEORGE UNDERWOOD EDWARDS INSTITUTE OF TECHNOLOGY
+STUDENT IDENTIFICATION CARD
+
+This card is issued solely for you convenience. Do not allow anyone else to use it. Protect your card and code number at all times, and report any loss or theft promptly. Misuse of card, including bending, folding, spindling, or other mutilation, will result in loss of card privileges and other penalties as determined on an individual basis by the G.U.E. Tech Discipline Committee.
+
+This is not a credit card. This card remains the property of, and if found should be returned to, George Underwood Edwards Institute of Technology. It is not transferable, must be surrendered upon demand, and may be cancelled as well as repossessed and the privileges hereunder revoked at any time without prior notice.
+G-IH1-ID
+
+[A box for the cardholder's signature]
+SIGNATURE
+OF
+CARDHOLDER
+
+---
+
+[Image: A photograph showing the contents of The Lurking Horror game package. On a desk with a computer keyboard and mouse, there is the game box, the "G.U.E. at a GLANCE" booklet, and the G.U.E. Tech student ID card.]
+
+Mouldering inside every LURKING HORROR package: your LURKING HORROR disk, a guide to George Underwood Edwards Institute of Technology, and your G.U.E. Tech student identification card.
+
+Ever since you arrived at G.U.E. Tech, you've heard stories about the creepy old campus basements and storage rooms, some so ancient that they contain only rotting piles of unidentifiable junk. Until now, you've never ventured lower than the ground floors of the monolithic classroom and dorm buildings, avoiding the warren of tunnels that connect them.
+
+But tonight, something draws you down into the mysterious depths of the institute. Perhaps it's the blizzard raging outside, making the outdoors as threatening as anything you could imagine within. Perhaps it's the nightmare you had, hinting at horrific mysteries below and leaving you with a strange object that seems to lead you inexorably downward. Or perhaps it's just another way for you to avoid writing that twenty page term paper you have due tomorrow.
+
+In any event, you soon find yourself wandering away from your computer and into the dark nether regions of G.U.E. Tech. Suddenly, you're in a world that rivals your most hideous visions, a realm of horror lurking beneath the calm corridors and study halls.
+
+Shapes emerge from dark corners. Eerie sounds draw closer. Slimy passageways lead to sights so horrifying that they will feed your nightmares for weeks.
+
+THE LURKING HORROR recalls the ghastly visions of H. P. Lovecraft and Stephen King, as author Dave Lebling turns an everyday world into a frightening web of uncertainty. The numerous puzzles will challenge both first-time and experienced players, and Lebling's chilling descriptions will leave you with images you'll never forget.
+
+GET INSIDE A STORY.
+GET ONE FROM INFOCOM!
+It's like waking up inside a story! Infocom's interactive fiction takes you to the center of a world jam-packed with surprising twists, unique characters, and ingenious puzzles.
+
+For the first time, you're more than a passive reader. You talk to the story, typing in full English sentences. And the story talks right back, communicating entirely in vividly descriptive prose. What's more, you can actually shape the story's course of events through your choice of actions. With hundreds of alternatives at every step, the horror can last for weeks and even months.
+
+Find out what it's like to get inside a story. Get one from Infocom. Because with Infocom's interactive fiction, there's room for you on every disk.
+
+INFOCOM
+125 CambridgePark Drive, Cambridge, MA 02140
+
+Infocom interactive fiction is available for most personal computers. Call us at 617-576-3190 for availability information.
+Manufactured and printed in U.S.A.
+© 1987 Infocom, Inc.
+Warranty information enclosed.
+THE LURKING HORROR is a trademark of Infocom, Inc.
+G-IH1-02

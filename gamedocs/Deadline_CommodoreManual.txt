@@ -1,0 +1,742 @@
+[Image: A circular, black and white, pen-and-ink style drawing of a man in a fedora and trench coat. He is looking suspiciously over his collar. Below the circle is the game's title in a stylized, serif font.]
+
+# DEADLINE
+
+[Image: A chalk-style outline of a body lying face down.]
+
+First of the INTERLOGIC™ Mystery Series
+
+## INSPECTOR'S CASEBOOK
+
+### IMPORTANT
+
+The documentary evidence enclosed in your dossier and information in this casebook are vital to the investigative process. You cannot bring the case to a successful conclusion unless you review all the facts beforehand. Keep these materials within reach at all times-they may prove to be invaluable resources as the investigation unfolds.
+
+---
+
+The INSPECTOR'S CASEBOOK contains all the facts you need to solve the mystery. Be sure you check the APPENDIX in the back of the casebook. It contains valuable evidence that will help lead you to the murderer.
+
+[Logotype: The Commodore computer logo, featuring a stylized "C" shape next to the word "commodore" in a distinctive typeface, with "COMPUTER" underneath.]
+
+---
+Page 2
+---
+
+[Image: A black and white drawing of a magnifying glass resting on top of an open, spiral-bound notepad. The word "Clues" is handwritten on the notepad. A pencil lies across the notepad.]
+
+# CHAPTER I
+## Investigative Techniques for Cases of Suspected Homicide
+
+The detective investigating a possible homicide is much like a person piecing together a puzzle. In both endeavors, the participant must weigh each possibility, examine each angle, reconcile each inconsistency, and ultimately determine how all the parts fit together as a logical whole. Here, then, are some considerations to bear in mind as you attempt to solve this puzzle.
+
+### The Time Element
+
+It is usually necessary to conduct your investigation as expeditiously as possible. In this case you have an absolute deadline of 12 hours, by which you must have the case fully concluded. It is therefore of the utmost importance that you make proper use of your time.
+
+Most actions that you perform will take about one minute of investigative time. Some actions, such as examinations done CAREFULLY, may take a bit longer. If you wish to cause time to pass without actually doing anything, you can say WAIT FOR some number of MINUTES. Alternatively, you can WAIT FOR some person, or WAIT UNTIL a specified time. In any case, you will see events occurring while you are waiting, and always have the opportunity to change your mind about sitting idly should an interesting event take place.
+
+### Evidence
+
+During your investigation, you will uncover pieces of physical evidence found in your vicinity. While this evidence may be vital in itself to reach a proper conclusion to the case, it may also be of great interest to one of the principals in the case. Therefore, showing pieces of evidence to others (even suspects) may have a useful effect. Other people may make discoveries of their own which they may relate to you. It is altogether proper to ask to be shown such findings.
+
+---
+Page 3
+---
+
+**EXAMINE (something)**
+Looks at something with an eye toward detail.
+
+**FINGERPRINT (something)**
+Asks the police laboratory to compare fingerprints on (something) with those on file at the lab.
+
+**FOLLOW (someone)**
+Does the obvious.
+
+**INVENTORY**
+Lists your possessions. This can be abbreviated to I.
+
+**LOOK AROUND**
+Provides a complete description of your surroundings. This can be abbreviated to either LOOK or L.
+
+**QUIT**
+If confirmed, terminates the investigation. If you wish to continue the investigation at a later time, use the SAVE command first.
+
+**RESTART**
+If confirmed, terminates the investigation and starts it over from the beginning.
+
+**RESTORE**
+Restores a previously suspended investigation. Consult your Reference Card for the procedure on your system.
+
+**SAVE**
+Suspends your investigation for completion at a later time. Consult your Reference Card for the procedure on your system.
+
+**SCRIPT**
+Starts a transcript (if you have a printer). Consult your Reference Card for the availability of this feature on your system.
+
+**SEARCH (something or someone)**
+Does the obvious.
+
+**SEARCH NEAR (something)**
+Looks closely at the area immediate to something, possibly providing more information than simply examining it.
+
+**SHOW ME (something)**
+A request to another person to show you or lead you to something.
+
+**SHOW (something) TO (someone)**
+Does the obvious, possibly eliciting an interesting reaction.
+
+**TIME**
+Displays the current time. This can be abbreviated to T.
+
+**UNSCRIPT**
+Stops a transcript that started using the SCRIPT command.
+
+**VERBOSE**
+Causes a complete description of a place to be displayed every time you enter that place. Compare with BRIEF.
+
+**VERSION**
+Displays the version and serial number of your copy of DEADLINE.
+
+**WAIT FOR (number) MINUTES**
+Causes time to pass without your taking any particular action. If anything interesting happens during this time, you will have the opportunity to stop waiting.
+
+**WAIT FOR (someone)**
+Causes time to pass until someone arrives at the place you are in. Every so often you will have the opportunity to stop waiting for that person if he/she hasn't yet arrived.
+
+**WAIT UNTIL (time)**
+Causes time to pass until the desired time arrives. As with the other WAIT commands, interesting events happening in your environs will give you the option of terminating your idle state.
+
+**WHAT'S WRONG**
+A request to another person to discuss what's on his mind.
+
+**WHERE IS (something or someone)**
+A request to another person to help you find something or someone.
+
+**WHO IS HERE**
+Describes other people who are in the same place that you are. This is done implicitly during a LOOK AROUND.
+
+---
+Page 4
+---
+
+[Image: A black and white drawing of a smoking pipe resting in an ashtray. The smoke from the pipe forms a cloud that resembles a computer screen, displaying garbled text.]
+
+# CHAPTER II
+## How to Use Computers in Detective Work
+
+It was perhaps inevitable that computers should find their way into investigative procedure. Up until recently, the tools of the detective's trade consisted of little more than a sturdy pair of shoes, a notepad, and a well-oiled revolver. But such traditional standbys have gradually given way to the computer, which by virtue of its precise and logical intellect provides the perfect complement to the keenly intuitive mind of the detective. In fact, it is now possible to conduct an entire investigation without leaving one's computer terminal. Here are some useful pointers on dealing with our new environment.
+
+### Doing the Legwork
+
+To walk from place to place, say WALK and the direction in which you wish to proceed. There are ten possible directions: NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, UP, and DOWN. Each of these directions can be abbreviated to one or two letters (e.g., N, SE, D).
+
+When you enter a particular place for the first time, survey it in detail. Note its name (e.g., the living room), its layout, and all objects located there which might be of interest. Whenever you return, you will instantly recall the name of the place and your eye will catch any significant object. In order to examine the place more fully, you have only to say LOOK AROUND (or something similar).
+
+### Handling Evidence
+
+To handle any of the various pieces of evidence, simply refer to the object by its name. Should there be several objects of the same type (e.g., two tables), just add a descriptive word (e.g., THE LONG TABLE). Here are some ways in which other investigators have handled evidence:
+TAKE THE PENCIL.
+PUT DOWN THE CUP OF COFFEE. SIT DOWN ON THE SOFA. EXAMINE THE DETECTIVE MAGAZINE. LOOK BEHIND THE PAINTING. SEARCH NEAR THE SCUFF MARKS. TAKE EVERYTHING EXCEPT THE FISH BOWL AND THE ANTIQUE ROCKING CHAIR.
+
+---
+Page 5
+---
+
+Don't hesitate to handle more than one object at a time. Just be sure to separate their names by a comma or the word AND:
+PUT THE WRAPPER, THE TICKET, AND THE NAIL FILE ON THE DRESSER.
+
+### Dealing with Suspects and Other People
+
+The best authorities recommend courtesy as a key to winning the confidence of those you encounter while conducting police business. For instance, speaking to people from a distance is strongly discouraged. If you need to get the attention of someone who is, say, down a hall or corridor, simply remark, MRS. JONES! If you cannot resist the urge, you may even say HEY, MRS. JONES!
+
+Once you and another person are in the same place, you can ask questions or ask that person to do something for you. However, there are only two types of questions that will be answered: those dealing with information about someone or something, and those concerning the whereabouts of persons and objects. Again, courtesy is the key. When addressing someone, precede your statement or question with that person's name and a comma:
+MR. JONES, TELL ME ABOUT MRS. JONES.
+JIM, WHO IS THE BUTLER?
+SALLY, HAVE YOU SEEN MR. BRADY?
+FRED, SHOW ME THE BULLET HOLES.
+MR. GILES, GIVE ME THE GUN.
+
+Once you are engaged in conversation with someone, you can skip the formality and simply state requests. However, when you or the person with whom you are speaking moves to a different place, it is proper to re-initiate your interview by using the individual's name.
+
+### Avoiding Tedious Interrogations
+
+It is considered extremely poor form to ask interrogates questions which have already been asked by other police officials. Therefore, you are supplied with any relevant interviews obtained from other police officials. Also, as noted in the preceding section, only a few types of questions will receive a response. When it is impossible to elicit a response to a question that seems vital to your investigation, the needed information will often be found in your dossier. If not, you can assume the information is not important.
+
+### Communicating Your Intent
+
+Clarity of speech is as important as clarity of mind in detective work. At times, you may happen to specify an action incompletely. For example, you might say KILL THE SUSPECT without indicating the weapon you wish to utilize. In such cases, you may be asked to make a clarification (e.g., WITH WHAT?). Should this occur, just answer the question (e.g., WITH THE REVOLVER). If you specify an action incompletely in a situation where one thing may be assumed (e.g., there is only one weapon), you will be informed of that assumption (e.g., WITH THE REVOLVER). If you say something which cannot be understood because it is either too complex or improperly stated, you will be told of the problem.
+
+### Flatfoot Computer Lingo
+
+The police department has only limited resources and its computers often use words which they cannot understand. Such words are used only to enhance your imagery and focus your deductive powers.
+
+### Ending an Investigation
+
+If you wish to terminate your investigation and not come back to it at a later time, you can type QUIT. Since a decision of this kind is irreversible, you will have to confirm your decision.
+
+If you want to terminate your investigation by starting over from scratch (an actual example of something impossible prior to the advent of computers), you can type RESTART. You will again be asked to confirm your decision.
+
+### Continuing an Investigation at a Later Time
+
+Another advance in the science of detection is the ability to suspend your investigation mid-way and continue it from that point at a later time. This is similar to placing a bookmark in the book you're reading to continue at another sitting.
+
+To suspend your investigation, type SAVE and answer the questions as described on your Reference Card. To return to your investigation at another time, type RESTORE and answer the questions as described in the Reference Card. You may want to use this feature when you are about to try something dangerous or irrevocable.
+
+### Utilizing Stenographic Services
+
+Depending on your hardware, you may be able to obtain a typed transcript of your activities using the SCRIPT command. The transcript may be stopped with the UNSCRIPT command. Consult your Reference Card for the availability of this service on your system.
+
+---
+Page 6
+---
+
+[Image: A black and white drawing of a computer keyboard, with the keys arranged in a slightly jumbled, non-standard layout.]
+
+# CHAPTER III
+## Commonly Encountered Terms in Criminal Investigations
+
+The era of the street detective was flavored with a unique vocabulary. In the jargon of that time, a pistol was a "roscoe," a "shamus" referred to a private investigator, and "getting the bird's-eye low-down" meant to elicit eyewitness testimony.
+
+The computer age has brought a similar plethora of specialized terms to detective work. Hence, the following commands and their definitions are included here to aid you in your investigation. Some have been described elsewhere and are repeated for your convenience.
+
+**ACCUSE (someone) OF (something)**
+Makes an accusation against someone. (In this regard, “something" is usually murder.)
+
+**AGAIN**
+Causes the last action you performed to be repeated.
+
+**ANALYZE (something)**
+Asks the police laboratory to perform a routine analysis (including fingerprint comparisons) of something.
+
+**ANALYZE (something) FOR (something specific)**
+Asks the police laboratory to analyze something specifically for something in particular.
+
+**ARREST (someone or someones)**
+If there is a considerable amount of evidence against an individual or individuals, this command ends the case and describes the result of the prosecution.
+
+**ASK (someone) ABOUT (something or someone)**
+An impersonal form of the expression "(Someone), TELL ME ABOUT (something or someone)," it can be used as an abbreviated form of questioning.
+
+**BRIEF**
+Causes a place to be described completely only on your first visit there. On subsequent visits, only the name of the place and the important objects present there will be described. (This is the normal situation.)
+
+---
+Page 7
+---
+
+### Suspects
+
+It is possible to ask people for information. However, be aware that their answers, while often helpful, may be self-serving, false, or contradictory.
+
+Remember at all times that you are dealing with people some of whom are under great pressure or emotional strain. The most extreme care must be exercised when you ACCUSE people.
+
+### The Police Laboratory
+
+The facilities of the nearby police laboratory are always available to you. Fingerprints found on objects can be compared with those of the principals, which are on file at the lab, simply by instructing the lab to FINGERPRINT the object in question. You can ANALYZE an object in a routine manner or FOR a specific substance. Sergeant Duffy, as diligent an assistant as can be found in the annals of criminology, will take objects to the lab for you and return with the results, usually within half an hour.
+
+### Procedure for Making Arrests
+
+When you feel that you have established a convincing case against one or more people, you may decide to ARREST them. (A single individual must be in your presence to be arrested; two or more accomplices need not be.) After some soul-searching, you may realize that you haven't nearly enough evidence to substantiate the charge, and may hold off at the last moment. Otherwise, Sergeant Duffy will arrive with the handcuffs and take the accused into custody. Your role in the case will then be concluded, and you will receive a letter from your superiors indicating the outcome of the grand jury investigation, and if all goes well at that level, the trial itself. Should the grand jury fail to indict or the trial jury fail to convict, your superiors will try to indicate the reasons for the failure of the state's case. (Since guilt must be established beyond a reasonable doubt, it is important to demonstrate the three crucial elements: means, motives and opportunities.) But take heart from any failures you may have-the sleuth who learns from his mistakes will sleuth all the more effectively his next time on the trail.
+
+There are many possible endings to your case, each determined by your handling of the case and the conclusions you draw from the evidence you gather. But just as there exists the perfect crime, there is also the perfect solution to a crime. With skill and dedication, you will no doubt succeed.
+
+### Strategies for Novices
+
+Many detectives start an investigation by "casing" the scene of the crime. This facilitates movement as the case proceeds. In this regard, it is useful to draw a map or blueprint indicating the directions of travel between the various places in the area.
+
+It is especially important to examine potentially important pieces of evidence. Be liberal in the use of the police laboratory in FINGERPRINTing or ANALYZEing evidence. Note carefully the laboratory's findings.
+
+Ask people questions about the crime itself, other people involved in the case, or unusual words which may turn up on evidence or in conversation. Often, this will uncover contradictions or lead to new evidence.
+
+Pay attention when people's behavior changes. It may be that they have learned something which will affect their actions. FOLLOWing them may be helpful, but often it is better to observe at a safe distance.
+
+Show relevant evidence to interested persons. They may learn something which could cause them to react in a helpful manner. If another person has found something, ask to see it.
+
+Although care should be taken in making accusations, especially without sufficient evidence, a timely accusation can lead the presumed criminal to make careless mistakes.
+
+---
+Page 8
+---
+
+# APPENDIX
+
+[Image: A stamp-like graphic that reads "DOCUMENTARY EVIDENCE". It includes the following fields and handwritten-style text:
+File #: H657/SJ43.1
+Name: Robner, Marshall
+File opened: 7/8/82
+Cause of death: Overdose of Ebullion]
+
+July 9, 1982
+
+Chief of Detectives
+Edindale Police Department
+Edindale, CT 06103
+
+Dear Chief:
+
+I must once again ask for your assistance on a case involving one of my clients.
+
+As you are no doubt aware, Mr. Marshall Robner, the industrialist and philanthropist, was found dead yesterday morning in his home. As far as I can determine, he was found dead on the floor of his library, the victim of an overdose of Ebullion, a medicine which he had been taking lately for severe bouts of depression. He had been alone during the night, and the door to his library had been bolted from the inside. Police had to break the door down with axes, I'm told, to get inside.
+
+While I am completely convinced that there was no foul play involved in Mr. Robner's death, it is disturbing that Mr. Robner had called me only three days earlier for the purpose of informing me that his will was to be altered. In fact, I was expecting to hear from him this week so that he could deliver the papers to me. Given the size of the Robner estate, I feel that a more complete investigation should be undertaken, if for no other reason than to quash the suspicions which are inevitable in these circumstances.
+
+I have sifted through the evidence gathered by the local police authorities and am passing it along for your inspection. I phoned Mrs. Robner this morning and informed her of my intention of having you take on the case. She was reluctant to be of assistance, but I convinced her to allow you to come around at eight o'clock tomorrow morning and spend the day.
+
+I will be at the house at noon tomorrow for the reading of the current will, which Mr. Robner wrote a few years ago. I hope to see you then.
+
+Sincerely yours,
+
+[Signature: Warren Coates]
+
+Warren Coates
+
+Coates, Shavely & Coates • Attorneys at Law • Suite 1327 • Excelsior Tower • Hartford, CT 06101
+
+---
+Page 9
+---
+
+[Logotype: A circular seal for Union Memorial Hospital, Lakeville.]
+
+# CORPUS DELICTI
+## Union Memorial Hospital, Lakeville, CT
+### Summary of findings from Coroner's Examination
+
+| | | | | | |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Name** Robner, Marshall | **File No.** H657/SJ43.1 | | | **Date** 7/8/82 |
+| **Sex** Male | **Race** Caucasian | **Color of Eyes** Brown | **Color of Hair** Gray | **Ht.** 5'11 | **Wt.** 192 lbs. | **Distinguishing Marks** None |
+| **Apparent Cause of Death** Drug overdose (Ebullion) | | | | | |
+
+[Image: Two diagrams of a human body, one from the front and one from the back, used for marking injuries. The front view has an 'X' on the left temple.]
+
+**Front** **Back**
+
+There were no injuries or marks of a suspicious nature, except a small bruise on the left temple (consistent with falling to the floor from a chair).
+
+Analysis of the blood of the deceased revealed a blood level of 27mg% for Ebullion. The therapeutic range of this drug is normally 4 to 6mg%. A fatal dose, while not specified by the manufacturer, has been found to be in the 10-20mg% range. A routine analysis for other common drugs was unproductive.
+
+Findings were unremarkable except for massive liver damage consistent with overdose of Ebullion, and 10mg of Ebullion recovered from the stomach. Death occurred at 1 AM, plus or minus one hour.
+
+The blood level of Ebullion and the massive liver damage consistent with Ebullion toxicity lead to the inevitable conclusion that the deceased died of an overdose of that drug.
+
+[Signature: Illegible signature of the Medical Examiner]
+Medical Examiner
+
+---
+Page 10
+---
+
+# APPENDIX
+
+[Logotype: A circular seal of the Lakeville, CT Police Department.]
+
+## Official Memo
+### Lakeville, CT Police Department
+
+**File #** H657/SJ43.1
+G.K. Anderson, Detective 1st Class
+
+July 8, 1982
+**RE:** Robner Case
+
+Although it appears that at least one member of the Robner household had a reason for wishing Mr. Robner dead, the findings of the Medical Examiner and evidence gained from interviews with the family and family associates are only consistent with the conclusion that Mr. Robner died of a self-administered overdose of Ebullion.
+
+[Signature: G.K. Anderson]
+G.K. Anderson
+
+---
+
+## Lab Report
+### Lakeville, CT Police Department
+
+**Case:** Robner, Marshall
+**File #:** H657/SJ43.1
+**Officer of Record:** Detective G.K. Anderson
+**Mat'l(s) analyzed:** Porcelain teacup
+**Analyzed for:** Fingerprints, foreign substances
+**Date:** 7/8/82
+
+**Laboratory findings:**
+
+The teacup was analyzed. The cup contained tea only. No trace of Ebullion or other substances was found. Fingerprints on the cup belonged to the deceased and Ms. Dunbar.
+
+[Logotype: A circular seal of the Lakeville, CT Police Department.]
+
+[Signature: Illegible signature of the Chief Examiner]
+Chief Examiner
+Lakeville, CT Police Laboratory
+
+---
+Page 11
+---
+
+[Image: A grainy, high-contrast, black and white photograph showing the chalk outline of a body on a patterned rug. The perspective is from above and to the side.]
+
+---
+Page 12
+---
+
+# APPENDIX
+## Excerpts from Interview with Mrs. Robner
+
+**Detective Anderson:** How did you come to find Mr. Robner?
+
+**Mrs. Robner:** When I woke up this morning, I noticed that Marshall was not in bed. I wasn't alarmed, really, as it was not unusual for him to work late at night in the library and fall asleep there. I went down the hall to the library and knocked on the door. He didn't answer, so I knocked even harder. When that didn't work, I started calling his name loudly. So loud, actually, that I woke up Ms. Dunbar and George. We all were gathered there, knocking and yelling, and finally Mrs. Rourke, our housekeeper, was alarmed enough to come upstairs. She suggested calling the police, which we did. They arrived about twenty minutes later, and started breaking down the door with axes. When we entered the room, we found Marshall lying on the floor, face down.
+
+**Anderson:** Did he usually keep his door locked when he worked?
+
+**Robner:** Almost always. He was pretty secretive about his work, and he liked to be alone when he worked.
+
+**Anderson:** Do you know of any reason why your husband might have wanted to take his own life?
+
+**Robner:** He's been very depressed lately, you know. His business, Robner Corporation, is not doing well, and there is talk of selling out to a larger firm. Marshall founded the company, what, about twenty six years ago, and he has been desperately trying to find some way of saving it.
+
+**Anderson:** The pills we found by his body, do you know what they are?
+
+**Robner:** Yes. They were Ebullion tablets. It's an anti-depressant his doctor prescribed for him just last week.
+
+**Anderson:** Had he been acting less depressed since then?
+
+[Image: A set of ten fingerprints, labeled for each finger of the left and right hands (L. thumb, L. index, etc. and R. thumb, R. index, etc.).]
+
+---
+Page 13
+---
+
+**Robner:** I really don't know. I haven't noticed much change.
+
+**Anderson:** Did your husband ever talk of suicide?
+
+**Robner:** He did, actually, though I never took it seriously. He would talk about how everything would be easier if he were dead, but then he would start again talking about how he was going to have to keep the business going. I'm ... I'm stunned, really.
+
+**Anderson:** Mrs. Robner, do you know of anyone who might have wanted to kill your husband?
+
+**Robner:** Why, no. Of course not. He wasn't a very friendly man, he was very quiet. But he was a great philanthropist, you know, and everyone that knew him respected him. I can't imagine anyone wanting to hurt Marshall. Do you really suspect he didn't commit suicide?
+
+**Anderson:** I don't suspect anything. I just want to understand what's happened.
+
+**Detective Anderson:** You were Mr. Robner's personal secretary, is that right?
+
+**Ms. Dunbar:** Yes, sir.
+
+**Anderson:** I understand that you were the last person to see Mr. Robner alive. Could you tell me about that?
+
+**Dunbar:** Why, yes. I brought him some tea at about 11 PM that night. On nights when he expected to work late, he would always expect tea at that hour. I brought him the tea and he asked me to leave. That's all.
+
+**Anderson:** Did Mr. Robner seem at all upset?
+
+**Dunbar:** He did appear quite nervous, but he had been upset for some time, as you know.
+
+**Anderson:** Do you know what he was working on that evening?
+
+**Dunbar:** No. I wasn't with him, except for that one time.
+
+**Anderson:** Do you recall whether the pills, the Ebullion pills, were on the desk when you came in?
+
+**Dunbar:** No, I don't remember that.
+
+**Anderson:** Ms. Dunbar, were you with Mrs. Robner when the door was opened by the police?
+
+**Dunbar:** Yes.
+
+**Anderson:** Do you remember her reaction? Anything she might have said?
+
+**Dunbar:** She didn't really react much. I don't think she said anything except "He's dead." or something of that sort. She just stood there with the rest of us until you people arrived.
+
+---
+Page 14
+---
+
+# APPENDIX
+
+**Anderson:** How were the Robners getting along? I mean, were they happily married?
+
+**Dunbar:** I don't think so, really. He was so quiet and, well, dreamy. She was always scolding him for paying too much attention to the business and to his "good works". They rarely went out lately, which seemed to upset Mrs. Robner quite a bit. She had friends of her own that she used to visit. I think she would have gone insane, otherwise.
+
+**Anderson:** Thank you, Ms. Dunbar. Oh, one last thing. You prepared the tea for Mr. Robner?
+
+**Dunbar:** Yes, I started the water boiling about a quarter of, and then poured the tea when I heard the whistle from the living room.
+
+**Anderson:** You weren't in the kitchen during that time?
+
+**Dunbar:** I just told you, no.
+
+**Anderson:** Was anyone else awake in the house while you were waiting?
+
+**Dunbar:** Yes, I believe that both George and Mrs. Robner were awake. I remember George coming down, reading for a bit, then retiring.
+
+**Anderson:** Do you believe anyone might have a reason to kill Mr. Robner?
+
+**Dunbar:** No, I can't imagine it.
+
+**Anderson:** Thank you, Ms. Dunbar. Oh, Ms. Dunbar, were you at home all night, last night I mean?
+
+**Dunbar:** Well, no, actually. I was out with a friend last night and we didn't get back until about 10:30 or thereabouts.
+
+**Anderson:** Thanks again, Ms. Dunbar.
+
+**Detective Anderson:** You were Mr. Robner's business partner, is that correct?
+
+**Baxter:** That's right.
+
+**Anderson:** How long have you and Mr. Robner been partners?
+
+**Baxter:** For about twenty five years now. I was his partner almost from the start of the business.
+
+**Anderson:** Mrs. Robner tells me that there have been problems lately with the business. Could you tell me what that's all about?
+
+**Baxter:** Yes, the business has its problems, some of them quite large. Marshall and I were working on a plan to solve those problems and get the company back on its feet again before we would be forced to take drastic action. I hope that I can hold things together now that Marshall is dead. He was the founder of the business and controlled many things by himself.
+
+---
+Page 15
+---
+
+**Anderson:** Did Mr. Robner ever talk to you about personal problems, or how he felt?
+
+**Baxter:** No, we were business partners, not intimate friends. I don't think he really had any close friends. I know he had gotten himself very upset about the business, but that's the extent of it.
+
+**Anderson:** When was the last time you saw Mr. Robner?
+
+**Baxter:** Yesterday afternoon, at our office in town.
+
+**Anderson:** And where were you after work?
+
+**Baxter:** Last night was my concert night at the Hartford Symphony. I go there quite regularly. After the concert, at about 10 o'clock, I went home. I received a call from Ms. Dunbar this morning telling me of the tragedy, and I arrived here just a few minutes ago.
+
+**Anderson:** Were you at the concert alone?
+
+**Baxter:** Quite alone.
+
+**Anderson:** Do you know of anyone who might have wanted to harm Mr. Robner?
+
+**Baxter:** No. Except for George, of course. During some of their shouting matches I've heard George threaten Marshall, but I don't really think he ever would have followed through.
+
+**Anderson:** Shouting matches?
+
+**Baxter:** George and Marshall were always at odds. You see, George has been living like a spoiled child all of his life. He's twenty five now and has never held a job. Just spends money, or gambles it away. Being the Robners' only child, he gets away with murder. Marshall would lecture him and threaten to cut him off without a cent, and then the yelling would start. Eventually Marshall would give in.
+
+**Anderson:** When was the last time you heard this?
+
+**Baxter:** Actually, I heard it again just last week. Strange, now that I think of it, they went at it just last week. I hear that Marshall told George that he had decided to disinherit him. He even mentioned it to me at the office the next day. He seemed pretty serious. I suppose that the financial troubles at the company may have been responsible for his attitude.
+
+**Anderson:** Are you at the house often? You say you have heard some of these 'shouting matches'.
+
+**Baxter:** Well, I'm really not here often. Only on occasion. I have heard it once or twice and have been told of other times.
+
+**Anderson:** Thank you, Mr. Baxter.
+
+---
+Page 16
+---
+
+# APPENDIX
+
+**Detective Anderson:** Mr. Robner, I have been told by Mr. Baxter that you and your father had some serious arguments lately. Could you tell me what they were about?
+
+**George Robner:** I don't think that's your business.
+
+**Anderson:** I'm told they had to do with your habit of wasting or gambling away your father's money.
+
+**Robner:** So?
+
+**Anderson:** I've even been told that he threatened to disinherit you.
+
+**Robner:** Yeah. He said he was going to. I'll bet he didn't, though. He never has.
+
+**Anderson:** Mr. Robner, let me be frank. I'm told that you threatened violence against your father as recently as a week ago, and now he's dead.
+
+**Robner:** Look, I don't get what you're driving at. You find the poor guy dead in his room. The room is locked. His bottle of medicine is nearly empty. What sort of detective are you, anyway?
+
+**Anderson:** I'm doing the asking, if you don't mind.
+
+**Robner:** Then ask someone else.
+
+**Note:** G.R. left abruptly at this point.
+
+**Anderson:** Mrs. Rourke, how long have you been working as housekeeper for the Robners?
+
+**Rourke:** Ever since the house was built, six years ago.
+
+**Anderson:** Tell me all you remember from the night of the murder.
+
+**Rourke:** I remember that by about 10:30 or so ...
+
+**Anderson:** You mean 10:30 PM.
+
+**Rourke:** Yes. By 10:30 when I went to my room to do some reading, everyone was upstairs excepting Ms. Dunbar, who had just returned home. She went upstairs at about 11, bringing Mr. Robner his tea. He almost always takes his tea at 11. I remember saying goodnight to her on her way up, and that's the last I heard until this morning, with all the shouting and banging going on upstairs. No, that isn't right. George was downstairs also for a while, only about 10 minutes or so.
+
+**Anderson:** Could someone have gone upstairs during the night?
+
+**Rourke:** I don't rightly think so, at least not before 3 or 4. You see, I like to do some reading late at night, and I was reading this really exciting mystery story, and, lord, I was up until nearly 4 o'clock before I finished. And who do you think the murderer was?
+
+---
+Page 17
+---
+
+**Anderson:** Really, Mrs. Rourke, let's stick to the matter at hand. Do you keep your door closed at night when you are reading?
+
+**Rourke:** Yes, sir.
+
+**Anderson:** So then it's possible that someone might have entered the house and gone upstairs without your knowledge.
+
+**Rourke:** No, sir. I don't believe so. Why don't you try the stairs yourself? For a new house, these stairs are the noisiest I've ever heard. My door's right beside it, too. When the Robners owned a little cat, I can remember hearing every footstep creaking up the stairs. Don't know why they don't ever fix it up. I guess it don't bother them any.
+
+**Anderson:** But it is possible that someone might have entered after you went off to sleep.
+
+**Rourke:** Well, I suppose it might be, but not before.
+
+**Anderson:** How long has Ms. Dunbar been living here?
+
+**Rourke:** Ever since the place was built. She does an awful lot of work for Mr. Robner, you know. I don't think he could have gotten along without her, although that's not my business to say. He was always so nervous, fretting about everything, and forgetting to do this and that. It seemed that she was always covering his tracks, if you get my meaning.
+
+**Anderson:** Do you have any reason to suspect anyone of wanting to harm Mr. Robner?
+
+**Rourke:** Well, of course I've heard all of the screaming and fussing with George and Mr. Robner. That's been going on for years, now, so I don't make much of it anymore. No, I can't imagine anyone wanting to hurt poor Mr. Robner. He was such a sweet man.
+
+**Anderson:** Thank you, Mrs. Rourke.
+
+[Image: A set of ten fingerprints, labeled for each finger of the left and right hands (L. thumb, L. index, etc. and R. thumb, R. index, etc.). One of the right hand's fingerprints is being pointed to by a stylized line.]
+
+---
+Page 18
+---
+
+[Logotype: INTERLOGIC™ Reference Card for the COMMODORE 64™]
+
+### I. What You Need
+
+**Required**
+☐ Commodore 64 Computer
+☐ One VIC-1541 diskette drive
+
+**Optional**
+☐ One or more blank, formatted diskettes (for SAVES)
+☐ VIC graphic printer (or equivalent) connected to the serial port (for SCRIPT)
+☐ Second VIC-1541 diskette drive (for convenience with SAVE)
+
+### II. Loading the Game
+
+1. Turn on the power to your Commodore 64.
+2. Insert the game diskette in Drive 1 (device 8) and close the drive door.
+3. Type
+LOAD "GAME",8
+When the computer responds
+"READY,"
+type
+"RUN."
+The diskette drive will spin the diskette and the program will load. A message should appear asking you to wait while the game loads (this should take no more than 2 minutes).
+4. If nothing appears on your screen, something is wrong. (See the Troubleshooting section.)
+
+### III. Talking to the Game
+
+Whenever you see the prompt (>), the game is waiting for you to type in your instructions. You may type up to two full lines of text at a time. If you make a mistake, use the DELETE key to erase the error. When you have finished typing in your instructions, press the RETURN key. The game will respond and then the prompt (>) will reappear.
+
+NOTE: You may use the left- and right-arrow keys in combination with the DEL and INST keys to edit your command; however, use of the up and down-arrow keys will cause unpredictable results.
+
+If a description will not fit on the screen all at once, [MORE] will appear in the bottom left portion of the screen. After reading the part on the screen, you will need to press the space bar to see the rest of the message.
+
+### IV. The Status Line
+
+At the top of the screen, you will see a status line. This line is updated after every move to show your current whereabouts in the game. Depending upon the type of game, it may also show other information:
+
+**Score**
+In games that keep a score, such as the ZORK® underground adventures, the right side of the status line will show something like this:
+SCORE: 245/920
+The first number is your score and the second is the total number of moves you have made. In the example, you have 245 points in 920 moves.
+
+**Time**
+In games that keep track of the time (e.g., the mystery thriller DEADLINE™), the right side of the status line will look something like the following:
+TIME: 9:22 AM
+This shows the current time of day in the game.
+
+### V. Saving a Game Position
+
+To save the current position, use the SAVE command. You may SAVE up to eight different game positions on each storage diskette and RESTORE them in any order. To keep track of these different positions, each is assigned a number (from 0 to 7). Each time you SAVE a game position, it will overwrite any position that is already on your storage diskette with the number you specified. If you want to SAVE more than one game, you must use a different position number for each one.
+
+When you enter the SAVE command, the game will respond:
+Please insert SAVE diskette,
+Press RETURN key to continue —
+
+---
+Commodore 64 and VIC are registered trademarks of Commodore Business Machines, Inc.
+INTERLOGIC, ZORK, and DEADLINE are trademarks of Infocom, Inc.
+
+---
+Page 19
+---
+
+1. If you have only one diskette drive, remove the game diskette and insert the storage diskette; otherwise just insert the storage diskette in the second drive. (To prepare this diskette, see Initializing Storage Diskettes.)
+2. Press RETURN. The game will respond
+Position (0-7): Default = 0
+3. Type a number between 0 and 7 to tell the game which save position on the diskette to use (or simply press the RETURN key to select the default). The game will respond
+Drive (8/9): Default = 8
+4. Select whichever drive contains the SAVE diskette. Now the game will respond
+- Press RETURN key to begin -
+5. Press RETURN. The game will type
+Saving...
+to indicate that the game is being saved. This should take about half a minute. When the game has been saved, it will respond
+Please re-insert GAME diskette,
+Press RETURN key to continue -
+6. Remove the storage diskette from the drive and insert the game diskette again (this step is unnecessary if you are using two drives). Close the drive door.
+7. Press the RETURN key. If all is well, the game will respond
+Ok.
+If it responds
+Failed.
+consult the Troubleshooting section.
+
+You may now continue playing. You can use the storage diskette and the RESTORE command to return to this position at another time.
+
+### VI. Restoring a Saved Game Position
+
+To restore a previously saved game position, enter the "RESTORE" command. Then follow the steps (1 to 7) for SAVE above.
+
+### VII. SCRIPTing
+
+If you have a VIC Graphic printer (or any equivalent printer which attaches to the serial port on the Commodore 64), you may make a transcript of the game as you play it:
+1. Connect the printer to the serial port on the Commodore 64.
+2. Turn on the printer.
+3. Load the game as described above.
+4. To start the transcript at any time, use the SCRIPT command.
+5. To stop the transcript, use UNSCRIPT.
+6. SCRIPT and UNSCRIPT may be used as often as desired as long as the printer is left on-line.
+
+### VIII. Initializing Storage Diskettes
+
+Storage, or "SAVE" diskettes are made using the standard Commodore diskette initialization procedures ("NEW" command). See either the Commodore 64 Reference Manual or the VIC-1541 diskette drive manual for detailed instructions.
+
+### IX. Troubleshooting
+
+If the game fails to load properly, or if SAVE/RESTORE fails, check each of the following items. If none of these offers a solution, call your Commodore dealer for assistance.
+1. Check to see that your Commodore and disk drive(s) are plugged in correctly, connected properly, and that everything is turned on.
+2. Check to see that the diskette was inserted correctly, and that the drive door is closed.
+3. Inspect the diskette carefully for any visible damage.
+4. Be sure that the diskette(s) is in the proper drive(s). The game diskette may only be run from the main drive (device 8). For SAVE/RESTORE, be sure that you have typed the correct drive number for the storage diskette.
+5. For SAVE, be sure that the storage diskette is not write-protected (i.e., there is nothing covering the notch on the side of the diskette).
+6. Also for SAVE, be certain that the diskette has been properly initialized (formatted). As a last resort, try a different diskette.
+7. If you have turned off your Commodore, follow the instructions for loading the game.
+8. Try again: the problem may be only momentary.
+
+---
+Page 20
+---
+
+### Copyright
+
+This software product is copyrighted and all rights reserved by Infocom, Inc. It is published by Commodore under license from Infocom, Inc. The distribution and sale of this product are intended for the use of the original purchaser only and for use only on the computer system specified. Lawful users of this program are hereby licensed only to read the program from its medium into memory of a computer solely for the purpose of executing the program. Copying, duplicating, selling or otherwise distributing this product is a violation of the law.
+
+This manual and packaging are copyrighted and all rights are reserved by Infocom, Inc. and Commodore. This document may not, in whole or part, be copied, photocopied, reproduced, translated or reduced to any electronic medium or machine readable form without prior consent, in writing, from Infocom, Inc.
+
+Willful violations of the Copyright Law of the United States can result in civil damages of up to $50,000 in addition to actual damages, plus criminal penalties of up to one year imprisonment and/or a $10,000 fine.
+
+[Logotype: The Commodore computer logo, featuring a stylized "C" shape next to the word "commodore" in a distinctive typeface, with "COMPUTER" underneath.]
+
+Commodore Business Machines, Inc.
+1200 Wilson Drive • West Chester, PA 19380
+
+Commodore Business Machines, Limited
+3370 Pharmacy Avenue • Agincourt, Ontario, M1W 2K4
+
+C64630
+
+Printed in U.S.A.

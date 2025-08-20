@@ -19,3 +19,7 @@ pytest_cache/
 # Local cache and app artifacts
 .cache/
 .crush/
+
+/out.wav
+/temp.png
+
