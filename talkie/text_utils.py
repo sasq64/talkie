@@ -11,7 +11,7 @@ def parse_text(text: str, patterns: dict[str, str]) -> dict[str, str]:
     Returns:
         Dict with 'text' key containing remaining text and other keys for named matches
     """
-    result = {}
+    result : dict[str, str] = {}
     remaining_text = text
 
     for name, pattern in patterns.items():
@@ -35,6 +35,7 @@ def parse_adventure_description(text: str) -> dict[str, str]:
         text,
         {
             "title": r"^(.*)\s{5,}(.*)$",
+            "title2": r"^\s{5,}(.*)\w$",
             "header": r"^Using normal.*\nLoading.*$",
             "trademark": r"^.*trademark.*nfocom.*$",
             "release": r"^Release.*Serial.*$",

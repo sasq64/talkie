@@ -123,24 +123,28 @@ class AIPlayer:
                 self.output.append(PromptOutput(text))
                 self.write_command(text + "\n")
 
-    def generate_scene_image(self) -> Path | None:
-        """Generate image for current scene"""
-        return self.image_gen.get_image(self.image_prompt.format(**self.fields))
-
-    def handle_slash_command(self, cmd: str) -> str | None:
+    def handle_slash_command(self, cmd: str) -> bool:
         """Handle slash commands and return image path if applicable"""
         if cmd == "image":
-            para = self.desc.split("\n\n")[0].strip()
-            if len(para) > 0:
-                logging.info(f"Generate image with key '{para}'")
-                file_name = self.image_gen.generate_image(
-                    self.image_prompt.format(**self.fields), para
-                )
-                self.output.append(ImageOutput(file_name))
+            paragraphs = self.desc.split("\n\n")
+            while len(paragraphs) > 0 and len(paragraphs[0]) < 60:
+                logging.debug("Removing short paragraph from image description")
+                _ = paragraphs.pop(0)
+            if len(paragraphs) > 0:
+                para = paragraphs[0]
+                if len(para) > 0:
+                    logging.info(f"Generate image with key '{para}'")
+                    file_name = self.image_gen.generate_image(
+                        self.image_prompt.format(**self.fields), para
+                    )
+                    self.output.append(ImageOutput(file_name))
+            #print("\n\n")
 
         elif cmd == "transcript":
             print(self.player.get_transcript())
-        return None
+        else:
+            return False
+        return True
 
     def write_command(self, text: str):
         """Write command to game"""

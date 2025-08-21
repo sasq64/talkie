@@ -27,7 +27,7 @@ image_prompt: |
   """
 
 # This is the prompt to whisper, when transcribin audio
-whisper_prompt: |
+whisper_prompt_old: |
   The following recording is a single sentence command to control text adventure or interactive fiction story.
   It is usually in the form <verb> <noun> or <verb> <noun> <preposition> <noun>.
 
@@ -37,6 +37,21 @@ whisper_prompt: |
   - drop sword, take scroll
 
   This is the current situation to which the command probably relates:
+  ```
+  {text}
+  ```
+  """
+
+whisper_prompt: |
+  Here follows the recording of a short english command for moving around or manipulating objects in a text adventure like Zork.
+
+  If the command is more than one word, the first word is *always* a verb.
+
+  If the command is two words, the second word is almost always a noun.
+
+  Examples: "go north", "examine sword", "inventory", "look", "take all from chest", "unlock door with key"
+
+  This is the last output from the game, and what the player might be referring to:  
   ```
   {text}
   ```

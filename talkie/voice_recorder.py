@@ -1,5 +1,6 @@
-import logging
+from logging import getLogger
 import os
+from pathlib import Path
 import time
 import wave
 from collections.abc import Mapping
@@ -9,6 +10,10 @@ from typing import Final
 import pyaudio
 from openai import NOT_GIVEN, OpenAI
 
+logger = getLogger(__name__)
+
+def fixup(text: str) -> str:
+    return text.lower().replace(" ", "_")[:40]
 
 class VoiceToText:
     def __init__(self, api_key: str | None = None):
@@ -114,20 +119,21 @@ class VoiceToText:
                     temperature=0,
                     response_format="json",
                     prompt=NOT_GIVEN if prompt is None else prompt,
-                    model="whisper-1",
+                    model="gpt-4o-transcribe",
                     file=audio_file,
                 )
-            logging.info(f"Transcribe result {transcript}")
+            logger.info(f"Transcribe result {transcript}")
             return transcript.text
         except Exception as e:
             raise Exception("Error during transcription") from e
 
     def start_transribe(self):
+        logger.info("Start transcribe")
         self.start_recording()
 
     def end_transcribe(self, prompt: str | None = None) -> Future[str]:
         audio_data = self.stop_recording()
-        logging.info(f"Recorded {len(audio_data)} bytes")
+        logger.info(f"Ended transcribe with {len(audio_data)} bytes")
         if len(audio_data) < 12000:
             return self._executor.submit(lambda: "\n")
 
@@ -141,7 +147,7 @@ class VoiceToText:
         self._save_wav(temp_path, audio_data, self._sample_rate)
 
         # Transcribe on worker thread
-        logging.info(f"Transcribing... {temp_path}\n{prompt}")
+        logger.debug(f"Transcribing... {temp_path}\n{prompt}")
         future = self._executor.submit(self._transcribe_and_cleanup, temp_path, prompt)
         return future
 
@@ -158,6 +164,7 @@ class VoiceToText:
         """Transcribe audio and clean up temporary file"""
         try:
             transcript = self.transcribe_audio(temp_path, prompt)
+            _ = Path("out.wav").rename(fixup(transcript) + ".wav")
             return transcript
         finally:
             pass

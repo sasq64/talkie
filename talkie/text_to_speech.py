@@ -1,5 +1,5 @@
 import io
-import logging
+from logging import getLogger
 import queue
 import threading
 from pathlib import Path
@@ -11,6 +11,9 @@ import pyaudio
 from pydub import AudioSegment
 
 from .cache import FileCache
+
+logger = getLogger(__name__)
+
 
 Voice = Literal[
     "alloy", "ash", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse"
@@ -59,11 +62,11 @@ class TextToSpeech:
                 if text:
                     fn = self.cache.get(text)
                     if fn is not None:
-                        logging.info(f"TTS: '{text}' found in cache!")
+                        logger.info(f"'{text}' found in cache!")
                         self.audio_queue.put(fn)
                     else:
-                        logging.info(
-                            f"TTS: Using '{self.voice}' to generate audio for '{text}'"
+                        logger.info(
+                            f"Using '{self.voice}' to generate audio for '{text}'"
                         )
                         response = self.client.audio.speech.create(
                             model=self.model, voice=self.voice, input=text
@@ -72,7 +75,7 @@ class TextToSpeech:
                         self.cache.add(text, audio_data)
                         self.audio_queue.put(audio_data)
             except Exception as e:
-                logging.error(f"TTS Error: {e}")
+                logger.error(f"Error: {e}")
 
     def _audio_worker(self):
         current_stream: pyaudio.Stream | None = None
@@ -118,7 +121,7 @@ class TextToSpeech:
                     current_stream = None
                     self.stop_event.clear()
             except Exception as e:
-                logging.error(f"Audio playback error: {e}")
+                logger.error(f"Audio playback error: {e}")
                 if current_stream:
                     current_stream.close()
                     current_stream = None

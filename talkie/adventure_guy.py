@@ -56,8 +56,7 @@ class AdventureGuy:
 
     def set_verbal_text(self, text: str):
         """
-        Set the part of the text that describes the current location or interaction. Should
-        not include technical information, logging, or current score and move counters.
+        Set the part of the text that describes the current location or interaction. Should not include technical information, logging, or current score and move counters.
         """
         print(f"VERBAL: {text}")
         self.texts.append(text)

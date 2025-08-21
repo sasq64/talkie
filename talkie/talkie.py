@@ -1,16 +1,20 @@
 #!/usr/bin/env python
 import argparse
 import logging
+import sys
+from logging import LogRecord, getLogger
 from importlib import resources
 from pathlib import Path
-from typing import Final
+from typing import Final, override
 
 import pixpy as pix
 import yaml
 
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .utils.wrap import wrap_lines
+from .utils.nerd import Nerd
 
+logger = logging.getLogger()
 
 class Talkie:
     def __init__(
@@ -29,6 +33,16 @@ class Talkie:
         self.console: Final = pix.Console(
             tile_set=tile_set, cols=con_size.x, rows=con_size.y
         )
+
+        font = pix.load_font(str(data / "SymbolsNerdFont-Regular.ttf"))
+        sz = pix.Float2(48, 48)
+        self.mic_icon : Final = pix.Image(sz)
+        self.mic_icon.draw_color = 0x2020a0ff
+        self.mic_icon.filled_circle(center=sz/2, radius=sz.x/2-1)
+        icon = font.make_image(chr(Nerd.nf_fa_microphone_lines), 32)
+        self.mic_icon.draw_color = 0xffffffff
+        self.mic_icon.draw(icon, center=sz/2)
+
         self.ai_player: Final = AIPlayer(self.prompts, game_path)
         self.current_image: None | pix.Image = None
         self.console.read_line()
@@ -40,9 +54,7 @@ class Talkie:
         if pix.was_pressed(pix.key.ESCAPE):
             self.ai_player.stop_playing()
         if pix.is_pressed(pix.key.F5):
-            self.screen.draw_color = pix.color.LIGHT_GREEN
-            self.screen.filled_circle(center=(20, 20), radius=18)
-            self.screen.draw_color = pix.color.WHITE
+            self.screen.draw(self.mic_icon, (10,10))
             self.ai_player.start_voice_recording()
         elif self.ai_player.recording:
             self.ai_player.end_voice_recording()
@@ -91,7 +103,7 @@ class Talkie:
                 if e.text[0] == "/":
                     cmd = e.text[1:].strip()
                     print(cmd)
-                    self.ai_player.handle_slash_command(cmd)
+                    _ = self.ai_player.handle_slash_command(cmd)
                 else:
                     self.ai_player.stop_audio()
                     self.ai_player.write_command(e.text)
@@ -107,11 +119,10 @@ def main():
     )
     args = parser.parse_args()
 
-    logging.getLogger().setLevel(logging.INFO)
-
     # Initialize pixpy rendering components
     screen = pix.open_display(size=(1280, 1024))
 
+    logger.info("Starting game")
     # Initialize Talkie
     game_path = Path(args.game)
     talkie = Talkie(screen, game_path)
