@@ -10,6 +10,7 @@ from .if_player import IFPlayer
 from .image_gen import ImageGen
 from .text_to_speech import TextToSpeech
 from .voice_recorder import VoiceToText
+from talkie import if_player
 
 
 @dataclass
@@ -26,13 +27,17 @@ class AudioOuptut:
 class ImageOutput:
     file_name: Path
 
+@dataclass
+class GfxOutput:
+    command: list[if_player.Command]
+
 
 @dataclass
 class PromptOutput:
     text: str
 
 
-AIOutput = TextOutput | AudioOuptut | ImageOutput | PromptOutput
+AIOutput = TextOutput | AudioOuptut | ImageOutput | PromptOutput | GfxOutput
 
 
 class AIPlayer:
@@ -94,6 +99,9 @@ class AIPlayer:
                     self.tts.speak(paragraph)
 
     def get_next_output(self) -> AIOutput | None:
+        commands = self.player.get_commands()
+        if commands:
+            return GfxOutput(commands)
         if len(self.output) == 0:
             return None
         return self.output.pop(0)

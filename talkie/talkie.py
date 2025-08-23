@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import array
 import logging
 import sys
 from logging import LogRecord, getLogger
@@ -10,9 +11,12 @@ from typing import Final, override
 import pixpy as pix
 import yaml
 
-from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
+from talkie.if_player import Clear, Command, Fill, Line, SetColor
+
+from .ai_player import AIPlayer, GfxOutput, ImageOutput, PromptOutput, TextOutput
 from .utils.wrap import wrap_lines
 from .utils.nerd import Nerd
+from .draw import PixelCanvas
 
 logger = logging.getLogger()
 
@@ -27,6 +31,7 @@ class Talkie:
         self.prompts: dict[str, str] = yaml.safe_load(prompts_path.open())
 
         self.screen: Final = screen
+        #self.target_image: pix.Image = pix.Image(160, 128)
         font_path = data / "3270.ttf"
         tile_set = pix.TileSet(font_file=str(font_path), size=32)
         con_size = (screen.size / tile_set.tile_size).toi()
@@ -46,9 +51,20 @@ class Talkie:
         self.ai_player: Final = AIPlayer(self.prompts, game_path)
         self.current_image: None | pix.Image = None
         self.console.read_line()
+        self.pcanvas : Final = PixelCanvas(160, 128)
+        self.pixels : Final = array.array('I', [0] * 160 * 128)
+
+        self.colors : list[int] = [
+            0, 0xff0000, 0x30e830, 0xffff00, 0x0000ff, 0xA06800, 0x00ffff, 0xffffff 
+        ]
+        self.palette : list[int] = [0] * 64
 
     def update(self):
         self.screen.draw(drawable=self.console, top_left=(0, 0), size=self.console.size)
+
+        image = pix.Image(self.pcanvas.width, self.pixels)
+
+        self.screen.draw(image, top_left=(50,50), size = image.size * (4,2))
 
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
@@ -74,6 +90,8 @@ class Talkie:
         if output:
             if isinstance(output, ImageOutput):
                 self.current_image = pix.load_png(output.file_name)
+            elif isinstance(output, GfxOutput):
+                self.handle_gfx(output.command)
             elif isinstance(output, PromptOutput):
                 self.console.cancel_line()
                 self.console.write(output.text + "\n")
@@ -81,6 +99,8 @@ class Talkie:
             elif isinstance(output, TextOutput):
                 if self.console.reading_line:
                     self.console.cancel_line()
+                    cp = self.console.cursor_pos
+                    self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
                 self.console.write("\n")
                 for line in wrap_lines(
                     output.text.splitlines(), self.console.grid_size.x - 1
@@ -88,6 +108,28 @@ class Talkie:
                     self.console.write(line + "\n")
                 self.console.write("\n>")
                 self.console.read_line()
+
+    def handle_gfx(self, gfx: list[Command]):
+        for cmd in gfx:
+            if isinstance(cmd, Line):
+                self.pcanvas.target_color = cmd.col1
+                self.pcanvas.draw_line(cmd.x0, cmd.y0, cmd.x1, cmd.y1, cmd.col0)
+            elif isinstance(cmd, Clear):
+                self.pcanvas.clear(0)
+            elif isinstance(cmd, SetColor):
+                col = (self.colors[cmd.index] << 8 ) | 0xff
+                self.palette[cmd.color]  = col
+            elif isinstance(cmd, Fill):
+                self.pcanvas.target_color = cmd.col1
+                self.pcanvas.flood_fill(cmd.x, cmd.y, cmd.col0)
+                self.pcanvas.target_color = -1
+        a = self.pcanvas.array
+        w,h = self.pcanvas.width,self.pcanvas.height
+        i = 0
+        for y in range(h):
+            for x in range(w):
+                self.pixels[x+(h-y-1)*w] = self.palette[a[i]]
+                i += 1
 
     def update_events(self, events: list[pix.event.AnyEvent]):
         # Handle text input events

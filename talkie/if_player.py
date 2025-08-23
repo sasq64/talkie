@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from importlib import resources
 from logging import getLogger
 import queue
@@ -11,11 +12,69 @@ from .text_utils import parse_adventure_description, trim_lines, unwrap_text
 
 logger = getLogger(__name__)
 
+
+@dataclass
+class Line:
+    x0: int
+    y0: int
+    x1: int
+    y1: int
+    col0: int
+    col1: int
+
+@dataclass
+class Fill:
+    x: int
+    y: int
+    col0: int
+    col1: int
+
+@dataclass
+class SetColor:
+    color: int
+    index: int
+
+@dataclass
+class Clear:
+    pass
+
+@dataclass
+class ShowBitmap:
+    bitmap: int
+
+Command = Fill | Line | Clear | SetColor | ShowBitmap
+
+# Registry mapping command names to (class, argument types)
+COMMANDS : dict[str, tuple[Command, list[type]]]= {
+    "line": (Line, [int, int, int, int, int, int]),
+    "fill": (Fill, [int, int, int, int]),
+    "clear": (Clear, []),
+    "setcolor": (SetColor, [int, int])
+}
+
+def parse_command(s: str) -> Command | None:
+    parts = s.split()
+    cmd, args = parts[0], parts[1:]
+
+    if cmd not in COMMANDS:
+        return None
+
+    cls, types = COMMANDS[cmd]
+
+    if len(args) != len(types):
+        raise ValueError(f"Wrong number of arguments for {cmd}: {args}")
+
+    # Convert arguments to expected types
+    converted = [t(a) for t, a in zip(types, args)]
+    return cls(*converted)
+
 class IFPlayer:
     def __init__(self, file_name: Path):
         zcode = re.compile(r"\.z(ode|[123456789])$")
         l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
+
+        self.commands : list[Command] = []
 
         if zcode.search(file_name.name):
             args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
@@ -45,24 +104,29 @@ class IFPlayer:
         self.output_thread: Final  = threading.Thread(target=read_output, daemon=True)
         self.output_thread.start()
 
+    def get_commands(self) -> list[Command]:
+        result = self.commands
+        self.commands = []
+        return result
+
     def read(self) -> dict[str, str] | None:
-        meta = re.compile(r"#\[(.*)\]#")
+        meta = re.compile(r"#\[(.*?)\]\n?")
         try:
             raw_text = self.output_queue.get_nowait()
             result = raw_text.decode()
             text = trim_lines(result)
             for line in text.splitlines():
-                if meta.search(line):
-                    # TODO parse meta command here
-                    pass
+                for m in meta.findall(line):
+                    cmd = parse_command(m)
+                    self.commands.append(cmd)
             text = meta.sub("", text)
 
             text = unwrap_text(text)
             ps = text.split("\n\n")
-            if len(ps) > 1:
+            if len(ps) > 2:
                 first = ps[0].strip()
                 for px in ps[1:]:
-                    if px.splitlines()[0].strip() == first:
+                    if px and px.splitlines()[0].strip() == first:
                         logger.debug(f"Dropping first line '{first}'")
                         _ = ps.pop(0)
                         break

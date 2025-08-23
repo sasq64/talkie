@@ -34,8 +34,8 @@ def parse_adventure_description(text: str) -> dict[str, str]:
     return parse_text(
         text,
         {
-            "title": r"^(.*)\s{5,}(.*)$",
-            "title2": r"^\s{5,}(.*)\w$",
+            "title": r"^(.*)\ {5,}(.*)$",
+            "title2": r"^\ {5,}(.*)\w$",
             "header": r"^Using normal.*\nLoading.*$",
             "trademark": r"^.*trademark.*nfocom.*$",
             "release": r"^Release.*Serial.*$",
