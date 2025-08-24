@@ -1,10 +1,10 @@
-from logging import getLogger
 import os
-from pathlib import Path
 import time
 import wave
 from collections.abc import Mapping
 from concurrent.futures import Future, ThreadPoolExecutor
+from logging import getLogger
+from pathlib import Path
 from typing import Final
 
 import pyaudio
@@ -12,8 +12,10 @@ from openai import NOT_GIVEN, OpenAI
 
 logger = getLogger(__name__)
 
+
 def fixup(text: str) -> str:
     return text.lower().replace(" ", "_")[:40]
+
 
 class VoiceToText:
     def __init__(self, api_key: str | None = None):
@@ -34,7 +36,9 @@ class VoiceToText:
             with open(key_path) as f:
                 return f.read().strip()
         except FileNotFoundError as e:
-            raise FileNotFoundError(f"OpenAI API key file not found at {key_path}") from e
+            raise FileNotFoundError(
+                f"OpenAI API key file not found at {key_path}"
+            ) from e
         except Exception as e:
             raise Exception("Error reading API key:") from e
 

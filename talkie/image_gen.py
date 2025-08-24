@@ -1,12 +1,12 @@
 import base64
 import logging
+import tempfile
 import threading
 from pathlib import Path
 from typing import Final, Literal
-from PIL import Image
-import tempfile
-            
+
 import openai
+from PIL import Image
 
 from .cache import FileCache
 
@@ -120,14 +120,15 @@ class ImageGen:
             with Image.open(base_path) as img:
                 if img.mode != "RGBA":
                     img = img.convert("RGBA")
-                
+
                 # Save to temporary file
-                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
+                with tempfile.NamedTemporaryFile(
+                    suffix=".png", delete=False
+                ) as temp_file:
                     img.save(temp_file, format="PNG")
                     temp_path = Path(temp_file.name)
-            
-            try:
 
+            try:
                 print("### " + description)
                 with open(temp_path, "rb") as rgba_file:
                     response = self.client.images.edit(

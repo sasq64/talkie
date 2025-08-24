@@ -1,7 +1,7 @@
 import io
-from logging import getLogger
 import queue
 import threading
+from logging import getLogger
 from pathlib import Path
 from queue import Queue
 from typing import Final, Literal

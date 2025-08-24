@@ -10,7 +10,6 @@ from .if_player import IFPlayer
 from .image_gen import ImageGen
 from .text_to_speech import TextToSpeech
 from .voice_recorder import VoiceToText
-from .draw import PixelCanvas
 
 
 @dataclass
@@ -27,6 +26,7 @@ class AudioOuptut:
 class ImageOutput:
     file_name: Path
 
+
 @dataclass
 class PromptOutput:
     text: str
@@ -42,31 +42,21 @@ class AIPlayer:
         self.modernize_prompt: Final = prompts["modernize_prompt"]
         self.whisper_prompt: Final = prompts["whisper_prompt"]
 
-        # AI components
         self.adventure_guy: Final = AdventureGuy(prompts["talk_prompt"])
         self.smart_parse: bool = False
+
         self.tts: Final = TextToSpeech(voice="alloy")
         self.voice: Final = VoiceToText()
         self.player: Final = IFPlayer(game_path)
         self.image_gen: Final = ImageGen()
-        self.image_file : Path | None = None
+        self.image_file: Path | None = None
 
         self.output: list[AIOutput] = []
 
-        # Graphics components
-        width,height = 160,96
-        self.pcanvas: Final = PixelCanvas(width, height)
-        self.colors: list[int] = [
-            0, 0xff0000, 0x30e830, 0xffff00, 0x0000ff, 0xA06800, 0x00ffff, 0xffffff
-        ]
-        self.palette: list[int] = [0] * 64
-
-        # State
         self.desc: str = ""
         self.fields: dict[str, str | Path] = {}
         self.recording: bool = False
         self.vtt_future: Future[str] | None = None
-        self.pattern: Final = re.compile(r"[.?!>:]$")
 
     def update(self):
         """Update AI and return command if available"""
@@ -101,7 +91,8 @@ class AIPlayer:
                         first_image_file = image_file
                         self.output.append(ImageOutput(image_file))
 
-                    if not self.pattern.search(paragraph):
+                    pattern = re.compile(r"[.?!>:]$")
+                    if not pattern.search(paragraph):
                         paragraph += ". "
                         paragraph = paragraph.replace("ZORK I", "ZORK ONE").replace(
                             "A N C H O R H E A D", "### ANCHORHEAD"
@@ -109,9 +100,8 @@ class AIPlayer:
                     self.tts.speak(paragraph)
 
     def get_next_output(self) -> AIOutput | None:
-
-        #image_file = self.player.get_image()
-        #if image_file:
+        # image_file = self.player.get_image()
+        # if image_file:
         #    return ImageOutput(image_file)
         if len(self.output) == 0:
             return None
@@ -159,9 +149,12 @@ class AIPlayer:
                 )
                 self.output.append(ImageOutput(self.image_file))
         elif cmd == "mod":
-            prompt = self.modernize_prompt.format(**self.fields)
-            file_name = self.image_gen.generate_image_with_base(prompt, self.image_file, para)
-            self.output.append(ImageOutput(file_name))
+            if self.image_file:
+                prompt = self.modernize_prompt.format(**self.fields)
+                file_name = self.image_gen.generate_image_with_base(
+                    prompt, self.image_file, para
+                )
+                self.output.append(ImageOutput(file_name))
         elif cmd == "transcript":
             print(self.player.get_transcript())
         else:
@@ -188,6 +181,5 @@ class AIPlayer:
         self.stop_playing()
 
         # Close the IF player subprocess
-        if hasattr(self, 'player'):
+        if hasattr(self, "player"):
             self.player.close()
-

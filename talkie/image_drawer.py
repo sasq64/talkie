@@ -107,11 +107,18 @@ def parse_command(s: str) -> Command | None:
 
 class ImageDrawer:
     def __init__(self):
-        width,height = 160,96
+        width, height = 160, 96
         self.pcanvas: Final = PixelCanvas(width, height)
         self.commands: list[Command] = []
         self.colors: list[int] = [
-            0, 0xff0000, 0x30e830, 0xffff00, 0x0000ff, 0xA06800, 0x00ffff, 0xffffff
+            0,
+            0xFF0000,
+            0x30E830,
+            0xFFFF00,
+            0x0000FF,
+            0xA06800,
+            0x00FFFF,
+            0xFFFFFF,
         ]
         self.palette: list[int] = [0] * 64
 
@@ -119,11 +126,13 @@ class ImageDrawer:
         """Handle graphics commands and return path to generated PNG file"""
         for cmd in gfx:
             if isinstance(cmd, Line):
-                self.pcanvas.draw_line(cmd.x0, cmd.y0, cmd.x1, cmd.y1, cmd.col0, cmd.col1)
+                self.pcanvas.draw_line(
+                    cmd.x0, cmd.y0, cmd.x1, cmd.y1, cmd.col0, cmd.col1
+                )
             elif isinstance(cmd, Clear):
                 self.pcanvas.clear(0)
             elif isinstance(cmd, SetColor):
-                col = (self.colors[cmd.index] << 8) | 0xff
+                col = (self.colors[cmd.index] << 8) | 0xFF
                 self.palette[cmd.color] = col
             elif isinstance(cmd, Fill):
                 self.pcanvas.flood_fill(cmd.x, cmd.y, cmd.col0, cmd.col1)
@@ -144,13 +153,13 @@ class ImageDrawer:
 
         # Create image directly from canvas array and palette
         w, h = self.pcanvas.width, self.pcanvas.height
-        game_image = Image.new('RGBA', (w, h))
+        game_image = Image.new("RGBA", (w, h))
 
         # Convert palette indexes to RGBA tuples directly
-        rgba_data : list[tuple[int, int, int, int]] = []
+        rgba_data: list[tuple[int, int, int, int]] = []
         for idx in self.pcanvas.array:
             p = self.palette[idx]
-            rgba_data.append((p >> 24 & 0xff, p >> 16 & 0xff, p >> 8 & 0xff, p & 0xff))
+            rgba_data.append((p >> 24 & 0xFF, p >> 16 & 0xFF, p >> 8 & 0xFF, p & 0xFF))
 
         game_image.putdata(rgba_data)
         png_path = Path("game.png")

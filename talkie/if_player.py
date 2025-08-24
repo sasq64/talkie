@@ -1,3 +1,4 @@
+import contextlib
 import queue
 import re
 import subprocess
@@ -14,13 +15,14 @@ from .text_utils import parse_adventure_description, trim_lines, unwrap_text
 
 logger = getLogger(__name__)
 
+
 class IFPlayer:
     def __init__(self, file_name: Path):
         zcode = re.compile(r"\.z(ode|[123456789])$")
         l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
 
-        self.image_drawer : Final = ImageDrawer()
+        self.image_drawer: Final = ImageDrawer()
 
         if zcode.search(file_name.name):
             args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
@@ -52,7 +54,7 @@ class IFPlayer:
         self.output_thread: Final = threading.Thread(target=read_output, daemon=True)
         self.output_thread.start()
 
-        self._closed : bool = False
+        self._closed: bool = False
 
     def read(self) -> dict[str, str | Path] | None:
         """
@@ -96,10 +98,10 @@ class IFPlayer:
                     break
             text = "\n\n".join(ps)
         adv_fields = parse_adventure_description(text)
-        fields : dict[str, str | Path] = {}
+        fields: dict[str, str | Path] = {}
         fields["text"] = adv_fields["text"]
         logger.debug(f"Parsed: '{text}' into:\n{fields}")
-        self.transcript.append((":", fields["text"]))
+        self.transcript.append((":", str(fields["text"])))
         fields["full_text"] = self.text_output
         if found_gfx:
             fields["image"] = self.image_drawer.get_image()
@@ -172,7 +174,7 @@ class IFPlayer:
             self._cleanup()
         except Exception:
             # Ignore errors during garbage collection
-            pass
+            _ = contextlib.suppress(Exception)
 
     def __enter__(self):
         """Context manager entry."""

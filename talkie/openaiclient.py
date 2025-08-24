@@ -93,7 +93,7 @@ def create_function(
 class OpenAIClient:
     ## Public API
 
-    def __init__(self, api_key: str = "", model : str = "gpt5-mini"):
+    def __init__(self, api_key: str = "", model: str = "gpt5-mini"):
         self.executor = ThreadPoolExecutor(max_workers=2)
 
         # Initialize OpenAI client
@@ -110,7 +110,7 @@ class OpenAIClient:
         self.messages: list[ResponseInputItemParam] = []
         self.tools: list[FunctionToolParam] = []
         self.functions: dict[str, Callable[..., object]] = {}
-        self.model : str = model
+        self.model: str = model
 
     def add_function(
         self,

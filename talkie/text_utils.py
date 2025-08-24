@@ -11,7 +11,7 @@ def parse_text(text: str, patterns: dict[str, str]) -> dict[str, str]:
     Returns:
         Dict with 'text' key containing remaining text and other keys for named matches
     """
-    result : dict[str, str] = {}
+    result: dict[str, str] = {}
     remaining_text = text
 
     for name, pattern in patterns.items():

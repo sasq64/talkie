@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 import argparse
 import logging
-import sys
-from logging import LogRecord, getLogger
 from importlib import resources
 from pathlib import Path
-from typing import Final, override
+from typing import Final
 
 import pixpy as pix
 import yaml
 
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
-from .utils.wrap import wrap_lines
 from .utils.nerd import Nerd
+from .utils.wrap import wrap_lines
 
 logger = logging.getLogger()
+
 
 class Talkie:
     def __init__(
@@ -27,7 +26,7 @@ class Talkie:
         self.prompts: dict[str, str] = yaml.safe_load(prompts_path.open())
 
         self.screen: Final = screen
-        #self.game_image: pix.Image = pix.Image(160, 128)
+        # self.game_image: pix.Image = pix.Image(160, 128)
         font_path = data / "3270.ttf"
         tile_set = pix.TileSet(font_file=str(font_path), size=32)
         con_size = (screen.size / tile_set.tile_size).toi()
@@ -37,12 +36,12 @@ class Talkie:
 
         font = pix.load_font(str(data / "SymbolsNerdFont-Regular.ttf"))
         sz = pix.Float2(48, 48)
-        self.mic_icon : Final = pix.Image(sz)
-        self.mic_icon.draw_color = 0x2020a0ff
-        self.mic_icon.filled_circle(center=sz/2, radius=sz.x/2-1)
+        self.mic_icon: Final = pix.Image(sz)
+        self.mic_icon.draw_color = 0x2020A0FF
+        self.mic_icon.filled_circle(center=sz / 2, radius=sz.x / 2 - 1)
         icon = font.make_image(chr(Nerd.nf_fa_microphone_lines), 32)
-        self.mic_icon.draw_color = 0xffffffff
-        self.mic_icon.draw(icon, center=sz/2)
+        self.mic_icon.draw_color = 0xFFFFFFFF
+        self.mic_icon.draw(icon, center=sz / 2)
 
         self.ai_player: Final = AIPlayer(self.prompts, game_path)
         self.current_image: None | pix.Image = None
@@ -54,14 +53,13 @@ class Talkie:
     def update(self):
         self.screen.draw(drawable=self.console, top_left=(0, 0), size=self.console.size)
 
-
-        #self.screen.draw(self.game_image, top_left=(50,50), size = self.game_image.size * (4,2))
+        # self.screen.draw(self.game_image, top_left=(50,50), size = self.game_image.size * (4,2))
 
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
             self.ai_player.stop_playing()
         if pix.is_pressed(pix.key.F5):
-            self.screen.draw(self.mic_icon, (10,10))
+            self.screen.draw(self.mic_icon, (10, 10))
             self.ai_player.start_voice_recording()
         elif self.ai_player.recording:
             self.ai_player.end_voice_recording()
@@ -85,9 +83,9 @@ class Talkie:
         if output:
             if isinstance(output, ImageOutput):
                 # Load image - could be from image generation or graphics commands
-                #if str(output.file_name) == "game.png":
+                # if str(output.file_name) == "game.png":
                 #    self.game_image = pix.load_png(str(output.file_name))
-                #else:
+                # else:
                 self.current_image = pix.load_png(str(output.file_name))
             elif isinstance(output, PromptOutput):
                 self.console.cancel_line()
@@ -105,7 +103,6 @@ class Talkie:
                     self.console.write(line + "\n")
                 self.console.write("\n>")
                 self.console.read_line()
-
 
     def update_events(self, events: list[pix.event.AnyEvent]):
         # Handle text input events

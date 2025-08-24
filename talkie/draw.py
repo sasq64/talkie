@@ -7,7 +7,6 @@ Bitmap drawing utilities using a simple 1D pixel buffer.
 """
 
 import array
-from collections.abc import MutableSequence
 from typing import Final
 
 
@@ -90,7 +89,9 @@ class PixelCanvas:
                 ):
                     stack.append((i, cy + 1))
 
-    def draw_line(self, x0: int, y0: int, x1: int, y1: int, col: int, target_color: int = -1) -> None:
+    def draw_line(
+        self, x0: int, y0: int, x1: int, y1: int, col: int, target_color: int = -1
+    ) -> None:
         """Draw a line from (x0, y0) to (x1, y1) using Bresenham's algorithm.
 
         - Writes only to in-bounds pixels.
