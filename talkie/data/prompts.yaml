@@ -56,3 +56,13 @@ whisper_prompt: |
   {text}
   ```
   """
+
+#
+modernize_prompt: |
+  Redraw this line art as a high-resolution detailed illustration in the style of
+  80s video game box art.
+  For reference, this is the scene as written to the player:
+  ```
+  {text}
+  ```
+

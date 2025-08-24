@@ -3,7 +3,9 @@ import logging
 import threading
 from pathlib import Path
 from typing import Final, Literal
-
+from PIL import Image
+import tempfile
+            
 import openai
 
 from .cache import FileCache
@@ -97,6 +99,73 @@ class ImageGen:
 
         except Exception as e:
             raise RuntimeError("Failed to generate image") from e
+
+    def generate_image_with_base(
+        self, description: str, base_image_path: Path | str, key: str | None = None
+    ) -> Path:
+        if key is None:
+            key = f"{description}_{Path(base_image_path).name}"
+
+        cached_data = self.cache.get(key)
+        if cached_data:
+            return self._make_image_file(cached_data)
+
+        logging.info("Generating image with base image")
+        try:
+            base_path = Path(base_image_path)
+            if not base_path.exists():
+                raise FileNotFoundError(f"Base image not found: {base_path}")
+
+            # Convert image to RGBA format required by OpenAI
+            with Image.open(base_path) as img:
+                if img.mode != "RGBA":
+                    img = img.convert("RGBA")
+                
+                # Save to temporary file
+                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
+                    img.save(temp_file, format="PNG")
+                    temp_path = Path(temp_file.name)
+            
+            try:
+
+                print("### " + description)
+                with open(temp_path, "rb") as rgba_file:
+                    response = self.client.images.edit(
+                        image=rgba_file,
+                        model="gpt-image-1",
+                        prompt=description,
+                        size="1024x1024",
+                        n=1,
+                    )
+            finally:
+                # Clean up temporary file
+                temp_path.unlink(missing_ok=True)
+            logging.info("Generation with base image done")
+
+            if not response.data:
+                raise RuntimeError("No image URL returned from OpenAI API")
+
+            base_64 = response.data[0].b64_json
+            data: bytes | None = None
+            if base_64:
+                data = base64.b64decode(base_64)
+            else:
+                image_url = response.data[0].url
+                if image_url:
+                    import requests
+
+                    img_response = requests.get(image_url)
+                    img_response.raise_for_status()
+                    data = img_response.content
+
+            if data is None:
+                raise RuntimeError("No image data found")
+
+            self.cache.add(key, data)
+            return self._make_image_file(data)
+
+        except Exception as e:
+            raise RuntimeError("Failed to generate image with base") from e
 
     def get_image(self, key: str) -> None | Path:
         cached_data = self.cache.get(key)

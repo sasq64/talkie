@@ -22,4 +22,7 @@ pytest_cache/
 
 /out.wav
 /temp.png
+/talkie.log
+
+.coverage*
 

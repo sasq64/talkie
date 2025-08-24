@@ -8,7 +8,7 @@ Bitmap drawing utilities using a simple 1D pixel buffer.
 
 import array
 from collections.abc import MutableSequence
-from typing import Final 
+from typing import Final
 
 
 class PixelCanvas:
@@ -19,10 +19,9 @@ class PixelCanvas:
     """
 
     def __init__(self, w: int, h: int) -> None:
-        self.array : Final = array.array('B', [0] * w * h)
-        self.width : int = w
-        self.height : int = h
-        self.target_color : int = -1
+        self.array: Final = array.array("B", [0] * w * h)
+        self.width: int = w
+        self.height: int = h
 
     def _in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
@@ -34,43 +33,64 @@ class PixelCanvas:
         for i in range(len(self.array)):
             self.array[i] = color
 
-    def flood_fill(self, x: int, y: int, col: int) -> None:
-        """Flood-fill the region containing (x, y) with color `col`.
+    def flood_fill(self, x: int, y: int, col: int, target_col: int) -> None:
+        """Flood-fill using stack-based scanline algorithm based on os_fill from graphics.c.
 
-        - Uses 4-connectivity (up, down, left, right).
-        - Does nothing if (x, y) is out of bounds or if the starting pixel
-          already has color `col`.
+        - Fills region containing (x, y) with color `col`
+        - Only fills pixels that currently have color `target_col`
+        - Uses stack-based scanline approach for efficiency
         """
+
+        if col == target_col:
+            return
 
         if not self._in_bounds(x, y):
             return
 
-        start_idx = self._index(x, y)
-        target = self.array[start_idx]
-        if target == col:
-            return
-        if self.target_color != -1 and target != self.target_color:
+        if self.array[self._index(x, y)] != target_col:
             return
 
         stack: list[tuple[int, int]] = [(x, y)]
+
         while stack:
             cx, cy = stack.pop()
+
             if not self._in_bounds(cx, cy):
                 continue
-            idx = self._index(cx, cy)
-            if self.array[idx] != target:
+
+            if self.array[self._index(cx, cy)] != target_col:
                 continue
 
-            # Fill current pixel
-            self.array[idx] = col
+            # Find left side, filling along the way
+            left = cx
+            while left >= 0 and self.array[self._index(left, cy)] == target_col:
+                self.array[self._index(left, cy)] = col
+                left -= 1
 
-            # Add 4-connected neighbors
-            stack.append((cx + 1, cy))
-            stack.append((cx - 1, cy))
-            stack.append((cx, cy + 1))
-            stack.append((cx, cy - 1))
+            left += 1
 
-    def draw_line(self, x0: int, y0: int, x1: int, y1: int, col: int) -> None:
+            # Find right side, filling along the way
+            right = cx + 1
+            while (
+                right < self.width and self.array[self._index(right, cy)] == target_col
+            ):
+                self.array[self._index(right, cy)] = col
+                right += 1
+
+            right -= 1
+
+            # Add spans above and below to stack
+            for i in range(left, right + 1):
+                if cy - 1 >= 0 and self.array[self._index(i, cy - 1)] == target_col:
+                    stack.append((i, cy - 1))
+
+                if (
+                    cy + 1 < self.height
+                    and self.array[self._index(i, cy + 1)] == target_col
+                ):
+                    stack.append((i, cy + 1))
+
+    def draw_line(self, x0: int, y0: int, x1: int, y1: int, col: int, target_color: int = -1) -> None:
         """Draw a line from (x0, y0) to (x1, y1) using Bresenham's algorithm.
 
         - Writes only to in-bounds pixels.
@@ -85,7 +105,7 @@ class PixelCanvas:
         while True:
             if self._in_bounds(x0, y0):
                 current = self.array[self._index(x0, y0)]
-                if self.target_color == -1 or self.target_color == current:
+                if target_color == -1 or target_color == current:
                     self.array[self._index(x0, y0)] = col
             if x0 == x1 and y0 == y1:
                 break
