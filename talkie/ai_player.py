@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
+from .talkie_config import TalkieConfig
+
 from .adventure_guy import AdventureGuy
 from .if_player import IFPlayer
 from .image_gen import ImageGen
@@ -36,19 +38,29 @@ AIOutput = TextOutput | AudioOuptut | ImageOutput | PromptOutput
 
 
 class AIPlayer:
-    def __init__(self, prompts: dict[str, str], game_path: Path):
-        self.prompts: Final = prompts
-        self.image_prompt: Final = prompts["image_prompt"]
-        self.modernize_prompt: Final = prompts["modernize_prompt"]
-        self.whisper_prompt: Final = prompts["whisper_prompt"]
+    def __init__(
+        self,
+        if_player: IFPlayer,
+        text_to_speech: TextToSpeech,
+        voice_to_text: VoiceToText,
+        image_gen: ImageGen,
+        adventure_guy: AdventureGuy | None,
+        config: TalkieConfig,
+    ):
+        print(config.game_file)
+        print(config.prompts)
+        self.prompts: Final = config.prompts
+        self.image_prompt: Final = self.prompts["image_prompt"]
+        self.modernize_prompt: Final = self.prompts["modernize_prompt"]
+        self.whisper_prompt: Final = self.prompts["whisper_prompt"]
 
-        self.adventure_guy: Final = AdventureGuy(prompts["talk_prompt"])
+        self.adventure_guy: AdventureGuy | None = adventure_guy
         self.smart_parse: bool = False
 
-        self.tts: Final = TextToSpeech(voice="alloy")
-        self.voice: Final = VoiceToText()
-        self.player: Final = IFPlayer(game_path)
-        self.image_gen: Final = ImageGen()
+        self.tts: Final = text_to_speech
+        self.voice: Final = voice_to_text
+        self.player: Final = if_player
+        self.image_gen: Final = image_gen
         self.image_file: Path | None = None
 
         self.output: list[AIOutput] = []
@@ -63,7 +75,7 @@ class AIPlayer:
         self._check_voice_result()
 
         # Do we have an AI processed voice command?
-        if self.adventure_guy.update():
+        if self.adventure_guy and self.adventure_guy.update():
             command = self.adventure_guy.get_command()
             if command:
                 self.output.append(PromptOutput(command))
@@ -126,7 +138,7 @@ class AIPlayer:
         if self.vtt_future is not None and self.vtt_future.done():
             text = self.vtt_future.result()
             self.vtt_future = None
-            if self.smart_parse:
+            if self.smart_parse and self.adventure_guy:
                 self.adventure_guy.set_input(text, self.desc)
             else:
                 self.output.append(PromptOutput(text))

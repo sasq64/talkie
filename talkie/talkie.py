@@ -1,12 +1,21 @@
 #!/usr/bin/env python
 import argparse
 import logging
+import lagom
+from lagom import Container
 from importlib import resources
 from pathlib import Path
 from typing import Final
 
 import pixpy as pix
 import yaml
+
+from talkie.adventure_guy import AdventureGuy
+from talkie.if_player import IFPlayer
+from talkie.openaiclient import OpenAIClient
+from talkie.text_to_speech import TextToSpeech
+
+from .talkie_config import TalkieConfig
 
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .utils.nerd import Nerd
@@ -18,15 +27,17 @@ logger = logging.getLogger()
 class Talkie:
     def __init__(
         self,
+        container: Container,
         screen: pix.Screen,
-        game_path: Path,
+        config: TalkieConfig,
+        ai_player: AIPlayer,
     ):
-        data = resources.files("talkie.data")
-        prompts_path = data / "prompts.yaml"
-        self.prompts: dict[str, str] = yaml.safe_load(prompts_path.open())
+        print(config.game_file)
+        print(config.prompts)
 
         self.screen: Final = screen
         # self.game_image: pix.Image = pix.Image(160, 128)
+        data = resources.files("talkie.data")
         font_path = data / "3270.ttf"
         tile_set = pix.TileSet(font_file=str(font_path), size=32)
         con_size = (screen.size / tile_set.tile_size).toi()
@@ -43,7 +54,7 @@ class Talkie:
         self.mic_icon.draw_color = 0xFFFFFFFF
         self.mic_icon.draw(icon, center=sz / 2)
 
-        self.ai_player: Final = AIPlayer(self.prompts, game_path)
+        self.ai_player: Final = ai_player
         self.current_image: None | pix.Image = None
         self.console.read_line()
 
@@ -139,8 +150,20 @@ def main():
 
     logger.info("Starting game")
     # Initialize Talkie
-    game_path = Path(args.game)
-    talkie = Talkie(screen, game_path)
+
+    data = resources.files("talkie.data")
+    prompts_path = data / "prompts.yaml"
+    prompts: dict[str, str] = yaml.safe_load(prompts_path.open())
+
+    container = Container()
+    container[pix.Screen] = screen
+    container[OpenAIClient] = lambda c: OpenAIClient(model="gpt4")
+    container[AdventureGuy] = lambda c: AdventureGuy(c[OpenAIClient], "")
+    container[TalkieConfig] = TalkieConfig(Path(args.game), prompts)
+    container[IFPlayer] = lambda c: IFPlayer(c[TalkieConfig].game_file)
+    container[TextToSpeech] = lambda c: TextToSpeech(voice="alloy")
+
+    talkie = container[Talkie]
 
     while pix.run_loop():
         talkie.update()
