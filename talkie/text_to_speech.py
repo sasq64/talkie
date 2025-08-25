@@ -1,15 +1,11 @@
-import io
-import queue
 import threading
 from logging import getLogger
-from pathlib import Path
 from queue import Queue
 from typing import Final, Literal
 
 import openai
-import pyaudio
-from pydub import AudioSegment
 
+from .audio_player import AudioPlayer
 from .cache import FileCache
 
 logger = getLogger(__name__)
@@ -21,33 +17,25 @@ Voice = Literal[
 
 
 class TextToSpeech:
-    def __init__(self, voice: Voice = "alloy", model: str = "tts-1"):
+    def __init__(
+        self,
+        audio_player: AudioPlayer,
+        cache: FileCache,
+        open_ai: openai.OpenAI,
+        voice: Voice = "alloy",
+        model: str = "tts-1",
+    ):
         self.tts_queue: Final = Queue[str]()
-        self.audio_queue: Final = Queue[bytes]()
-        self.pyaudio_instance: Final = pyaudio.PyAudio()
+        self.audio_player: Final = audio_player
         self.voice: str = voice
+        self.cache: Final = cache
+        self.cache.meta = {"voice": voice, "model": model}
         self.model: str = model
-        self.cache: Final = FileCache(
-            Path(".cache/tts"), meta={"voice": voice, "model": model}
-        )
+        self.client: Final = open_ai
 
-        self.stop_event: Final = threading.Event()
-
-        # Load OpenAI API key
-        api_key = ""
-        key_path = Path.home() / ".openai.key"
-        if key_path.exists():
-            with open(key_path) as f:
-                api_key = f.read().strip()
-        self.client: Final = openai.OpenAI(api_key=api_key)
-
-        # Start worker threads
+        # Start worker thread
         self.tts_thread: Final = threading.Thread(target=self._tts_worker, daemon=True)
-        self.audio_thread: Final = threading.Thread(
-            target=self._audio_worker, daemon=True
-        )
         self.tts_thread.start()
-        self.audio_thread.start()
 
     def speak(self, text: str):
         """Queue text for speaking."""
@@ -63,7 +51,7 @@ class TextToSpeech:
                     fn = self.cache.get(text)
                     if fn is not None:
                         logger.info(f"'{text}' found in cache!")
-                        self.audio_queue.put(fn)
+                        self.audio_player.put_audio(fn)
                     else:
                         logger.info(
                             f"Using '{self.voice}' to generate audio for '{text}'"
@@ -73,74 +61,18 @@ class TextToSpeech:
                         )
                         audio_data = response.content
                         self.cache.add(text, audio_data)
-                        self.audio_queue.put(audio_data)
+                        self.audio_player.put_audio(audio_data)
             except Exception as e:
                 logger.error(f"Error: {e}")
 
-    def _audio_worker(self):
-        current_stream: pyaudio.Stream | None = None
-        while True:
-            try:
-                audio_data = self.audio_queue.get()
-                self.stop_event.clear()
-                if audio_data:
-                    # Path(f"file{counter}.mp3").write_bytes(audio_data)
-                    # counter += 1
-
-                    # Convert MP3 bytes to AudioSegment
-                    audio_segment: AudioSegment = AudioSegment.from_mp3(
-                        io.BytesIO(audio_data)
-                    )
-
-                    if not audio_segment.raw_data:
-                        raise RuntimeError("Illegal AudioSegment")
-
-                    # Convert to raw audio data for pyaudio
-                    raw_data: bytes = audio_segment.raw_data
-
-                    # Set up pyaudio stream with correct format
-                    current_stream = self.pyaudio_instance.open(
-                        format=self.pyaudio_instance.get_format_from_width(
-                            audio_segment.sample_width
-                        ),
-                        channels=audio_segment.channels,
-                        rate=audio_segment.frame_rate,
-                        output=True,
-                    )
-
-                    # Play the audio in chunks, checking for stop event
-                    chunk_size = 1024
-                    for i in range(0, len(raw_data), chunk_size):
-                        if self.stop_event.is_set():
-                            break
-                        chunk = raw_data[i : i + chunk_size]
-                        current_stream.write(chunk)
-
-                    current_stream.stop_stream()
-                    current_stream.close()
-                    current_stream = None
-                    self.stop_event.clear()
-            except Exception as e:
-                logger.error(f"Audio playback error: {e}")
-                if current_stream:
-                    current_stream.close()
-                    current_stream = None
-
     def stop_playing(self):
-        self.stop_event.set()
+        self.audio_player.stop_playing()
 
     def clear_all(self):
-        # Clear the audio queue to stop any queued audio
-        while not self.audio_queue.empty():
-            try:
-                _ = self.audio_queue.get_nowait()
-            except queue.Empty:
-                break
+        self.audio_player.clear_all()
 
     def stop_all(self):
-        self.clear_all()
-        self.stop_playing()
+        self.audio_player.stop_all()
 
     def cleanup(self):
-        self.stop_playing()
-        self.pyaudio_instance.terminate()
+        self.audio_player.cleanup()

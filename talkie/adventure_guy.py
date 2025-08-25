@@ -4,11 +4,11 @@ from .openaiclient import OpenAIClient
 
 
 class AdventureGuy:
-    def __init__(self, open_ai_client: OpenAIClient,  prompt: str = ""):
+    def __init__(self, open_ai_client: OpenAIClient, prompt: str = ""):
         self.prompt: str = prompt
         self.texts: list[str] = []
         self.score: int = 0
-        assert(open_ai_client is not None)
+        assert open_ai_client is not None
         self.client: Final = open_ai_client
         self.command: str | None = None
         self.question: str | None = None

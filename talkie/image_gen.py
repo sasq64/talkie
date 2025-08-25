@@ -5,7 +5,7 @@ import threading
 from pathlib import Path
 from typing import Final, Literal
 
-import openai
+from openai import OpenAI
 from PIL import Image
 
 from .cache import FileCache
@@ -27,28 +27,19 @@ Quality = Literal["standard", "hd", "low", "medium", "high", "auto"]
 
 
 class ImageGen:
-    def __init__(self):
+    def __init__(self, open_ai: OpenAI, cache: FileCache):
         self.model: ImageModel = "gpt-image-1"
         self.size: ImageSize = "1024x1024"
         self.quality: Quality = "medium"
 
-        self.cache: Final = FileCache(
-            Path(".cache/img"),
-            meta={
-                "model": self.model,
-                "size": self.size,
-                "quality": self.quality,
-            },
-        )
+        self.client: Final = open_ai
+        self.cache: Final = cache
+        cache.meta = {
+            "model": self.model,
+            "size": self.size,
+            "quality": self.quality,
+        }
         self.stop_event: Final = threading.Event()
-
-        # Load OpenAI API key
-        api_key = ""
-        key_path = Path.home() / ".openai.key"
-        if key_path.exists():
-            with open(key_path) as f:
-                api_key = f.read().strip()
-        self.client: Final = openai.OpenAI(api_key=api_key)
 
     def _make_image_file(self, data: bytes) -> Path:
         target = Path("temp.png")

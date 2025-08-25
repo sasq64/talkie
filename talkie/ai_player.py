@@ -5,11 +5,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
-from .talkie_config import TalkieConfig
-
 from .adventure_guy import AdventureGuy
 from .if_player import IFPlayer
 from .image_gen import ImageGen
+from .talkie_config import TalkieConfig
 from .text_to_speech import TextToSpeech
 from .voice_recorder import VoiceToText
 
@@ -44,11 +43,9 @@ class AIPlayer:
         text_to_speech: TextToSpeech,
         voice_to_text: VoiceToText,
         image_gen: ImageGen,
-        adventure_guy: AdventureGuy | None,
         config: TalkieConfig,
+        adventure_guy: AdventureGuy | None = None,
     ):
-        print(config.game_file)
-        print(config.prompts)
         self.prompts: Final = config.prompts
         self.image_prompt: Final = self.prompts["image_prompt"]
         self.modernize_prompt: Final = self.prompts["modernize_prompt"]

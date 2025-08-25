@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 
 import pytest
-from cache import FileCache
+from talkie.cache import FileCache
 
 
 @pytest.fixture

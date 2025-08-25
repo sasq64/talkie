@@ -1,23 +1,25 @@
 #!/usr/bin/env python
 import argparse
 import logging
-import lagom
-from lagom import Container
 from importlib import resources
 from pathlib import Path
 from typing import Final
 
 import pixpy as pix
 import yaml
+from lagom import Container
+from openai import OpenAI
 
 from talkie.adventure_guy import AdventureGuy
+from talkie.audio_player import AudioPlayer
+from talkie.cache import FileCache
 from talkie.if_player import IFPlayer
+from talkie.image_gen import ImageGen
 from talkie.openaiclient import OpenAIClient
 from talkie.text_to_speech import TextToSpeech
 
-from .talkie_config import TalkieConfig
-
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
+from .talkie_config import TalkieConfig
 from .utils.nerd import Nerd
 from .utils.wrap import wrap_lines
 
@@ -27,13 +29,11 @@ logger = logging.getLogger()
 class Talkie:
     def __init__(
         self,
-        container: Container,
         screen: pix.Screen,
         config: TalkieConfig,
         ai_player: AIPlayer,
     ):
         print(config.game_file)
-        print(config.prompts)
 
         self.screen: Final = screen
         # self.game_image: pix.Image = pix.Image(160, 128)
@@ -128,7 +128,6 @@ class Talkie:
 
                 if e.text[0] == "/":
                     cmd = e.text[1:].strip()
-                    print(cmd)
                     _ = self.ai_player.handle_slash_command(cmd)
                 else:
                     self.ai_player.stop_audio()
@@ -136,14 +135,23 @@ class Talkie:
                 self.console.read_line()
 
 
+class Args(argparse.Namespace):
+    game: Path | None = None
+    gfx: Path | None = None
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Talkie - AI Interactive Fiction player"
     )
     _ = parser.add_argument(
-        "-g", "--game", type=str, default="curses.z5", help="Game file to load"
+        "-g", "--game", type=Path, default="curses.z5", help="Game file to load"
     )
-    args = parser.parse_args()
+    _ = parser.add_argument(
+        "-G", "--gfx", type=Path, default="curses.z5", help="Graphics file to load"
+    )
+    args = parser.parse_args(namespace=Args)
+    assert args.game
 
     # Initialize pixpy rendering components
     screen = pix.open_display(size=(1280, 1024))
@@ -157,11 +165,30 @@ def main():
 
     container = Container()
     container[pix.Screen] = screen
-    container[OpenAIClient] = lambda c: OpenAIClient(model="gpt4")
-    container[AdventureGuy] = lambda c: AdventureGuy(c[OpenAIClient], "")
-    container[TalkieConfig] = TalkieConfig(Path(args.game), prompts)
-    container[IFPlayer] = lambda c: IFPlayer(c[TalkieConfig].game_file)
-    container[TextToSpeech] = lambda c: TextToSpeech(voice="alloy")
+
+    # Load OpenAI API key
+    api_key = ""
+    key_path = Path.home() / ".openai.key"
+    if key_path.exists():
+        with open(key_path) as f:
+            api_key = f.read().strip()
+    client = OpenAI(api_key=api_key)
+    container[OpenAI] = client
+
+    tts_cache = FileCache(Path(".cache/tts"))
+    img_cache = FileCache(Path(".cache/img"))
+
+    container[OpenAIClient] = lambda c: OpenAIClient(c[OpenAI], model="gpt4")
+    # container[AdventureGuy] = lambda c: AdventureGuy(c[OpenAIClient], prompt="")
+    container[AdventureGuy] = None
+    container[TalkieConfig] = TalkieConfig(args.game, args.gfx, prompts)
+    container[IFPlayer] = lambda c: IFPlayer(
+        c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
+    )
+    container[ImageGen] = lambda c: ImageGen(c[OpenAI], img_cache)
+    container[TextToSpeech] = lambda c: TextToSpeech(
+        c[AudioPlayer], tts_cache, c[OpenAI], voice="alloy"
+    )
 
     talkie = container[Talkie]
 

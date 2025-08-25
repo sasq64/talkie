@@ -17,17 +17,23 @@ logger = getLogger(__name__)
 
 
 class IFPlayer:
-    def __init__(self, file_name: Path):
+    def __init__(self, file_name: Path, gfx_path: Path | None = None):
         zcode = re.compile(r"\.z(ode|[123456789])$")
         l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
-
         self.image_drawer: Final = ImageDrawer()
 
         if zcode.search(file_name.name):
             args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
         elif l9.search(file_name.name):
-            args = [str(data / "l9"), file_name.as_posix()]
+            if gfx_path:
+                args = [
+                    str(data / "l9"),
+                    file_name.as_posix(),
+                    gfx_path.as_posix() + "/",
+                ]
+            else:
+                args = [str(data / "l9"), file_name.as_posix()]
         else:
             raise RuntimeError("Unknown format")
         print(args)

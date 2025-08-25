@@ -1,10 +1,6 @@
-import os
-import sys
 import unittest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from text_utils import parse_adventure_description, parse_text, unwrap_text
+from talkie.text_utils import parse_adventure_description, parse_text, unwrap_text
 
 
 class TestTextUtils(unittest.TestCase):

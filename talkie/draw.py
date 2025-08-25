@@ -7,6 +7,7 @@ Bitmap drawing utilities using a simple 1D pixel buffer.
 """
 
 import array
+from collections.abc import Sequence
 from typing import Final
 
 
@@ -31,6 +32,10 @@ class PixelCanvas:
     def clear(self, color: int):
         for i in range(len(self.array)):
             self.array[i] = color
+
+    def set_pixels(self, pixels: Sequence[int]):
+        for i in range(len(self.array)):
+            self.array[i] = pixels[i]
 
     def flood_fill(self, x: int, y: int, col: int, target_col: int) -> None:
         """Flood-fill using stack-based scanline algorithm based on os_fill from graphics.c.

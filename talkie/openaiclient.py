@@ -3,8 +3,7 @@ import json
 import logging
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
-from pathlib import Path
-from typing import Literal, TypeGuard
+from typing import Final, Literal, TypeGuard
 
 from openai import OpenAI
 from openai.types.responses import (
@@ -93,16 +92,9 @@ def create_function(
 class OpenAIClient:
     ## Public API
 
-    def __init__(self, api_key: str = "", model: str = "gpt5-mini"):
+    def __init__(self, openai: OpenAI, model: str = "gpt5-mini"):
         self.executor = ThreadPoolExecutor(max_workers=2)
-
-        # Initialize OpenAI client
-        if api_key == "":
-            key_file = Path.home() / ".openai.key"
-            if not key_file.exists():
-                raise FileNotFoundError("Can not find .openai.key in $HOME!")
-            api_key = key_file.read_text().rstrip()
-        self.client: OpenAI = OpenAI(api_key=api_key)
+        self.client: Final = openai
         self.instructions: str = "You are a friendly chatbot."
 
         # Response queue and message handling
