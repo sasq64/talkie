@@ -7,30 +7,30 @@
  */
 
 #include <assert.h>
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 
 #ifndef TRUE
-#define TRUE 1
+#    define TRUE 1
 #endif
 
 #ifndef FALSE
-#define FALSE 0
+#    define FALSE 0
 #endif
 
 #ifndef EXIT_SUCCESS
-#define EXIT_SUCCESS 0
+#    define EXIT_SUCCESS 0
 #endif
 
 #ifndef EXIT_FAILURE
-#define EXIT_FAILURE 1
+#    define EXIT_FAILURE 1
 #endif
 
 #ifndef HAS_STRTOUL
-#define HAS_STRTOUL
+#    define HAS_STRTOUL
 #endif
 
 /* Z types */
@@ -40,7 +40,8 @@ typedef unsigned short zword_t; /* unsigned 2 byte quantity */
 
 /* Data file header format */
 
-typedef struct zheader {
+typedef struct zheader
+{
     zbyte_t version;
     zbyte_t config;
     zword_t release;
@@ -79,18 +80,18 @@ typedef struct zheader {
 #define H_VERSION 0
 #define H_CONFIG 1
 
-#define CONFIG_BYTE_SWAPPED 0x01 /* Game data is byte swapped          - V3  */
-#define CONFIG_COLOUR       0x01 /* Interpreter supports colour        - V5+ */
-#define CONFIG_TIME         0x02 /* Status line displays time          - V3  */
-#define CONFIG_PICTURES	    0x02 /* Interpreter supports pictures      - V6  */
-#define CONFIG_BOLDFACE     0x04 /* Interpreter supports bold text     - V4+ */
-#define CONFIG_TANDY        0x08 /* Tandy licensed game                - V3  */
-#define CONFIG_EMPHASIS     0x08 /* Interpreter supports text emphasis - V4+ */
-#define CONFIG_NOSTATUSLINE 0x10 /* Interpreter has no status line     - V3  */
-#define CONFIG_FIXED_FONT   0x10 /* Interpreter supports fixed font    - V4+ */
-#define CONFIG_WINDOWS      0x20 /* Interpreter supports split screen  - V3  */
-#define CONFIG_PROPORTIONAL 0x40 /* Interpreter uses proportional font - V3  */
-#define CONFIG_TIMEDINPUT   0x80 /* Interpreter supports timed input   - V4+ */
+#define CONFIG_BYTE_SWAPPED 0x01 /* Game data is byte swapped          - V3 */
+#define CONFIG_COLOUR 0x01       /* Interpreter supports colour        - V5+ */
+#define CONFIG_TIME 0x02         /* Status line displays time          - V3  */
+#define CONFIG_PICTURES 0x02     /* Interpreter supports pictures      - V6  */
+#define CONFIG_BOLDFACE 0x04     /* Interpreter supports bold text     - V4+ */
+#define CONFIG_TANDY 0x08        /* Tandy licensed game                - V3  */
+#define CONFIG_EMPHASIS 0x08     /* Interpreter supports text emphasis - V4+ */
+#define CONFIG_NOSTATUSLINE 0x10 /* Interpreter has no status line     - V3 */
+#define CONFIG_FIXED_FONT 0x10   /* Interpreter supports fixed font    - V4+ */
+#define CONFIG_WINDOWS 0x20      /* Interpreter supports split screen  - V3  */
+#define CONFIG_PROPORTIONAL 0x40 /* Interpreter uses proportional font - V3 */
+#define CONFIG_TIMEDINPUT 0x80   /* Interpreter supports timed input   - V4+ */
 
 #define H_RELEASE 2
 #define H_RESIDENT_SIZE 4
@@ -105,7 +106,7 @@ typedef struct zheader {
 #define FIXED_FONT_FLAG 0x0002
 #define REFRESH_FLAG 0x0004
 #define GRAPHICS_FLAG 0x0008
-#define OLD_SOUND_FLAG 0x0010 /* V3 */
+#define OLD_SOUND_FLAG 0x0010      /* V3 */
 #define UNDO_AVAILABLE_FLAG 0x0010 /* V5 */
 #define MOUSE_FLAG 0x0020
 #define COLOUR_FLAG 0x0040
@@ -136,7 +137,7 @@ typedef struct zheader {
 #define H_SCREEN_COLUMNS 33
 #define H_SCREEN_WIDTH 34
 #define H_SCREEN_HEIGHT 36
-#define H_FONT_WIDTH 38 /* this is the font height in V6 */
+#define H_FONT_WIDTH 38  /* this is the font height in V6 */
 #define H_FONT_HEIGHT 39 /* this is the font width in V6 */
 #define H_ROUTINES_OFFSET 40
 #define H_STRINGS_OFFSET 42
@@ -158,7 +159,8 @@ typedef struct zheader {
 
 #define V3 3
 
-typedef struct zobjectv3 {
+typedef struct zobjectv3
+{
     zword_t attributes[2];
     zbyte_t parent;
     zbyte_t next;
@@ -184,7 +186,8 @@ typedef struct zobjectv3 {
 
 #define V4 4
 
-typedef struct zobjectv4 {
+typedef struct zobjectv4
+{
     zword_t attributes[3];
     zword_t parent;
     zword_t next;
@@ -272,41 +275,44 @@ typedef struct zobjectv4 {
 
 /* Grammar related defines */
 
-enum parser_types {
-	infocom_fixed,
-	infocom_variable,
-	infocom6_grammar,
-	inform5_grammar,
-	inform_gv1,
-	inform_gv2,
-	inform_gv2a
+enum parser_types
+{
+    infocom_fixed,
+    infocom_variable,
+    infocom6_grammar,
+    inform5_grammar,
+    inform_gv1,
+    inform_gv2,
+    inform_gv2a
 };
 
-#define VERB_NUM(index, parser_type) (((parser_type) >= inform_gv2a)?(index):((unsigned int)(255-(index))))
+#define VERB_NUM(index, parser_type)                                           \
+    (((parser_type) >= inform_gv2a) ? (index) : ((unsigned int)(255 - (index))))
 
-#define PREP 		0x08
-#define DESC 		0x20	/* infocom V1-5 only -- actually an adjective. */
-#define NOUN 		0x80
-#define VERB 		0x40	/* infocom V1-5 only */
-#define DIR  		0x10 	/* infocom V1-5 only */
-#define VERB_INFORM	0x01
-#define VERB_V6		0x01
-#define PLURAL		0x04 	/* inform only */
-#define SPECIAL		0x04 	/* infocom V1-5 only */
-#define META		0x02 	/* infocom V1-5 only */
-#define DATA_FIRST	0x03 	/* infocom V1-5 only */
-#define DIR_FIRST	0x03  	/* infocom V1-5 only */
-#define ADJ_FIRST	0x02  	/* infocom V1-5 only */
-#define VERB_FIRST	0x01  	/* infocom V1-5 only */
-#define PREP_FIRST	0x00  	/* infocom V1-5 only */
+#define PREP 0x08
+#define DESC 0x20 /* infocom V1-5 only -- actually an adjective. */
+#define NOUN 0x80
+#define VERB 0x40 /* infocom V1-5 only */
+#define DIR 0x10  /* infocom V1-5 only */
+#define VERB_INFORM 0x01
+#define VERB_V6 0x01
+#define PLURAL 0x04     /* inform only */
+#define SPECIAL 0x04    /* infocom V1-5 only */
+#define META 0x02       /* infocom V1-5 only */
+#define DATA_FIRST 0x03 /* infocom V1-5 only */
+#define DIR_FIRST 0x03  /* infocom V1-5 only */
+#define ADJ_FIRST 0x02  /* infocom V1-5 only */
+#define VERB_FIRST 0x01 /* infocom V1-5 only */
+#define PREP_FIRST 0x00 /* infocom V1-5 only */
 #define ENDIT 0x0F
 
 /* txd-specific defines? */
 
 #define MAX_CACHE 10
 
-typedef struct decode_t {
-    unsigned int  first_pass;   /* Code pass flag                   */
+typedef struct decode_t
+{
+    unsigned int first_pass;    /* Code pass flag                   */
     unsigned long pc;           /* Current PC                       */
     unsigned long initial_pc;   /* Initial PC                       */
     unsigned long high_pc;      /* Highest PC in current subroutine */
@@ -314,27 +320,33 @@ typedef struct decode_t {
     unsigned long high_address; /* Highest code address             */
 } decode_t;
 
-typedef struct opcode_t {
-    int opcode;  /* Current opcode  */
-    int class;   /* Class of opcode */
-    int par[4];  /* Types of parameters */
-    int extra;   /* Branch/store/text */
-    int type;    /* Opcode type */
+typedef struct opcode_t
+{
+    int opcode; /* Current opcode  */
+    int class;  /* Class of opcode */
+    int par[4]; /* Types of parameters */
+    int extra;  /* Branch/store/text */
+    int type;   /* Opcode type */
 } opcode_t;
 
-typedef struct cref_item_s {
-    struct cref_item_s *next;
-    struct cref_item_s *child;
+typedef struct cref_item_s
+{
+    struct cref_item_s* next;
+    struct cref_item_s* child;
     unsigned long address;
     int number;
 } cref_item_t;
 
 /* Data access macros */
 
-#define get_byte(offset) ((zbyte_t) datap[offset])
-#define get_word(offset) ((zword_t) (((unsigned short) datap[offset] << 8) + (unsigned short) datap[offset + 1]))
-#define set_byte(offset,value) datap[offset] = (zbyte_t) (value)
-#define set_word(offset,value) datap[offset] = (zbyte_t) ((unsigned short) (value) >> 8), datap[offset + 1] = (zbyte_t) ((unsigned short) (value) & 0xff)
+#define get_byte(offset) ((zbyte_t)datap[offset])
+#define get_word(offset)                                                       \
+    ((zword_t)(((unsigned short)datap[offset] << 8) +                          \
+               (unsigned short)datap[offset + 1]))
+#define set_byte(offset, value) datap[offset] = (zbyte_t)(value)
+#define set_word(offset, value)                                                \
+    datap[offset] = (zbyte_t)((unsigned short)(value) >> 8),                   \
+    datap[offset + 1] = (zbyte_t)((unsigned short)(value) & 0xff)
 
 /* External data */
 
@@ -347,79 +359,66 @@ extern int code_shift;
 extern int property_mask;
 extern int property_size_mask;
 
-extern zbyte_t *datap;
+extern zbyte_t* datap;
 
 extern int option_inform;
 
 extern unsigned long file_size;
 
-int decode_text (unsigned long *);
-void close_story (void);
-void configure (int, int);
-void load_cache (void);
-void open_story (const char *);
-void read_page (unsigned int, void *);
-zbyte_t read_data_byte (unsigned long *);
-zword_t read_data_word (unsigned long *);
-void tx_printf (const char *, ...);
-void tx_fix_margin (int);
-void tx_set_width (int);
-void init_symbols(const char *fname);
-void configure_inform_tables (unsigned long obj_data_end,
-                              unsigned short *inform_version,
-                              unsigned long *class_numbers_base,
-                              unsigned long *class_numbers_end,
-                              unsigned long *property_names_base,
-                              unsigned long *property_names_end,
-                              unsigned long *attr_names_base,
-                              unsigned long *attr_names_end);
-int print_property_name(unsigned long property_names_base,
-					 int prop_no);
+int decode_text(unsigned long*);
+void close_story(void);
+void configure(int, int);
+void load_cache(void);
+void open_story(const char*);
+void read_page(unsigned int, void*);
+zbyte_t read_data_byte(unsigned long*);
+zword_t read_data_word(unsigned long*);
+void tx_printf(const char*, ...);
+void tx_fix_margin(int);
+void tx_set_width(int);
+void init_symbols(const char* fname);
+void configure_inform_tables(
+    unsigned long obj_data_end, unsigned short* inform_version,
+    unsigned long* class_numbers_base, unsigned long* class_numbers_end,
+    unsigned long* property_names_base, unsigned long* property_names_end,
+    unsigned long* attr_names_base, unsigned long* attr_names_end);
+int print_property_name(unsigned long property_names_base, int prop_no);
 
-int print_attribute_name(unsigned long attr_names_base,
-					 int attr_no);
-void configure_object_tables
-   (unsigned int *, unsigned long *, unsigned long *, unsigned long *,
-    unsigned long *);
+int print_attribute_name(unsigned long attr_names_base, int attr_no);
+void configure_object_tables(unsigned int*, unsigned long*, unsigned long*,
+                             unsigned long*, unsigned long*);
 int print_inform_action_name(unsigned long action_names_base, int action_no);
 int print_inform_attribute_name(unsigned long attr_names_base, int attr_no);
-int print_local_name(unsigned long start_of_routine,
-                                         int local_no);
-int print_global_name(unsigned long start_of_routine,
-                                         int global_no);
+int print_local_name(unsigned long start_of_routine, int local_no);
+int print_global_name(unsigned long start_of_routine, int global_no);
 
 /* Inform version codes */
-#define INFORM_5		500
-#define INFORM_6		600
-#define INFORM_610		610
+#define INFORM_5 500
+#define INFORM_6 600
+#define INFORM_610 610
 
 /* Grammar prototypes */
-void configure_parse_tables
-    (unsigned int *, unsigned int *, unsigned int *, unsigned int *, unsigned int *,
-     unsigned long *, unsigned long *, unsigned long *, unsigned long *,
-     unsigned long *, unsigned long *);
-void show_verb_grammar
-    (unsigned long, unsigned int, int, int, int, unsigned long, unsigned long);
-void show_syntax_of_action(int action,
-			unsigned long verb_table_base,
-			unsigned int verb_count,
-			unsigned int parser_type,
-			unsigned int prep_type,
-			unsigned long attr_names_base,
-			unsigned long prep_table_base);
-			
-void show_syntax_of_parsing_routine(unsigned long parsing_routine,
-				    unsigned long verb_table_base,
-				    unsigned int verb_count,
-				    unsigned int parser_type,
-				    unsigned int prep_type,
-				    unsigned long prep_table_base,
-				    unsigned long attr_names_base);
-				    
+void configure_parse_tables(unsigned int*, unsigned int*, unsigned int*,
+                            unsigned int*, unsigned int*, unsigned long*,
+                            unsigned long*, unsigned long*, unsigned long*,
+                            unsigned long*, unsigned long*);
+void show_verb_grammar(unsigned long, unsigned int, int, int, int,
+                       unsigned long, unsigned long);
+void show_syntax_of_action(int action, unsigned long verb_table_base,
+                           unsigned int verb_count, unsigned int parser_type,
+                           unsigned int prep_type,
+                           unsigned long attr_names_base,
+                           unsigned long prep_table_base);
+
+void show_syntax_of_parsing_routine(
+    unsigned long parsing_routine, unsigned long verb_table_base,
+    unsigned int verb_count, unsigned int parser_type, unsigned int prep_type,
+    unsigned long prep_table_base, unsigned long attr_names_base);
+
 int is_gv2_parsing_routine(unsigned long parsing_routine,
-				    unsigned long verb_table_base,
-				    unsigned int verb_count);
+                           unsigned long verb_table_base,
+                           unsigned int verb_count);
 
 #ifndef SEEK_SET
-#define SEEK_SET 0
+#    define SEEK_SET 0
 #endif
