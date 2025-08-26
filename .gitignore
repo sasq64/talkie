@@ -20,9 +20,11 @@ pytest_cache/
 .cache/
 .crush/
 
+build/
 /out.wav
 /temp.png
 /talkie.log
 
 .coverage*
 
+.git/

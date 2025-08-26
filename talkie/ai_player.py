@@ -40,10 +40,10 @@ class AIPlayer:
     def __init__(
         self,
         if_player: IFPlayer,
-        text_to_speech: TextToSpeech,
-        voice_to_text: VoiceToText,
-        image_gen: ImageGen,
         config: TalkieConfig,
+        text_to_speech: TextToSpeech | None = None,
+        voice_to_text: VoiceToText | None = None,
+        image_gen: ImageGen | None = None,
         adventure_guy: AdventureGuy | None = None,
     ):
         self.prompts: Final = config.prompts
@@ -94,19 +94,21 @@ class AIPlayer:
             for paragraph in self.desc.split("\n\n"):
                 paragraph = paragraph.strip()
                 if len(paragraph) > 0:
-                    image_file = self.image_gen.get_image(paragraph)
-                    logging.info(f"'{paragraph}' gave image {image_file}")
-                    if image_file and not first_image_file:
-                        first_image_file = image_file
-                        self.output.append(ImageOutput(image_file))
+                    if self.image_gen:
+                        image_file = self.image_gen.get_image(paragraph)
+                        logging.info(f"'{paragraph}' gave image {image_file}")
+                        if image_file and not first_image_file:
+                            first_image_file = image_file
+                            self.output.append(ImageOutput(image_file))
 
-                    pattern = re.compile(r"[.?!>:]$")
-                    if not pattern.search(paragraph):
-                        paragraph += ". "
-                        paragraph = paragraph.replace("ZORK I", "ZORK ONE").replace(
-                            "A N C H O R H E A D", "### ANCHORHEAD"
-                        )
-                    self.tts.speak(paragraph)
+                    if self.tts:
+                        pattern = re.compile(r"[.?!>:]$")
+                        if not pattern.search(paragraph):
+                            paragraph += ". "
+                            paragraph = paragraph.replace("ZORK I", "ZORK ONE").replace(
+                                "A N C H O R H E A D", "### ANCHORHEAD"
+                            )
+                        self.tts.speak(paragraph)
 
     def get_next_output(self) -> AIOutput | None:
         # image_file = self.player.get_image()
@@ -118,12 +120,16 @@ class AIPlayer:
 
     def start_voice_recording(self):
         """Start voice recording"""
+        if not self.voice:
+            return
         if not self.recording:
             self.voice.start_transribe()
             self.recording = True
 
     def end_voice_recording(self):
         """End voice recording and return future"""
+        if not self.voice:
+            return
         if self.recording:
             self.vtt_future = self.voice.end_transcribe(
                 prompt=self.whisper_prompt.format(**self.fields)
@@ -151,13 +157,13 @@ class AIPlayer:
         if len(paragraphs) > 0:
             para = paragraphs[0]
         if cmd == "image":
-            if para:
+            if para and self.image_gen:
                 logging.info(f"Generate image with key '{para}'")
                 self.image_file = self.image_gen.generate_image(
                     self.image_prompt.format(**self.fields), para
                 )
                 self.output.append(ImageOutput(self.image_file))
-        elif cmd == "mod":
+        elif cmd == "mod" and self.image_gen:
             if self.image_file:
                 prompt = self.modernize_prompt.format(**self.fields)
                 file_name = self.image_gen.generate_image_with_base(
@@ -170,6 +176,9 @@ class AIPlayer:
             return False
         return True
 
+    def key_mode(self) -> bool:
+        return self.player.key_mode
+
     def write_command(self, text: str):
         """Write command to game"""
         self.image_file = None
@@ -177,11 +186,13 @@ class AIPlayer:
 
     def stop_audio(self):
         """Stop all audio"""
-        self.tts.stop_all()
+        if self.tts:
+            self.tts.stop_all()
 
     def stop_playing(self):
         """Stop TTS playing"""
-        self.tts.stop_playing()
+        if self.tts:
+            self.tts.stop_playing()
 
     def close(self):
         """Close the AI player and cleanup resources."""

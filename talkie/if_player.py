@@ -1,4 +1,6 @@
 import contextlib
+from io import BufferedReader
+import os
 import queue
 import re
 import subprocess
@@ -7,7 +9,7 @@ import time
 from importlib import resources
 from logging import getLogger
 from pathlib import Path
-from typing import Final
+from typing import IO, Final
 
 from talkie.image_drawer import ImageDrawer
 
@@ -18,19 +20,27 @@ logger = getLogger(__name__)
 
 class IFPlayer:
     def __init__(self, file_name: Path, gfx_path: Path | None = None):
+        """
+        Start an interactive fiction game in a subprocess
+        """
+
         zcode = re.compile(r"\.z(ode|[123456789])$")
         l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
         self.image_drawer: Final = ImageDrawer()
+        self.key_mode : bool = False
 
         if zcode.search(file_name.name):
             args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
         elif l9.search(file_name.name):
             if gfx_path:
+                gfx_str = gfx_path.as_posix()
+                if gfx_path.is_dir():
+                    gfx_str += "/"
                 args = [
                     str(data / "l9"),
                     file_name.as_posix(),
-                    gfx_path.as_posix() + "/",
+                    gfx_str
                 ]
             else:
                 args = [str(data / "l9"), file_name.as_posix()]
@@ -42,22 +52,24 @@ class IFPlayer:
             args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.PIPE,
         )
         self.output_queue: queue.Queue[bytes] = queue.Queue()
         self.transcript: list[tuple[str, str]] = []
         self.text_output: str = ""
         self.last_result: float = 0
 
-        def read_output():
-            if self.proc.stdout:
-                while True:
-                    data: bytes = self.proc.stdout.read1(16384)  # type: ignore
+        # TODO: Handle stderr, and handle split command in stdout
+        def _read_output(fout: BufferedReader):
+            while True:
+                if fout:
+                    data: bytes = fout.read1(16384)  # type: ignore
                     if not data:
                         break
                     self.output_queue.put(data)
 
-        self.output_thread: Final = threading.Thread(target=read_output, daemon=True)
+
+        self.output_thread: Final = threading.Thread(target=_read_output, args=(self.proc.stdout,), daemon=True)
         self.output_thread.start()
 
         self._closed: bool = False
@@ -82,13 +94,17 @@ class IFPlayer:
             return None
 
         # We have a full set of text
-
         meta = re.compile(r"#\[(.*?)\]\n?")
         text = trim_lines(self.text_output)
         found_gfx = False
         for line in text.splitlines():
             for m in re.finditer(meta, line):
-                if self.image_drawer.add_text_command(m.group(1)):
+                match = m.group(1)
+                if match == "keymode":
+                    self.key_mode = True
+                elif match == "linemode":
+                    self.key_mode = False
+                if self.image_drawer.add_text_command(match):
                     found_gfx = True
 
         text = meta.sub("", text)
@@ -121,6 +137,7 @@ class IFPlayer:
         """Write text line to stdin of running interpreter."""
 
         if self.proc.stdin is not None:
+            print(f"IN:'{text}'")
             logger.info(f"IN: '{text}'")
             _ = self.proc.stdin.write(text.encode())
             self.transcript.append((">", text))

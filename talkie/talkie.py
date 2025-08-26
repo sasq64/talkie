@@ -16,7 +16,7 @@ from talkie.cache import FileCache
 from talkie.if_player import IFPlayer
 from talkie.image_gen import ImageGen
 from talkie.openaiclient import OpenAIClient
-from talkie.text_to_speech import TextToSpeech
+from talkie.text_to_speech import TextToSpeech, Voice
 
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .talkie_config import TalkieConfig
@@ -90,6 +90,15 @@ class Talkie:
 
         # Process game output
         self.ai_player.update()
+
+        if self.ai_player.key_mode() and self.console.reading_line:
+            self.console.cancel_line()
+            cp = self.console.cursor_pos
+            self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
+        # elif not self.ai_player.key_mode() and not self.console.reading_line:
+        #     self.console.write("\n>")
+        #     self.console.read_line()
+
         output = self.ai_player.get_next_output()
         if output:
             if isinstance(output, ImageOutput):
@@ -120,6 +129,9 @@ class Talkie:
         for e in events:
             if isinstance(e, pix.event.Key):
                 self.current_image = None
+                if e.key < 0x1000 and self.ai_player.key_mode():
+                    print("KEY")
+                    self.ai_player.write_command(chr(e.key))
 
             if isinstance(e, pix.event.Text):
                 self.console.set_color(pix.color.LIGHT_BLUE, pix.color.BLACK)
@@ -138,18 +150,16 @@ class Talkie:
 class Args(argparse.Namespace):
     game: Path | None = None
     gfx: Path | None = None
+    voice: Voice | None = None
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Talkie - AI Interactive Fiction player"
     )
-    _ = parser.add_argument(
-        "-g", "--game", type=Path, default="curses.z5", help="Game file to load"
-    )
-    _ = parser.add_argument(
-        "-G", "--gfx", type=Path, default="curses.z5", help="Graphics file to load"
-    )
+    _ = parser.add_argument("game", type=Path, help="Game file to load")
+    _ = parser.add_argument("-G", "--gfx", type=Path, help="Graphics file to load")
+    _ = parser.add_argument("--voice", nargs="?", const="alloy", type=str)
     args = parser.parse_args(namespace=Args)
     assert args.game
 
@@ -175,8 +185,10 @@ def main():
     client = OpenAI(api_key=api_key)
     container[OpenAI] = client
 
-    tts_cache = FileCache(Path(".cache/tts"))
     img_cache = FileCache(Path(".cache/img"))
+
+    container[FileCache] = lambda : FileCache(".filecache")
+
 
     container[OpenAIClient] = lambda c: OpenAIClient(c[OpenAI], model="gpt4")
     # container[AdventureGuy] = lambda c: AdventureGuy(c[OpenAIClient], prompt="")
@@ -186,9 +198,14 @@ def main():
         c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
     container[ImageGen] = lambda c: ImageGen(c[OpenAI], img_cache)
-    container[TextToSpeech] = lambda c: TextToSpeech(
-        c[AudioPlayer], tts_cache, c[OpenAI], voice="alloy"
-    )
+    voice = args.voice
+    if voice is not None:
+        tts_cache = FileCache(Path(".cache/tts"))
+        container[TextToSpeech] = lambda c: TextToSpeech(
+            c[AudioPlayer], tts_cache, c[OpenAI], voice=voice
+        )
+    else:
+        container[TextToSpeech] = None
 
     talkie = container[Talkie]
 
