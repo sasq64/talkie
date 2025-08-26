@@ -1,12 +1,15 @@
 import io
 import queue
 import threading
+import subprocess
+import tempfile
 from logging import getLogger
 from queue import Queue
 from typing import Final
 
 import pyaudio
-from pydub import AudioSegment
+
+# from pydub import AudioSegment
 
 logger = getLogger(__name__)
 
@@ -36,15 +39,40 @@ class AudioPlayer:
                 self.stop_event.clear()
                 if audio_data:
                     # Convert MP3 bytes to AudioSegment
-                    audio_segment: AudioSegment = AudioSegment.from_mp3(
-                        io.BytesIO(audio_data)
-                    )
+                    # audio_segment: AudioSegment = AudioSegment.from_mp3(
+                    #    io.BytesIO(audio_data)
+                    # )
+                    # Use ffmpeg to decode MP3 to raw PCM
+                    with tempfile.NamedTemporaryFile(
+                        suffix=".mp3", delete=False
+                    ) as temp_mp3:
+                        temp_mp3.write(audio_data)
+                        temp_mp3.flush()
 
-                    if not audio_segment.raw_data:
-                        raise RuntimeError("Illegal AudioSegment")
+                        # Convert MP3 to raw PCM using ffmpeg
+                        result = subprocess.run(
+                            [
+                                "ffmpeg",
+                                "-i",
+                                temp_mp3.name,
+                                "-f",
+                                "s16le",  # 16-bit little endian PCM
+                                "-ar",
+                                "22050",  # 22050 Hz sample rate
+                                "-ac",
+                                "1",  # mono
+                                "-",
+                            ],
+                            capture_output=True,
+                            check=True,
+                        )
 
+                        raw_data = result.stdout
+
+                    # if not audio_segment.raw_data:
+                    #    raise RuntimeError("Illegal AudioSegment")
                     # Convert to raw audio data for pyaudio
-                    raw_data: bytes = audio_segment.raw_data
+                    # raw_data: bytes = audio_segment.raw_data
 
                     # Set up pyaudio stream with correct format
                     current_stream = self.pyaudio_instance.open(

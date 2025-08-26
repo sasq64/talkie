@@ -151,6 +151,7 @@ class Args(argparse.Namespace):
     game: Path | None = None
     gfx: Path | None = None
     voice: Voice | None = None
+    full_screen: bool = False
 
 
 def main():
@@ -159,12 +160,13 @@ def main():
     )
     _ = parser.add_argument("game", type=Path, help="Game file to load")
     _ = parser.add_argument("-G", "--gfx", type=Path, help="Graphics file to load")
+    _ = parser.add_argument("-F", "--full-screen", action="store_true")
     _ = parser.add_argument("--voice", nargs="?", const="alloy", type=str)
     args = parser.parse_args(namespace=Args)
     assert args.game
 
     # Initialize pixpy rendering components
-    screen = pix.open_display(size=(1280, 1024))
+    screen = pix.open_display(size=(1280, 1024), full_screen=args.full_screen)
 
     logger.info("Starting game")
     # Initialize Talkie
@@ -187,8 +189,7 @@ def main():
 
     img_cache = FileCache(Path(".cache/img"))
 
-    container[FileCache] = lambda : FileCache(".filecache")
-
+    container[FileCache] = lambda: FileCache(".filecache")
 
     container[OpenAIClient] = lambda c: OpenAIClient(c[OpenAI], model="gpt4")
     # container[AdventureGuy] = lambda c: AdventureGuy(c[OpenAIClient], prompt="")

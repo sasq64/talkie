@@ -27,6 +27,7 @@ dependencies = [
     "pyaudio",
     "pydub",
     "pyyaml",
+    "lagom",
 ]
 
 [project.optional-dependencies]

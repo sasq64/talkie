@@ -5,3 +5,4 @@ set(SOURCES
 )
 
 add_executable(level9 ${SOURCES})
+target_link_libraries(level9 PRIVATE m)
