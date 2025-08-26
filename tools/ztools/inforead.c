@@ -48,94 +48,94 @@
 
 #define TRACK_SIZE 4096
 
-int read_track (int drive, int track, unsigned char *tp);
+int read_track(int drive, int track, unsigned char* tp);
 
-int main (int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     int track = 6;
     int drive = 0;
-    FILE *fp;
-    unsigned char *tp;
+    FILE* fp;
+    unsigned char* tp;
     int i, j, size, status;
     unsigned long int glength;
     unsigned short gchksum, chksum = 0;
 
-    if (argc >= 4)
-	drive = atoi (argv[3]);
+    if (argc >= 4) drive = atoi(argv[3]);
     if (drive < 0 || drive > 1) {
-	fprintf (stderr, "invalid drive #%d\n", drive);
-	exit (1);
+        fprintf(stderr, "invalid drive #%d\n", drive);
+        exit(1);
     }
-    if (argc >= 3)
-	track = atoi (argv[2]);
+    if (argc >= 3) track = atoi(argv[2]);
     if (track < 0 || track > 39) {
-	fprintf (stderr, "invalid track #%d\n", track);
-	exit (1);
+        fprintf(stderr, "invalid track #%d\n", track);
+        exit(1);
     }
     if (argc < 2) {
-	fprintf (stderr, "usage: %s story-file-name [start track [drive]]\n\n", argv[0]);
-	fprintf (stderr, "INFOREAD version 6/8 - convert Infocom boot disks to files. By Mark Howell\n");
-	fprintf (stderr, "Works with V3 Infocom games.\n");
-	exit (1);
+        fprintf(stderr, "usage: %s story-file-name [start track [drive]]\n\n",
+                argv[0]);
+        fprintf(stderr, "INFOREAD version 6/8 - convert Infocom boot disks to "
+                        "files. By Mark Howell\n");
+        fprintf(stderr, "Works with V3 Infocom games.\n");
+        exit(1);
     }
 
-    if ((tp = (unsigned char *) malloc (TRACK_SIZE)) == NULL) {
-	perror ("malloc");
-	exit (1);
+    if ((tp = (unsigned char*)malloc(TRACK_SIZE)) == NULL) {
+        perror("malloc");
+        exit(1);
     }
-    if ((fp = fopen (argv[1], "wb")) == NULL) {
-	perror ("fopen");
-	exit (1);
+    if ((fp = fopen(argv[1], "wb")) == NULL) {
+        perror("fopen");
+        exit(1);
     }
 
     for (i = track; i < 40; i++) {
-	if (status = read_track (drive, i, tp)) {
-	    fprintf (stderr, "error %d from drive #%d, track #%d\n",
-		     status, drive, track);
-	    exit (1);
-	}
-	if (i == track) {
-	    glength = ((unsigned) tp[26] * 256) + tp[27];
-	    gchksum = ((unsigned) tp[28] * 256) + tp[29];
-	    glength = (glength * 2) - TRACK_SIZE;
-	    for (j = 64; j < TRACK_SIZE; j++)
-		chksum += tp[j];
-	    if (fwrite (tp, TRACK_SIZE, 1, fp) != 1) {
-		perror ("fwrite");
-		exit (1);
-	    }
-	} else {
-	    if (glength > TRACK_SIZE) {
-		size = TRACK_SIZE;
-		glength -= TRACK_SIZE;
-	    } else {
-		size = (int) glength;
-		i = 40;
-	    }
-	    for (j = 0; j < size; j++)
-		chksum += tp[j];
-	    if (fwrite (tp, (size_t) size, 1, fp) != 1) {
-		perror ("fwrite");
-		exit (1);
-	    }
-	}
+        if (status = read_track(drive, i, tp)) {
+            fprintf(stderr, "error %d from drive #%d, track #%d\n", status,
+                    drive, track);
+            exit(1);
+        }
+        if (i == track) {
+            glength = ((unsigned)tp[26] * 256) + tp[27];
+            gchksum = ((unsigned)tp[28] * 256) + tp[29];
+            glength = (glength * 2) - TRACK_SIZE;
+            for (j = 64; j < TRACK_SIZE; j++)
+                chksum += tp[j];
+            if (fwrite(tp, TRACK_SIZE, 1, fp) != 1) {
+                perror("fwrite");
+                exit(1);
+            }
+        } else {
+            if (glength > TRACK_SIZE) {
+                size = TRACK_SIZE;
+                glength -= TRACK_SIZE;
+            } else {
+                size = (int)glength;
+                i = 40;
+            }
+            for (j = 0; j < size; j++)
+                chksum += tp[j];
+            if (fwrite(tp, (size_t)size, 1, fp) != 1) {
+                perror("fwrite");
+                exit(1);
+            }
+        }
     }
 
     if (gchksum == chksum)
-	printf ("game copied OK\n");
+        printf("game copied OK\n");
     else
-	fprintf (stderr, "game copy failed!\n");
+        fprintf(stderr, "game copy failed!\n");
 
-    free (tp);
-    fclose (fp);
+    free(tp);
+    fclose(fp);
 
-    exit (0);
+    exit(0);
 
     return (0);
 
-}/* main */
+} /* main */
 
-int read_track (int drive, int track, unsigned char *tp)
+int read_track(int drive, int track, unsigned char* tp)
 {
     struct diskinfo_t di;
     unsigned int status;
@@ -147,18 +147,17 @@ int read_track (int drive, int track, unsigned char *tp)
     di.sector = 1;
     di.nsectors = 8;
 #ifdef __DJGPP
-    di.buffer = (void *) tp;
+    di.buffer = (void*)tp;
 #else
-    di.buffer = (void far *) tp;
+    di.buffer = (void far*)tp;
 #endif
 
     for (i = 0; i < 3; i++) {
-	status = _bios_disk (_DISK_READ, &di);
-	if (status == 8)
-	    return (0);
-	_bios_disk (_DISK_RESET, NULL);
+        status = _bios_disk(_DISK_READ, &di);
+        if (status == 8) return (0);
+        _bios_disk(_DISK_RESET, NULL);
     }
 
     return (status >> 8);
 
-}/* read_track */
+} /* read_track */

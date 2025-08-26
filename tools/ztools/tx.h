@@ -367,7 +367,7 @@ extern int property_size_mask;
 
 extern zbyte_t *datap;
 
-extern option_inform;
+extern int option_inform;
 
 extern unsigned long file_size;
 
@@ -383,6 +383,29 @@ zword_t read_data_word (unsigned long *);
 void tx_printf (const char *, ...);
 void tx_fix_margin (int);
 void tx_set_width (int);
+void init_symbols(const char *fname);
+void configure_inform_tables (unsigned long obj_data_end,
+                              unsigned short *inform_version,
+                              unsigned long *class_numbers_base,
+                              unsigned long *class_numbers_end,
+                              unsigned long *property_names_base,
+                              unsigned long *property_names_end,
+                              unsigned long *attr_names_base,
+                              unsigned long *attr_names_end);
+int print_property_name(unsigned long property_names_base,
+					 int prop_no);
+
+int print_attribute_name(unsigned long attr_names_base,
+					 int attr_no);
+void configure_object_tables
+   (unsigned int *, unsigned long *, unsigned long *, unsigned long *,
+    unsigned long *);
+int print_inform_action_name(unsigned long action_names_base, int action_no);
+int print_inform_attribute_name(unsigned long attr_names_base, int attr_no);
+int print_local_name(unsigned long start_of_routine,
+                                         int local_no);
+int print_global_name(unsigned long start_of_routine,
+                                         int global_no);
 #else
 int decode_text ();
 void close_story ();
