@@ -9,27 +9,12 @@
 
 #include "tx.h"
 
-#ifdef __STDC__
 void configure_inform_tables(
     unsigned long obj_data_end, /* everything follows from this */
     unsigned short* inform_version, unsigned long* class_numbers_base,
     unsigned long* class_numbers_end, unsigned long* property_names_base,
     unsigned long* property_names_end, unsigned long* attr_names_base,
     unsigned long* attr_names_end)
-#else
-void configure_inform_tables(
-    obj_data_end, inform_version, class_numbers_base, class_numbers_end,
-    property_names_base, property_names_end, attr_names_base,
-    attr_names_end) unsigned long obj_data_end; /* everything follows from this
-                                                 */
-unsigned short* inform_version;
-unsigned long* class_numbers_base;
-unsigned long* class_numbers_end;
-unsigned long* property_names_base;
-unsigned long* property_names_end;
-unsigned long* attr_names_base;
-unsigned long* attr_names_end;
-#endif
 {
     unsigned long address;
     zword_t num_properties;
@@ -70,13 +55,7 @@ unsigned long* attr_names_end;
     tx_printf("Inform Version: %d\n", *inform_version);
 }
 
-#ifdef __STDC__
 int print_inform_attribute_name(unsigned long attr_names_base, int attr_no)
-#else
-int print_inform_attribute_name(attr_names_base, attr_no)
-unsigned long attr_names_base;
-int attr_no;
-#endif
 {
     unsigned long address;
 
@@ -89,13 +68,7 @@ int attr_no;
     return 1;
 }
 
-#ifdef __STDC__
 int print_inform_property_name(unsigned long prop_names_base, int prop_no)
-#else
-int print_inform_property_name(prop_names_base, prop_no)
-unsigned long prop_names_base;
-int prop_no;
-#endif
 {
     unsigned long address;
 
@@ -108,13 +81,7 @@ int prop_no;
     return 1;
 }
 
-#ifdef __STDC__
 int print_inform_action_name(unsigned long action_names_base, int action_no)
-#else
-int print_inform_action_name(action_names_base, action_no)
-unsigned long action_names_base;
-int action_no;
-#endif
 {
     unsigned long address;
 

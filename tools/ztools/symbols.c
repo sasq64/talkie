@@ -66,12 +66,7 @@ static int global_entries;
 static struct routine_entry_t* routines_table;
 static int routine_entries;
 
-#ifdef __STDC__
 static int get_type_from_name(char* tname)
-#else
-static int get_type_from_name(tname)
-char* tname;
-#endif
 {
     int ch = tname[0];
 
@@ -97,11 +92,7 @@ char* tname;
  *
  * Prints the name of the attribute, if known.
  */
-#ifdef __STDC__
 void init_symbols(const char* fname)
-#else
-void init_symbols(fname) char* fname;
-#endif
 {
     long tmp;
     FILE* symfile;
@@ -259,13 +250,7 @@ void init_symbols(fname) char* fname;
  *
  * Prints the name of the attribute, if known.
  */
-#ifdef __STDC__
 int print_attribute_name(unsigned long attr_names_base, int attr_no)
-#else
-int print_attribute_name(attr_names_base, attr_no)
-unsigned long attr_names_base;
-int attr_no;
-#endif
 {
     if (attr_names_base) {
         return print_inform_attribute_name(attr_names_base, attr_no);
@@ -277,13 +262,7 @@ int attr_no;
     return 0;
 }
 
-#ifdef __STDC__
 int print_property_name(unsigned long property_names_base, int prop_no)
-#else
-int print_property_name(property_names_base, prop_no)
-unsigned long property_names_base;
-int prop_no;
-#endif
 {
     if (property_names_base) {
         return print_inform_attribute_name(property_names_base, prop_no);
@@ -295,26 +274,14 @@ int prop_no;
     return 0;
 }
 
-#ifdef __STDC__
 int print_local_name(unsigned long start_of_routine, int local_no)
-#else
-int print_local_name(start_of_routine, local_no)
-unsigned long start_of_routine;
-int local_no;
-#endif
 {
     (void)start_of_routine;
     (void)local_no;
     return 0;
 }
 
-#ifdef __STDC__
 int print_global_name(unsigned long start_of_routine, int global_no)
-#else
-int print_global_name(start_of_routine, global_no)
-unsigned long start_of_routine;
-int global_no;
-#endif
 {
     (void)start_of_routine;
     if ((global_no < global_entries) &&

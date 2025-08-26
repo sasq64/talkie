@@ -6,7 +6,6 @@
 
 #include "tx.h"
 
-#ifdef __STDC__
 static void show_verb_parse_table(unsigned long, unsigned int, unsigned int,
                                   unsigned int, unsigned long, unsigned long);
 static void show_action_tables(unsigned long, unsigned int, unsigned int,
@@ -18,14 +17,6 @@ static void show_preposition(unsigned int, int, unsigned long);
 static void show_words(unsigned int, unsigned long, unsigned int, unsigned int);
 static unsigned long lookup_word(unsigned long, unsigned int, unsigned int,
                                  unsigned int);
-#else
-static void show_verb_parse_table();
-static void show_action_tables();
-static void show_preposition_table();
-static void show_preposition();
-static void show_words();
-static unsigned long lookup_word();
-#endif
 
 static const int verb_sizes[4] = {2, 4, 7, 0};
 
@@ -169,7 +160,6 @@ static const int verb_sizes[4] = {2, 4, 7, 0};
  *
  */
 
-#ifdef __STDC__
 void configure_parse_tables(
     unsigned int* verb_count, unsigned int* action_count,
     unsigned int* parse_count, unsigned int* parser_type,
@@ -177,23 +167,6 @@ void configure_parse_tables(
     unsigned long* verb_data_base, unsigned long* action_table_base,
     unsigned long* preact_table_base, unsigned long* prep_table_base,
     unsigned long* prep_table_end)
-#else
-void configure_parse_tables(verb_count, action_count, parse_count, parser_type,
-                            prep_type, verb_table_base, verb_data_base,
-                            action_table_base, preact_table_base,
-                            prep_table_base,
-                            prep_table_end) unsigned int* verb_count;
-unsigned int* action_count;
-unsigned int* parse_count;
-unsigned int* parser_type;
-unsigned int* prep_type;
-unsigned long* verb_table_base;
-unsigned long* verb_data_base;
-unsigned long* action_table_base;
-unsigned long* preact_table_base;
-unsigned long* prep_table_base;
-unsigned long* prep_table_end;
-#endif
 {
     unsigned long address, first_entry, second_entry, verb_entry;
     unsigned int entry_count, object_count, prep_count, action_index;
@@ -490,11 +463,7 @@ unsigned long* prep_table_end;
  * prepositions.
  */
 
-#ifdef __STDC__
 void show_verbs(int symbolic)
-#else
-void show_verbs(symbolic) int symbolic;
-#endif
 {
     unsigned long verb_table_base, verb_data_base;
     unsigned long action_table_base, preact_table_base;
@@ -579,24 +548,12 @@ void show_verbs(symbolic) int symbolic;
  * performing: nn
  */
 
-#ifdef __STDC__
 static void show_verb_parse_table(unsigned long verb_table_base,
                                   unsigned int verb_count,
                                   unsigned int parser_type,
                                   unsigned int prep_type,
                                   unsigned long prep_table_base,
                                   unsigned long attr_names_base)
-#else
-static void
-    show_verb_parse_table(verb_table_base, verb_count, parser_type, prep_type,
-                          prep_table_base,
-                          attr_names_base) unsigned long verb_table_base;
-unsigned int verb_count;
-unsigned int parser_type;
-unsigned int prep_type;
-unsigned long prep_table_base;
-unsigned long attr_names_base;
-#endif
 {
     unsigned long address, verb_entry, parse_entry;
     unsigned int entry_count, object_count, parse_data;
@@ -749,23 +706,11 @@ unsigned long attr_names_base;
  *
  */
 
-#ifdef __STDC__
 void show_syntax_of_action(int action, unsigned long verb_table_base,
                            unsigned int verb_count, unsigned int parser_type,
                            unsigned int prep_type,
                            unsigned long prep_table_base,
                            unsigned long attr_names_base)
-#else
-void show_syntax_of_action(action, verb_table_base, verb_count, parser_type,
-                           prep_type, prep_table_base,
-                           attr_names_base) int action;
-unsigned long verb_table_base;
-unsigned int verb_count;
-unsigned int parser_type;
-unsigned int prep_type;
-unsigned long prep_table_base;
-unsigned long attr_names_base;
-#endif
 {
     unsigned long address;
     unsigned long verb_entry, parse_entry;
@@ -871,16 +816,9 @@ unsigned long attr_names_base;
     }
 }
 
-#ifdef __STDC__
 int is_gv2_parsing_routine(unsigned long parsing_routine,
                            unsigned long verb_table_base,
                            unsigned int verb_count)
-#else
-int is_gv2_parsing_routine(parsing_routine, verb_table_base, verb_count)
-unsigned long parsing_routine;
-unsigned long verb_table_base;
-unsigned int verb_count;
-#endif
 {
     unsigned long address;
     unsigned long verb_entry;
@@ -924,22 +862,10 @@ unsigned int verb_count;
  *
  */
 
-#ifdef __STDC__
 void show_syntax_of_parsing_routine(
     unsigned long parsing_routine, unsigned long verb_table_base,
     unsigned int verb_count, unsigned int parser_type, unsigned int prep_type,
     unsigned long prep_table_base, unsigned long attr_names_base)
-#else
-void show_syntax_of_parsing_routine(
-    parsing_routine, verb_table_base, verb_count, parser_type, prep_type,
-    prep_table_base, attr_names_base) unsigned long parsing_routine;
-unsigned long verb_table_base;
-unsigned int verb_count;
-unsigned int parser_type;
-unsigned int prep_type;
-unsigned long prep_table_base;
-unsigned long attr_names_base;
-#endif
 {
     unsigned long address;
     unsigned long verb_entry, parse_entry;
@@ -1010,7 +936,6 @@ unsigned long attr_names_base;
  * sentence structures.
  */
 
-#ifdef __STDC__
 static void
 show_action_tables(unsigned long verb_table_base, unsigned int verb_count,
                    unsigned int action_count, unsigned int parse_count,
@@ -1019,23 +944,6 @@ show_action_tables(unsigned long verb_table_base, unsigned int verb_count,
                    unsigned long preact_table_base,
                    unsigned long prep_table_base, unsigned long attr_names_base,
                    unsigned long action_names_base)
-#else
-static void show_action_tables(verb_table_base, verb_count, action_count,
-                               parse_count, parser_type, prep_type,
-                               action_table_base, preact_table_base,
-                               prep_table_base, attr_names_base,
-                               action_names_base) unsigned long verb_table_base;
-unsigned int verb_count;
-unsigned int action_count;
-unsigned int parse_count;
-unsigned int parser_type;
-unsigned int prep_type;
-unsigned long action_table_base;
-unsigned long preact_table_base;
-unsigned long prep_table_base;
-unsigned long attr_names_base;
-unsigned long action_names_base;
-#endif
 {
     unsigned long actions_address, preacts_address;
     unsigned long routine_address;
@@ -1130,16 +1038,9 @@ unsigned long action_names_base;
  * be found in the sentence structure data in the parse tables.
  */
 
-#ifdef __STDC__
 static void show_preposition_table(unsigned int prep_type,
                                    unsigned long prep_table_base,
                                    unsigned int parser_type)
-#else
-static void show_preposition_table(prep_type, prep_table_base,
-                                   parser_type) unsigned int prep_type;
-unsigned long prep_table_base;
-unsigned int parser_type;
-#endif
 {
     unsigned long address, prep_address;
     unsigned int count, prep_index;
@@ -1184,15 +1085,8 @@ unsigned int parser_type;
  * do not have synonyms for prepositions.
  */
 
-#ifdef __STDC__
 static void show_words(unsigned int indx, unsigned long prep_address,
                        unsigned int type, unsigned int parser_type)
-#else
-static void show_words(indx, prep_address, type, parser_type) unsigned int indx;
-unsigned long prep_address;
-unsigned int type;
-unsigned int parser_type;
-#endif
 {
     unsigned long address, word_address;
     int flag = 0;
@@ -1248,20 +1142,10 @@ unsigned int parser_type;
  * Display the sentence structure associated with a parse table entry.
  */
 
-#ifdef __STDC__
 void show_verb_grammar(unsigned long verb_entry, unsigned int verb_index,
                        int parser_type, int v6_number_objects, int prep_type,
                        unsigned long prep_table_base,
                        unsigned long attr_names_base)
-#else
-void show_verb_grammar(verb_entry, verb_index, parser_type, v6_number_objects,
-                       prep_type, prep_table_base,
-                       attr_names_base) unsigned long verb_entry;
-unsigned int verb_index;
-int parser_type;
-int prep_type;
-unsigned long prep_table_base;
-#endif
 {
     unsigned long address, verb_address, prep_address;
     unsigned int parse_data, objs, preps[2], val;
@@ -1531,15 +1415,8 @@ unsigned long prep_table_base;
  * Display a preposition by index.
  */
 
-#ifdef __STDC__
 static void show_preposition(unsigned int prep, int prep_type,
                              unsigned long prep_table_base)
-#else
-static void show_preposition(prep, prep_type,
-                             prep_table_base) unsigned int prep;
-int prep_type;
-unsigned long prep_table_base;
-#endif
 {
     unsigned long address, text_address;
     unsigned int prep_count, prep_num;
@@ -1574,16 +1451,8 @@ unsigned long prep_table_base;
  * The return entry is used to restart the search from the last word found.
  */
 
-#ifdef __STDC__
 static unsigned long lookup_word(unsigned long entry, unsigned int number,
                                  unsigned int mask, unsigned int parser_type)
-#else
-static unsigned long lookup_word(entry, number, mask, parser_type)
-unsigned long entry;
-unsigned int number;
-unsigned int mask;
-unsigned int parser_type;
-#endif
 {
     unsigned long address, word_address, first_word, last_word;
     unsigned int word_count, word_size, flags, data;

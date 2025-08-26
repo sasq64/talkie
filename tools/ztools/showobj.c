@@ -6,20 +6,12 @@
 
 #include "tx.h"
 
-#ifdef __STDC__
 void configure_object_tables(unsigned int*, unsigned long*, unsigned long*,
                              unsigned long*, unsigned long*);
 static unsigned int get_object_address(unsigned int);
 static void print_property_list(unsigned long*, unsigned long);
 static void print_object(int, int);
 static void print_object_desc(int);
-#else
-void configure_object_tables();
-static unsigned int get_object_address();
-static void print_property_list();
-static void print_object();
-static void print_object_desc();
-#endif
 
 /*
  * configure_object_tables
@@ -129,21 +121,11 @@ static void print_object_desc();
  * Maximum property number = 63
  */
 
-#ifdef __STDC__
 void configure_object_tables(unsigned int* obj_count,
                              unsigned long* obj_table_base,
                              unsigned long* obj_table_end,
                              unsigned long* obj_data_base,
                              unsigned long* obj_data_end)
-#else
-void configure_object_tables(obj_count, obj_table_base, obj_table_end,
-                             obj_data_base,
-                             obj_data_end) unsigned int* obj_count;
-unsigned long* obj_table_base;
-unsigned long* obj_table_end;
-unsigned long* obj_data_base;
-unsigned long* obj_data_end;
-#endif
 {
     unsigned long object_address, address;
     unsigned int data_count, data;
@@ -218,11 +200,7 @@ unsigned long* obj_data_end;
  * List all objects and property data.
  */
 
-#ifdef __STDC__
 void show_objects(int symbolic)
-#else
-void show_objects(symbolic) int symbolic;
-#endif
 {
     unsigned long object_address, address;
     unsigned long obj_table_base, obj_table_end, obj_data_base, obj_data_end;
@@ -316,12 +294,7 @@ void show_objects(symbolic) int symbolic;
  * Given an object number calculate the data file address of the object data.
  */
 
-#ifdef __STDC__
 static unsigned int get_object_address(unsigned int obj)
-#else
-static unsigned int get_object_address(obj)
-unsigned int obj;
-#endif
 {
     unsigned int offset;
 
@@ -345,14 +318,8 @@ unsigned int obj;
  * Display the data associated with each object property.
  */
 
-#ifdef __STDC__
 static void print_property_list(unsigned long* address,
                                 unsigned long property_names_base)
-#else
-static void print_property_list(address,
-                                property_names_base) unsigned long* address;
-unsigned long property_names_base;
-#endif
 {
     int data, count;
 
@@ -388,11 +355,7 @@ unsigned long property_names_base;
  * objects.
  */
 
-#ifdef __STDC__
 void show_tree(void)
-#else
-void show_tree()
-#endif
 {
     unsigned long object_address;
     unsigned long obj_table_base, obj_table_end, obj_data_base, obj_data_end;
@@ -439,12 +402,7 @@ void show_tree()
  * Print an object description and its children for a point in the object tree.
  */
 
-#ifdef __STDC__
 static void print_object(int obj, int depth)
-#else
-static void print_object(obj, depth) int obj;
-int depth;
-#endif
 {
     unsigned long object_address, address;
     int child, i;
@@ -492,11 +450,7 @@ int depth;
  * Display the description of an object.
  */
 
-#ifdef __STDC__
 static void print_object_desc(int obj)
-#else
-static void print_object_desc(obj) int obj;
-#endif
 {
     unsigned long object_address, address;
 

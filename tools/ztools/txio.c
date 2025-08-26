@@ -70,15 +70,9 @@ typedef struct cache_entry
     zbyte_t data[PAGE_SIZE];
 } cache_entry_t;
 
-#ifdef __STDC__
 static cache_entry_t* update_cache(unsigned int);
 static unsigned long get_story_size(void);
 static void tx_write_char(int);
-#else
-static cache_entry_t* update_cache();
-static unsigned long get_story_size();
-static void tx_write_char();
-#endif
 
 static FILE* gfp = NULL;
 
@@ -89,12 +83,7 @@ static cache_entry_t* current_data_cachep = NULL;
 
 static unsigned int data_size;
 
-#ifdef __STDC__
 void configure(int min_version, int max_version)
-#else
-void configure(min_version, max_version) int min_version;
-int max_version;
-#endif
 {
     zbyte_t buffer[PAGE_SIZE];
     int i;
@@ -200,11 +189,7 @@ int max_version;
 
 } /* configure */
 
-#ifdef __STDC__
 void open_story(const char* storyname)
-#else
-void open_story(storyname) const char* storyname;
-#endif
 {
 
     gfp = fopen(storyname, "rb");
@@ -215,23 +200,14 @@ void open_story(storyname) const char* storyname;
 
 } /* open_story */
 
-#ifdef __STDC__
 void close_story(void)
-#else
-void close_story()
-#endif
 {
 
     if (gfp != NULL) (void)fclose(gfp);
 
 } /* close_story */
 
-#ifdef __STDC__
 void read_page(unsigned int page, void* buffer)
-#else
-void read_page(page, buffer) unsigned int page;
-zbyte_t* buffer;
-#endif
 {
     unsigned int bytes_to_read;
 
@@ -250,11 +226,7 @@ zbyte_t* buffer;
 
 } /* read_page */
 
-#ifdef __STDC__
 void load_cache(void)
-#else
-void load_cache()
-#endif
 {
     unsigned long file_size;
     unsigned int i, file_pages, data_pages;
@@ -303,12 +275,7 @@ void load_cache()
 
 } /* load_cache */
 
-#ifdef __STDC__
 zword_t read_data_word(unsigned long* addr)
-#else
-zword_t read_data_word(addr)
-unsigned long* addr;
-#endif
 {
     unsigned int w;
 
@@ -319,12 +286,7 @@ unsigned long* addr;
 
 } /* read_data_word */
 
-#ifdef __STDC__
 zbyte_t read_data_byte(unsigned long* addr)
-#else
-zbyte_t read_data_byte(addr)
-unsigned long* addr;
-#endif
 {
     unsigned int page_number, page_offset;
     zbyte_t value;
@@ -346,12 +308,7 @@ unsigned long* addr;
 
 } /* read_data_byte */
 
-#ifdef __STDC__
 int decode_text(unsigned long* address)
-#else
-int decode_text(address)
-unsigned long* address;
-#endif
 {
     int i, j, char_count, synonym_flag, synonym = 0, ascii_flag, ascii = 0;
     int data, code, shift_state, shift_lock;
@@ -593,12 +550,7 @@ unsigned long* address;
 
 } /* decode_text */
 
-#ifdef __STDC__
 static cache_entry_t* update_cache(unsigned int page_number)
-#else
-static cache_entry_t* update_cache(page_number)
-unsigned int page_number;
-#endif
 {
     cache_entry_t *cachep, *lastp;
 
@@ -633,11 +585,7 @@ unsigned int page_number;
  *
  */
 
-#ifdef __STDC__
 static unsigned long get_story_size(void)
-#else
-static unsigned long get_story_size()
-#endif
 {
     unsigned long file_length;
 
@@ -653,11 +601,7 @@ static unsigned long get_story_size()
 } /* get_story_size */
 
 /*VARARGS*/
-#ifdef __STDC__
 void tx_printf(const char* format, ...)
-#else
-void tx_printf(va_alist) va_dcl
-#endif
 {
     va_list ap;
     int count, i;
@@ -667,13 +611,7 @@ void tx_printf(va_alist) va_dcl
     static short cursor_initialized = 0;
 #endif
 
-#ifdef __STDC__
     va_start(ap, format);
-#else
-    const char* format;
-    va_start(ap);
-    format = va_arg(ap, const char*);
-#endif
 
 #ifdef MAC_MPW
     if (!cursor_initialized) {
@@ -709,11 +647,7 @@ void tx_printf(va_alist) va_dcl
 
 } /* tx_printf */
 
-#ifdef __STDC__
 static void write_high_zscii(int c)
-#else
-static void write_high_zscii(c) int c;
-#endif
 {
     static zword_t unicode_table[256];
     static int unicode_table_loaded;
@@ -742,11 +676,7 @@ static void write_high_zscii(c) int c;
         tx_printf("@{%x}", unicode_table[c]);
 }
 
-#ifdef __STDC__
 static void tx_write_char(int c)
-#else
-static void tx_write_char(c) int c;
-#endif
 {
     int i;
     char* cp;
@@ -792,22 +722,14 @@ static void tx_write_char(c) int c;
 
 } /* tx_write_char */
 
-#ifdef __STDC__
 void tx_fix_margin(int flag)
-#else
-void tx_fix_margin(flag) int flag;
-#endif
 {
 
     tx_margin = (flag) ? tx_col : 0;
 
 } /* tx_fix_margin */
 
-#ifdef __STDC__
 void tx_set_width(int width)
-#else
-void tx_set_width(width) int width;
-#endif
 {
 
     if (width > tx_screen_cols) {

@@ -45,7 +45,6 @@ static char file_name[FILENAME_MAX + 1];
 static short code_table[CODE_TABLE_SIZE][2];
 static unsigned char buffer[CODE_TABLE_SIZE];
 
-#if defined(__STDC__)
 static void process_image(FILE*, pdirectory_t*);
 static void decompress_image(FILE*, image_t*);
 static short read_code(FILE*, compress_t*);
@@ -65,35 +64,8 @@ static unsigned short read_word(FILE*);
 static void write_word(FILE*, unsigned short);
 static void read_bytes(FILE*, int, void*);
 static void write_bytes(FILE*, int, const void*);
-#else
-static void process_image();
-static void decompress_image();
-static short read_code();
-static void write_file();
-static void write_screen();
-static void write_graphic_control();
-static void write_image();
-static void compress_image();
-static void write_code();
-static void insert_code();
-static short lookup();
-static void clear_table();
-static void delete_table();
-static unsigned char read_byte();
-static void write_byte();
-static unsigned short read_word();
-static void write_word();
-static void read_bytes();
-static void write_bytes();
-#endif
 
-#if defined(__STDC__)
 int main(int argc, char* argv[])
-#else
-int main(argc, argv)
-int argc;
-char* argv[];
-#endif
 {
     int i;
     FILE* fp;
@@ -161,12 +133,7 @@ char* argv[];
 
 } /* main */
 
-#if defined(__STDC__)
 static void process_image(FILE* fp, pdirectory_t* directory)
-#else
-static void process_image(fp, directory) FILE* fp;
-pdirectory_t* directory;
-#endif
 {
     int colours = 16, i;
     image_t image;
@@ -241,12 +208,7 @@ pdirectory_t* directory;
 
 } /* process image */
 
-#if defined(__STDC__)
 static void decompress_image(FILE* fp, image_t* image)
-#else
-static void decompress_image(fp, image) FILE* fp;
-image_t* image;
-#endif
 {
     int i;
     short code, old = 0, first, clear_code;
@@ -289,13 +251,7 @@ image_t* image;
 
 } /* decompress_image */
 
-#if defined(__STDC__)
 static short read_code(FILE* fp, compress_t* comp)
-#else
-static short read_code(fp, comp)
-FILE* fp;
-compress_t* comp;
-#endif
 {
     short code, bsize, tlen, tptr;
 
@@ -331,12 +287,7 @@ compress_t* comp;
 
 } /* read_code */
 
-#if defined(__STDC__)
 static void write_file(int image_number, image_t* image)
-#else
-static void write_file(image_number, image) int image_number;
-image_t* image;
-#endif
 {
     FILE* fp;
 
@@ -359,12 +310,7 @@ image_t* image;
 
 } /* write_file */
 
-#if defined(__STDC__)
 static void write_screen(FILE* fp, image_t* image)
-#else
-static void write_screen(fp, image) FILE* fp;
-image_t* image;
-#endif
 {
     int i;
 
@@ -381,12 +327,7 @@ image_t* image;
 
 } /* write_screen */
 
-#if defined(__STDC__)
 static void write_graphic_control(FILE* fp, image_t* image)
-#else
-static void write_graphic_control(fp, image) FILE* fp;
-image_t* image;
-#endif
 {
     write_byte(fp, '!');               /* Extension Introducer        */
     write_byte(fp, 0xF9);              /* Graphic Control Label       */
@@ -401,12 +342,7 @@ image_t* image;
     write_byte(fp, 0);                 /* Block terminator            */
 }
 
-#if defined(__STDC__)
 static void write_image(FILE* fp, image_t* image)
-#else
-static void write_image(fp, image) FILE* fp;
-image_t* image;
-#endif
 {
 
     write_byte(fp, ',');
@@ -418,12 +354,7 @@ image_t* image;
 
 } /* write_image */
 
-#if defined(__STDC__)
 static void compress_image(FILE* fp, image_t* image)
-#else
-static void compress_image(fp, image) FILE* fp;
-image_t* image;
-#endif
 {
     int init_comp_size;
     long index;
@@ -477,13 +408,7 @@ image_t* image;
 
 } /* compress_image */
 
-#if defined(__STDC__)
 static void write_code(FILE* fp, short code, compress_t* comp)
-#else
-static void write_code(fp, code, comp) FILE* fp;
-short code;
-compress_t* comp;
-#endif
 {
     short bsize, slen, sptr;
 
@@ -516,13 +441,7 @@ compress_t* comp;
 
 } /* write_code */
 
-#if defined(__STDC__)
 static void insert_code(short prefix, short pixel, short code)
-#else
-static void insert_code(prefix, pixel, code) short prefix;
-short pixel;
-short code;
-#endif
 {
     short hashval;
     nlist_t* np;
@@ -540,13 +459,7 @@ short code;
 
 } /* insert_code */
 
-#if defined(__STDC__)
 static short lookup(short prefix, short pixel)
-#else
-static short lookup(prefix, pixel)
-short prefix;
-short pixel;
-#endif
 {
     short hashval;
     nlist_t* np;
@@ -559,11 +472,7 @@ short pixel;
 
 } /* lookup */
 
-#if defined(__STDC__)
 static void clear_table(void)
-#else
-static void clear_table()
-#endif
 {
     int i;
 
@@ -572,11 +481,7 @@ static void clear_table()
 
 } /* clear_table */
 
-#if defined(__STDC__)
 static void delete_table(void)
-#else
-static void delete_table()
-#endif
 {
     int i;
     nlist_t *np, *tp;
@@ -591,12 +496,7 @@ static void delete_table()
 
 } /* delete_table */
 
-#if defined(__STDC__)
 static unsigned char read_byte(FILE* fp)
-#else
-static unsigned char read_byte(fp)
-FILE* fp;
-#endif
 {
     int c;
 
@@ -609,12 +509,7 @@ FILE* fp;
 
 } /* read_byte */
 
-#if defined(__STDC__)
 static void write_byte(FILE* fp, int c)
-#else
-static void write_byte(fp, c) FILE* fp;
-int c;
-#endif
 {
 
     if (fputc(c, fp) == EOF) {
@@ -624,12 +519,7 @@ int c;
 
 } /* write_byte */
 
-#if defined(__STDC__)
 static unsigned short read_word(FILE* fp)
-#else
-static unsigned short read_word(fp)
-FILE* fp;
-#endif
 {
     unsigned int w;
 
@@ -640,12 +530,7 @@ FILE* fp;
 
 } /* read_word */
 
-#if defined(__STDC__)
 static void write_word(FILE* fp, unsigned short w)
-#else
-static void write_word(fp, w) FILE* fp;
-unsigned short w;
-#endif
 {
 
     write_byte(fp, (int)w & 255);
@@ -653,13 +538,7 @@ unsigned short w;
 
 } /* write_word */
 
-#if defined(__STDC__)
 static void read_bytes(FILE* fp, int size, void* s)
-#else
-static void read_bytes(fp, size, s) FILE* fp;
-int size;
-void* s;
-#endif
 {
 
     if (fread(s, (size_t)size, 1, fp) != 1) {
@@ -669,13 +548,7 @@ void* s;
 
 } /* read_bytes */
 
-#if defined(__STDC__)
 static void write_bytes(FILE* fp, int size, const void* s)
-#else
-static void write_bytes(fp, size, s) FILE* fp;
-int size;
-const void* s;
-#endif
 {
 
     if (fwrite(s, (size_t)size, 1, fp) != 1) {
