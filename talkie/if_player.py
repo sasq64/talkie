@@ -19,7 +19,9 @@ logger = getLogger(__name__)
 
 
 class IFPlayer:
-    def __init__(self, image_drawer: ImageDrawer, file_name: Path, gfx_path: Path | None = None):
+    def __init__(
+        self, image_drawer: ImageDrawer, file_name: Path, gfx_path: Path | None = None
+    ):
         """
         Start an interactive fiction game in a subprocess
         """
@@ -27,9 +29,10 @@ class IFPlayer:
         zcode = re.compile(r"\.z(ode|[123456789])$")
         l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
-        self.image_drawer = image_drawer 
+        self.image_drawer = image_drawer
         self.key_mode: bool = False
 
+        print(file_name)
         if zcode.search(file_name.name):
             args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
         elif l9.search(file_name.name):

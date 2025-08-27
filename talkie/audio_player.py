@@ -1,3 +1,4 @@
+from concurrent.futures import Executor
 import queue
 import threading
 import subprocess
@@ -11,10 +12,11 @@ logger = getLogger(__name__)
 
 
 class AudioPlayer:
-    def __init__(self):
+    def __init__(self, executor: Executor):
         self.audio_queue: Final = Queue[bytes]()
         self.pyaudio_instance: Final = pyaudio.PyAudio()
         self.stop_event: Final = threading.Event()
+        self.executor = executor
 
         # Start audio worker thread
         self.audio_thread: Final = threading.Thread(
@@ -30,63 +32,63 @@ class AudioPlayer:
     def _audio_worker(self):
         current_stream: pyaudio.Stream | None = None
         while True:
-            try:
-                audio_data = self.audio_queue.get()
-                self.stop_event.clear()
-                if audio_data:
-                    # Use ffmpeg to decode MP3 to raw PCM
-                    with tempfile.NamedTemporaryFile(
-                        suffix=".mp3", delete=False
-                    ) as temp_mp3:
-                        _ = temp_mp3.write(audio_data)
-                        temp_mp3.flush()
+            # try:
+            audio_data = self.audio_queue.get()
+            self.stop_event.clear()
+            if audio_data:
+                # Use ffmpeg to decode MP3 to raw PCM
+                with tempfile.NamedTemporaryFile(
+                    suffix=".mp3", delete=False
+                ) as temp_mp3:
+                    _ = temp_mp3.write(audio_data)
+                    temp_mp3.flush()
 
-                        # Convert MP3 to raw PCM using ffmpeg
-                        result = subprocess.run(
-                            [
-                                "ffmpeg",
-                                "-i",
-                                temp_mp3.name,
-                                "-f",
-                                "s16le",  # 16-bit little endian PCM
-                                "-ar",
-                                "22050",  # 22050 Hz sample rate
-                                "-ac",
-                                "1",  # mono
-                                "-",
-                            ],
-                            capture_output=True,
-                            check=True,
-                        )
-
-                        raw_data = result.stdout
-
-                    # Set up pyaudio stream with correct format
-                    format = self.pyaudio_instance.get_format_from_width(2, False)
-                    current_stream = self.pyaudio_instance.open(
-                        format=format,
-                        channels=1,
-                        rate=22050,
-                        output=True,
+                    # Convert MP3 to raw PCM using ffmpeg
+                    result = subprocess.run(
+                        [
+                            "ffmpeg",
+                            "-i",
+                            temp_mp3.name,
+                            "-f",
+                            "s16le",  # 16-bit little endian PCM
+                            "-ar",
+                            "22050",  # 22050 Hz sample rate
+                            "-ac",
+                            "1",  # mono
+                            "-",
+                        ],
+                        capture_output=True,
+                        check=True,
                     )
 
-                    # Play the audio in chunks, checking for stop event
-                    chunk_size = 1024
-                    for i in range(0, len(raw_data), chunk_size):
-                        if self.stop_event.is_set():
-                            break
-                        chunk = raw_data[i : i + chunk_size]
-                        current_stream.write(chunk)
+                    raw_data = result.stdout
 
-                    current_stream.stop_stream()
-                    current_stream.close()
-                    current_stream = None
-                    self.stop_event.clear()
-            except Exception as e:
-                logger.error(f"Audio playback error: {e}")
-                if current_stream:
-                    current_stream.close()
-                    current_stream = None
+                # Set up pyaudio stream with correct format
+                format = self.pyaudio_instance.get_format_from_width(2, False)
+                current_stream = self.pyaudio_instance.open(
+                    format=format,
+                    channels=1,
+                    rate=22050,
+                    output=True,
+                )
+
+                # Play the audio in chunks, checking for stop event
+                chunk_size = 1024
+                for i in range(0, len(raw_data), chunk_size):
+                    if self.stop_event.is_set():
+                        break
+                    chunk = raw_data[i : i + chunk_size]
+                    current_stream.write(chunk)
+
+                current_stream.stop_stream()
+                current_stream.close()
+                current_stream = None
+                self.stop_event.clear()
+        # except Exception as e:
+        #    logger.error(f"Audio playback error: {e}")
+        #    if current_stream:
+        #        current_stream.close()
+        #        current_stream = None
 
     def stop_playing(self):
         """Stop the currently playing audio."""

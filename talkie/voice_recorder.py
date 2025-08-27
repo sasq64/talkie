@@ -39,8 +39,8 @@ class VoiceToText:
             raise FileNotFoundError(
                 f"OpenAI API key file not found at {key_path}"
             ) from e
-        except Exception as e:
-            raise Exception("Error reading API key:") from e
+        # except Exception as e:
+        #    raise Exception("Error reading API key:") from e
 
     def start_recording(self, sample_rate: float | None = None) -> None:
         """Start recording audio"""

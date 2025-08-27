@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import logging
 from importlib import resources
 from pathlib import Path
@@ -197,15 +198,14 @@ def main():
     container[AdventureGuy] = None
     container[TalkieConfig] = TalkieConfig(args.game, args.gfx, prompts)
     container[IFPlayer] = lambda c: IFPlayer(
-        c[ImageDrawer],
-        c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
+        c[ImageDrawer], c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
     container[ImageGen] = lambda c: ImageGen(c[OpenAI], img_cache)
     voice = args.voice
     if voice is not None:
         tts_cache = FileCache(Path(".cache/tts"))
         container[TextToSpeech] = lambda c: TextToSpeech(
-            c[AudioPlayer], tts_cache, c[OpenAI], voice=voice
+            c[AudioPlayer], c[ThreadPoolExecutor], tts_cache, c[OpenAI], voice=voice
         )
     else:
         container[TextToSpeech] = None

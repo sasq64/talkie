@@ -28,15 +28,18 @@ dependencies = [
     "pydub",
     "pyyaml",
     "lagom",
+    "pillow"
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-cov",
+    "pytest-mock",
     "pyright",
     "ruff",
     "black",
-    "isort",
+    "isort"
 ]
 test = [
     "pytest",
