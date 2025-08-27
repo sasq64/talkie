@@ -41,6 +41,7 @@ dev = [
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-mock",
 ]
 
 [project.urls]
@@ -63,6 +64,7 @@ exclude = ["**/node_modules", "**/__pycache__", "**/.*"]
 typeCheckingMode = "strict"
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportAny = false
 pythonVersion = "3.10"
 
 [tool.ruff]

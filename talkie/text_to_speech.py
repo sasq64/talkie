@@ -29,7 +29,7 @@ class TextToSpeech:
         self.audio_player: Final = audio_player
         self.voice: str = voice
         self.cache: Final = cache
-        self.cache.meta = {"voice": voice, "model": model}
+        self.cache.set_meta({"voice": voice, "model": model})
         self.model: str = model
         self.client: Final = open_ai
 

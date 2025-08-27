@@ -33,6 +33,9 @@ class FileCache:
         self._access_times: dict[str, float] = {}
         self._load_existing_files()
 
+    def set_meta(self, meta: dict[str, str]):
+        self.meta = meta
+
     def _load_existing_files(self):
         """Load existing cache files and their access times."""
         for file_path in self.cache_dir.glob("*.json"):

@@ -1,4 +1,3 @@
-import io
 import queue
 import threading
 import subprocess
@@ -6,10 +5,7 @@ import tempfile
 from logging import getLogger
 from queue import Queue
 from typing import Final
-
 import pyaudio
-
-# from pydub import AudioSegment
 
 logger = getLogger(__name__)
 
@@ -38,15 +34,11 @@ class AudioPlayer:
                 audio_data = self.audio_queue.get()
                 self.stop_event.clear()
                 if audio_data:
-                    # Convert MP3 bytes to AudioSegment
-                    # audio_segment: AudioSegment = AudioSegment.from_mp3(
-                    #    io.BytesIO(audio_data)
-                    # )
                     # Use ffmpeg to decode MP3 to raw PCM
                     with tempfile.NamedTemporaryFile(
                         suffix=".mp3", delete=False
                     ) as temp_mp3:
-                        temp_mp3.write(audio_data)
+                        _ = temp_mp3.write(audio_data)
                         temp_mp3.flush()
 
                         # Convert MP3 to raw PCM using ffmpeg
@@ -69,18 +61,12 @@ class AudioPlayer:
 
                         raw_data = result.stdout
 
-                    # if not audio_segment.raw_data:
-                    #    raise RuntimeError("Illegal AudioSegment")
-                    # Convert to raw audio data for pyaudio
-                    # raw_data: bytes = audio_segment.raw_data
-
                     # Set up pyaudio stream with correct format
+                    format = self.pyaudio_instance.get_format_from_width(2, False)
                     current_stream = self.pyaudio_instance.open(
-                        format=self.pyaudio_instance.get_format_from_width(
-                            audio_segment.sample_width
-                        ),
-                        channels=audio_segment.channels,
-                        rate=audio_segment.frame_rate,
+                        format=format,
+                        channels=1,
+                        rate=22050,
                         output=True,
                     )
 

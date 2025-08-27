@@ -24,7 +24,7 @@ class TestFileCache:
         assert temp_cache.cache_dir.exists()
         assert temp_cache.cache_dir.is_dir()
 
-    def test_add_and_get_basic(self, temp_cache):
+    def test_add_and_get_basic(self, temp_cache: FileCache):
         """Test basic add and get functionality."""
         key = "test_key"
         data = b"test data"
@@ -34,12 +34,12 @@ class TestFileCache:
 
         assert retrieved_data == data
 
-    def test_get_nonexistent_key(self, temp_cache):
+    def test_get_nonexistent_key(self, temp_cache: FileCache):
         """Test that getting a nonexistent key returns None."""
         result = temp_cache.get("nonexistent")
         assert result is None
 
-    def test_exists(self, temp_cache):
+    def test_exists(self, temp_cache: FileCache):
         """Test the exists method."""
         key = "test_key"
         data = b"test data"
@@ -49,7 +49,7 @@ class TestFileCache:
         temp_cache.add(key, data)
         assert temp_cache.exists(key)
 
-    def test_remove(self, temp_cache):
+    def test_remove(self, temp_cache: FileCache):
         """Test removing cached items."""
         key = "test_key"
         data = b"test data"
@@ -65,7 +65,7 @@ class TestFileCache:
         result = temp_cache.remove("nonexistent")
         assert result is False
 
-    def test_clear(self, temp_cache):
+    def test_clear(self, temp_cache: FileCache):
         """Test clearing all cached items."""
         temp_cache.add("key1", b"data1")
         temp_cache.add("key2", b"data2")
@@ -77,7 +77,7 @@ class TestFileCache:
         assert not temp_cache.exists("key1")
         assert not temp_cache.exists("key2")
 
-    def test_size(self, temp_cache):
+    def test_size(self, temp_cache: FileCache):
         """Test the size method reports total bytes."""
         assert temp_cache.size() == 0
 
@@ -93,7 +93,7 @@ class TestFileCache:
         s3 = temp_cache.size()
         assert s3 <= s2 - 10
 
-    def test_keys(self, temp_cache):
+    def test_keys(self, temp_cache: FileCache):
         """Test the keys method."""
         assert temp_cache.keys() == []
 
@@ -105,7 +105,7 @@ class TestFileCache:
         assert "key1" in keys
         assert "key2" in keys
 
-    def test_max_bytes_eviction(self, temp_cache):
+    def test_max_bytes_eviction(self, temp_cache: FileCache):
         """Oldest files should be evicted when total size exceeds max_bytes."""
         temp_cache.clear()
         base = b"x" * 4000
@@ -124,7 +124,7 @@ class TestFileCache:
         assert temp_cache.exists("key3")
         assert temp_cache.exists("key4")
 
-    def test_lru_behavior_on_get(self, temp_cache):
+    def test_lru_behavior_on_get(self, temp_cache: FileCache):
         """Accessing a file updates its LRU position for size-based eviction."""
         base = b"x" * 4000
         temp_cache.add("key1", base)
@@ -141,7 +141,7 @@ class TestFileCache:
         assert temp_cache.exists("key3")
         assert temp_cache.exists("key4")
 
-    def test_binary_data_handling(self, temp_cache):
+    def test_binary_data_handling(self, temp_cache: FileCache):
         """Test handling of various binary data types."""
         # Test with different types of binary data
         test_cases = [
@@ -156,7 +156,7 @@ class TestFileCache:
             retrieved = temp_cache.get(key)
             assert retrieved == data
 
-    def test_key_collision_safety(self, temp_cache):
+    def test_key_collision_safety(self, temp_cache: FileCache):
         """Test that different keys don't collide even with similar content."""
         temp_cache.add("key1", b"same data")
         temp_cache.add("key2", b"same data")
@@ -193,7 +193,7 @@ class TestFileCache:
         finally:
             shutil.rmtree(temp_dir)
 
-    def test_special_characters_in_keys(self, temp_cache):
+    def test_special_characters_in_keys(self, temp_cache: FileCache):
         """Test handling of special characters in keys."""
         special_keys = [
             "key with spaces",
@@ -211,7 +211,7 @@ class TestFileCache:
             retrieved = temp_cache.get(key)
             assert retrieved == data
 
-    def test_constructor_metadata(self, temp_cache):
+    def test_constructor_metadata(self, temp_cache: FileCache):
         """Test metadata set at constructor level."""
         temp_dir = tempfile.mkdtemp()
         try:
@@ -233,7 +233,7 @@ class TestFileCache:
         finally:
             shutil.rmtree(temp_dir)
 
-    def test_method_metadata(self, temp_cache):
+    def test_method_metadata(self, temp_cache: FileCache):
         """Test metadata passed to individual methods."""
         key = "test_key"
         data = b"test data"
@@ -252,7 +252,7 @@ class TestFileCache:
         assert not temp_cache.exists(key)
         assert not temp_cache.exists(key, {"user": "bob"})
 
-    def test_metadata_merging(self, temp_cache):
+    def test_metadata_merging(self, temp_cache: FileCache):
         """Test that method metadata overrides constructor metadata."""
         temp_dir = tempfile.mkdtemp()
         try:
@@ -267,10 +267,10 @@ class TestFileCache:
             # Add with method metadata that overrides constructor
             cache.add(key, data, method_meta)
 
-            # Expected merged metadata: {"version": "1.0", "env": "prod", "user": "alice"}
+            # Should retrieve with the expected merged metadata
             expected_meta = {"version": "1.0", "env": "prod", "user": "alice"}
-            assert cache.get(key, method_meta) == data
-            assert cache.exists(key, method_meta)
+            assert cache.get(key, expected_meta) == data
+            assert cache.exists(key, expected_meta)
 
             # Should not retrieve with just constructor metadata
             assert cache.get(key) is None
@@ -278,7 +278,7 @@ class TestFileCache:
         finally:
             shutil.rmtree(temp_dir)
 
-    def test_metadata_creates_different_cache_entries(self, temp_cache):
+    def test_metadata_creates_different_cache_entries(self, temp_cache: FileCache):
         """Test that same key with different metadata creates different entries."""
         key = "same_key"
         data1 = b"data with meta1"
@@ -303,7 +303,7 @@ class TestFileCache:
         assert temp_cache.exists(key, meta2)
         assert temp_cache.exists(key)
 
-    def test_metadata_in_json_storage(self, temp_cache):
+    def test_metadata_in_json_storage(self, temp_cache: FileCache):
         """Test that metadata is stored in JSON when present and omitted when empty."""
         key1 = "key_with_meta"
         key2 = "key_without_meta"
@@ -330,7 +330,7 @@ class TestFileCache:
         # File without metadata should not have meta field
         assert "meta" not in data_without_meta
 
-    def test_metadata_remove_operations(self, temp_cache):
+    def test_metadata_remove_operations(self, temp_cache: FileCache):
         """Test remove operations with metadata."""
         key = "remove_key"
         data = b"data to remove"
@@ -353,7 +353,7 @@ class TestFileCache:
         assert temp_cache.remove(key) is False
         assert temp_cache.exists(key, meta)  # Should still exist
 
-    def test_empty_metadata_handling(self, temp_cache):
+    def test_empty_metadata_handling(self, temp_cache: FileCache):
         """Test handling of empty metadata."""
         key = "empty_meta_key"
         data = b"test data"
@@ -370,7 +370,7 @@ class TestFileCache:
         cache_data = json.loads(file_path.read_text())
         assert "meta" not in cache_data
 
-    def test_metadata_with_constructor_and_empty_method(self, temp_cache):
+    def test_metadata_with_constructor_and_empty_method(self, temp_cache: FileCache):
         """Test constructor metadata with empty method metadata."""
         temp_dir = tempfile.mkdtemp()
         try:

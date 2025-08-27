@@ -19,7 +19,7 @@ logger = getLogger(__name__)
 
 
 class IFPlayer:
-    def __init__(self, file_name: Path, gfx_path: Path | None = None):
+    def __init__(self, image_drawer: ImageDrawer, file_name: Path, gfx_path: Path | None = None):
         """
         Start an interactive fiction game in a subprocess
         """
@@ -27,8 +27,8 @@ class IFPlayer:
         zcode = re.compile(r"\.z(ode|[123456789])$")
         l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
-        self.image_drawer: Final = ImageDrawer()
-        self.key_mode : bool = False
+        self.image_drawer = image_drawer 
+        self.key_mode: bool = False
 
         if zcode.search(file_name.name):
             args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
@@ -37,11 +37,7 @@ class IFPlayer:
                 gfx_str = gfx_path.as_posix()
                 if gfx_path.is_dir():
                     gfx_str += "/"
-                args = [
-                    str(data / "l9"),
-                    file_name.as_posix(),
-                    gfx_str
-                ]
+                args = [str(data / "l9"), file_name.as_posix(), gfx_str]
             else:
                 args = [str(data / "l9"), file_name.as_posix()]
         else:
@@ -68,8 +64,9 @@ class IFPlayer:
                         break
                     self.output_queue.put(data)
 
-
-        self.output_thread: Final = threading.Thread(target=_read_output, args=(self.proc.stdout,), daemon=True)
+        self.output_thread: Final = threading.Thread(
+            target=_read_output, args=(self.proc.stdout,), daemon=True
+        )
         self.output_thread.start()
 
         self._closed: bool = False

@@ -14,6 +14,7 @@ from talkie.adventure_guy import AdventureGuy
 from talkie.audio_player import AudioPlayer
 from talkie.cache import FileCache
 from talkie.if_player import IFPlayer
+from talkie.image_drawer import ImageDrawer
 from talkie.image_gen import ImageGen
 from talkie.openaiclient import OpenAIClient
 from talkie.text_to_speech import TextToSpeech, Voice
@@ -196,6 +197,7 @@ def main():
     container[AdventureGuy] = None
     container[TalkieConfig] = TalkieConfig(args.game, args.gfx, prompts)
     container[IFPlayer] = lambda c: IFPlayer(
+        c[ImageDrawer],
         c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
     container[ImageGen] = lambda c: ImageGen(c[OpenAI], img_cache)
