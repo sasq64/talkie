@@ -22,9 +22,10 @@ class TextToSpeech:
         audio_player: AudioPlayer,
         cache: FileCache,
         open_ai: openai.OpenAI,
-        voice: Voice = "alloy",
+        voice: Voice | None = None,
         model: str = "tts-1",
     ):
+        print(f"{cache.cache_dir}")
         self.tts_queue: Final = Queue[str]()
         self.audio_player: Final = audio_player
         self.voice: str = voice

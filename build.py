@@ -4,9 +4,8 @@ Build script for talkie tools using CMake.
 Builds the project in the build/ directory and copies level9 binary to talkie/data/l9.
 """
 
-import os
-import subprocess
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 

@@ -70,7 +70,6 @@ class AIPlayer:
     def update(self):
         """Update AI and return command if available"""
         self._check_voice_result()
-
         # Do we have an AI processed voice command?
         if self.adventure_guy and self.adventure_guy.update():
             command = self.adventure_guy.get_command()
@@ -105,9 +104,6 @@ class AIPlayer:
                         pattern = re.compile(r"[.?!>:]$")
                         if not pattern.search(paragraph):
                             paragraph += ". "
-                            paragraph = paragraph.replace("ZORK I", "ZORK ONE").replace(
-                                "A N C H O R H E A D", "### ANCHORHEAD"
-                            )
                         self.tts.speak(paragraph)
 
     def get_next_output(self) -> AIOutput | None:

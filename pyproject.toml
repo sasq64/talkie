@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Games/Entertainment",
     "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "pixpy",
     "openai",
@@ -65,7 +65,7 @@ typeCheckingMode = "strict"
 reportMissingImports = true
 reportMissingTypeStubs = false
 reportAny = false
-pythonVersion = "3.10"
+pythonVersion = "3.12"
 
 [tool.ruff]
 target-version = "py310"

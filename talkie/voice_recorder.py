@@ -1,4 +1,3 @@
-import os
 import time
 import wave
 from collections.abc import Mapping
@@ -18,29 +17,15 @@ def fixup(text: str) -> str:
 
 
 class VoiceToText:
-    def __init__(self, api_key: str | None = None):
+    def __init__(self, client: OpenAI):
         """Initialize VoiceToText with optional API key"""
-        self.api_key: str = api_key or self._read_openai_key()
-        self.client: OpenAI = OpenAI(api_key=self.api_key)
+        self.client = client
         self._current_recording: list[bytes] | None = None
         self._sample_rate: float = 32000
         self._executor: Final = ThreadPoolExecutor(max_workers=2)
         self._pyaudio: Final = pyaudio.PyAudio()
         self._stream: pyaudio.Stream | None = None
         self._is_recording: bool = False
-
-    def _read_openai_key(self) -> str:
-        """Read OpenAI API key from ~/.openai.key"""
-        key_path = os.path.expanduser("~/.openai.key")
-        try:
-            with open(key_path) as f:
-                return f.read().strip()
-        except FileNotFoundError as e:
-            raise FileNotFoundError(
-                f"OpenAI API key file not found at {key_path}"
-            ) from e
-        except Exception as e:
-            raise Exception("Error reading API key:") from e
 
     def start_recording(self, sample_rate: float | None = None) -> None:
         """Start recording audio"""
@@ -185,7 +170,14 @@ class VoiceToText:
 
 
 def main():
-    vtt = VoiceToText()
+    # Load OpenAI API key
+    api_key = ""
+    key_path = Path.home() / ".openai.key"
+    if key_path.exists():
+        with open(key_path) as f:
+            api_key = f.read().strip()
+    client = OpenAI(api_key=api_key)
+    vtt = VoiceToText(client)
     vtt.start_transribe()
     time.sleep(5)  # Record for 5 seconds
     future = vtt.end_transcribe()

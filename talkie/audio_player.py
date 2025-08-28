@@ -1,10 +1,11 @@
 import queue
-import threading
 import subprocess
 import tempfile
+import threading
 from logging import getLogger
 from queue import Queue
 from typing import Final
+
 import pyaudio
 
 logger = getLogger(__name__)

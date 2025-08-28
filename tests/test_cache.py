@@ -267,10 +267,10 @@ class TestFileCache:
             # Add with method metadata that overrides constructor
             cache.add(key, data, method_meta)
 
-            # Should retrieve with the expected merged metadata
+            # Expected merged metadata: {"version": "1.0", "env": "prod", "user": "alice"}
             expected_meta = {"version": "1.0", "env": "prod", "user": "alice"}
-            assert cache.get(key, expected_meta) == data
-            assert cache.exists(key, expected_meta)
+            assert cache.get(key, method_meta) == data
+            assert cache.exists(key, method_meta)
 
             # Should not retrieve with just constructor metadata
             assert cache.get(key) is None

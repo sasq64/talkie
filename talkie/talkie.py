@@ -1,28 +1,47 @@
 #!/usr/bin/env python
-import argparse
 import logging
+from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
-from typing import Final
+from typing import Final, cast
 
+import jsonargparse
 import pixpy as pix
 import yaml
 from lagom import Container
 from openai import OpenAI
 
 from talkie.adventure_guy import AdventureGuy
-from talkie.audio_player import AudioPlayer
 from talkie.cache import FileCache
 from talkie.if_player import IFPlayer
 from talkie.image_drawer import ImageDrawer
 from talkie.image_gen import ImageGen
 from talkie.openaiclient import OpenAIClient
-from talkie.text_to_speech import TextToSpeech, Voice
+from talkie.text_to_speech import TextToSpeech
 
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .talkie_config import TalkieConfig
 from .utils.nerd import Nerd
 from .utils.wrap import wrap_lines
+
+
+@dataclass
+class Resolver:
+    parent: Container
+    c: Container
+
+    def setup[T](self, typ: type[T]) -> T:
+        self.c[typ] = typ
+        self.parent[typ] = lambda: self.c.resolve(typ)
+
+
+def bind[T](self: Container, typ: type[T], t: T) -> Resolver:
+    cc = self.clone()
+    cc[typ] = t
+    return Resolver(self, cc)
+
+
+Container.bind = bind
 
 logger = logging.getLogger()
 
@@ -31,11 +50,8 @@ class Talkie:
     def __init__(
         self,
         screen: pix.Screen,
-        config: TalkieConfig,
         ai_player: AIPlayer,
     ):
-        print(config.game_file)
-
         self.screen: Final = screen
         # self.game_image: pix.Image = pix.Image(160, 128)
         data = resources.files("talkie.data")
@@ -148,33 +164,19 @@ class Talkie:
                 self.console.read_line()
 
 
-class Args(argparse.Namespace):
-    game: Path | None = None
-    gfx: Path | None = None
-    voice: Voice | None = None
-    full_screen: bool = False
-
-
 def main():
-    parser = argparse.ArgumentParser(
-        description="Talkie - AI Interactive Fiction player"
-    )
-    _ = parser.add_argument("game", type=Path, help="Game file to load")
-    _ = parser.add_argument("-G", "--gfx", type=Path, help="Graphics file to load")
-    _ = parser.add_argument("-F", "--full-screen", action="store_true")
-    _ = parser.add_argument("--voice", nargs="?", const="alloy", type=str)
-    args = parser.parse_args(namespace=Args)
-    assert args.game
+    # args = tyro.cli(TalkieConfig)
+    jsonargparse.set_parsing_settings(docstring_parse_attribute_docstrings=True)
+    args = cast("TalkieConfig", jsonargparse.auto_cli(TalkieConfig, as_positional=True))  # pyright: ignore[reportUnknownMemberType]
 
     # Initialize pixpy rendering components
     screen = pix.open_display(size=(1280, 1024), full_screen=args.full_screen)
 
     logger.info("Starting game")
-    # Initialize Talkie
 
     data = resources.files("talkie.data")
-    prompts_path = data / "prompts.yaml"
-    prompts: dict[str, str] = yaml.safe_load(prompts_path.open())
+    prompts_path = args.prompt_file or data / "prompts.yaml"
+    args.prompts = yaml.safe_load(prompts_path.open())
 
     container = Container()
     container[pix.Screen] = screen
@@ -189,24 +191,20 @@ def main():
     container[OpenAI] = client
 
     img_cache = FileCache(Path(".cache/img"))
-
-    container[FileCache] = lambda: FileCache(".filecache")
+    tts_cache = FileCache(Path(".cache/tts"))
 
     container[OpenAIClient] = lambda c: OpenAIClient(c[OpenAI], model="gpt4")
     # container[AdventureGuy] = lambda c: AdventureGuy(c[OpenAIClient], prompt="")
     container[AdventureGuy] = None
-    container[TalkieConfig] = TalkieConfig(args.game, args.gfx, prompts)
+    container[TalkieConfig] = args
     container[IFPlayer] = lambda c: IFPlayer(
-        c[ImageDrawer],
-        c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
+        c[ImageDrawer], c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
-    container[ImageGen] = lambda c: ImageGen(c[OpenAI], img_cache)
+    bind(container, FileCache, img_cache).setup(ImageGen)
+    # container[ImageGen] = lambda c: ImageGen(c[OpenAI], img_cache)
     voice = args.voice
     if voice is not None:
-        tts_cache = FileCache(Path(".cache/tts"))
-        container[TextToSpeech] = lambda c: TextToSpeech(
-            c[AudioPlayer], tts_cache, c[OpenAI], voice=voice
-        )
+        bind(container, FileCache, tts_cache).setup(TextToSpeech)
     else:
         container[TextToSpeech] = None
 

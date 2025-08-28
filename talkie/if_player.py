@@ -1,15 +1,15 @@
+import asyncio
 import contextlib
-from io import BufferedReader
-import os
 import queue
 import re
 import subprocess
 import threading
 import time
 from importlib import resources
+from io import BufferedReader
 from logging import getLogger
 from pathlib import Path
-from typing import IO, Final
+from typing import Final
 
 from talkie.image_drawer import ImageDrawer
 
@@ -19,7 +19,9 @@ logger = getLogger(__name__)
 
 
 class IFPlayer:
-    def __init__(self, image_drawer: ImageDrawer, file_name: Path, gfx_path: Path | None = None):
+    def __init__(
+        self, image_drawer: ImageDrawer, file_name: Path, gfx_path: Path | None = None
+    ):
         """
         Start an interactive fiction game in a subprocess
         """
@@ -27,7 +29,7 @@ class IFPlayer:
         zcode = re.compile(r"\.z(ode|[123456789])$")
         l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
-        self.image_drawer = image_drawer 
+        self.image_drawer = image_drawer
         self.key_mode: bool = False
 
         if zcode.search(file_name.name):
@@ -70,6 +72,18 @@ class IFPlayer:
         self.output_thread.start()
 
         self._closed: bool = False
+
+    async def read_async(self) -> dict[str, str | Path] | None:
+        """
+        Read stdout from running interpreter. Returns a dict containing
+        both the raw text and context aware parsing (like stripping the
+            status bar from frotz etc).
+        """
+        raw_text = await asyncio.to_thread(self.output_queue.get)
+        result = raw_text.decode()
+        self.text_output += result
+        self.last_result = time.time()
+        return self._handle_output()
 
     def read(self) -> dict[str, str | Path] | None:
         """

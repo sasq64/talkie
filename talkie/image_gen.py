@@ -28,6 +28,7 @@ Quality = Literal["standard", "hd", "low", "medium", "high", "auto"]
 
 class ImageGen:
     def __init__(self, open_ai: OpenAI, cache: FileCache):
+        print(cache.cache_dir)
         self.model: ImageModel = "gpt-image-1"
         self.size: ImageSize = "1024x1024"
         self.quality: Quality = "medium"
