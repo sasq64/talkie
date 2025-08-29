@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from enum import StrEnum
 import logging
 from dataclasses import dataclass
 from importlib import resources
@@ -16,7 +17,7 @@ from talkie.cache import FileCache
 from talkie.if_player import IFPlayer
 from talkie.image_drawer import ImageDrawer
 from talkie.image_gen import ImageGen
-from talkie.openaiclient import OpenAIClient
+from talkie.openaiclient import GptModel, OpenAIClient
 from talkie.text_to_speech import TextToSpeech
 
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
@@ -30,7 +31,7 @@ class Resolver:
     parent: Container
     c: Container
 
-    def setup[T](self, typ: type[T]) -> T:
+    def setup[T](self, typ: type[T]):
         self.c[typ] = typ
         self.parent[typ] = lambda: self.c.resolve(typ)
 
@@ -41,8 +42,6 @@ def bind[T](self: Container, typ: type[T], t: T) -> Resolver:
     return Resolver(self, cc)
 
 
-Container.bind = bind
-
 logger = logging.getLogger()
 
 
@@ -50,17 +49,25 @@ class Talkie:
     def __init__(
         self,
         screen: pix.Screen,
+        config: TalkieConfig,
         ai_player: AIPlayer,
     ):
         self.screen: Final = screen
-        # self.game_image: pix.Image = pix.Image(160, 128)
         data = resources.files("talkie.data")
-        font_path = data / "3270.ttf"
-        tile_set = pix.TileSet(font_file=str(font_path), size=32)
+        font_path = config.text_font or data / "3270.ttf"
+        tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
+        print(tile_set.tile_size)
         con_size = (screen.size / tile_set.tile_size).toi()
         self.console: Final = pix.Console(
             tile_set=tile_set, cols=con_size.x, rows=con_size.y
         )
+
+        self.text_color = (config.text_color << 8) | 0xFF
+        self.prompt_color = (config.prompt_color << 8) | 0xFF
+        self.background_cololor = (config.background_color << 8) | 0xFF
+        self.console.set_color(self.text_color, self.background_cololor)
+        self.console.set_color(self.text_color, self.background_cololor)
+        self.console.clear()
 
         font = pix.load_font(str(data / "SymbolsNerdFont-Regular.ttf"))
         sz = pix.Float2(48, 48)
@@ -80,8 +87,6 @@ class Talkie:
 
     def update(self):
         self.screen.draw(drawable=self.console, top_left=(0, 0), size=self.console.size)
-
-        # self.screen.draw(self.game_image, top_left=(50,50), size = self.game_image.size * (4,2))
 
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
@@ -119,10 +124,6 @@ class Talkie:
         output = self.ai_player.get_next_output()
         if output:
             if isinstance(output, ImageOutput):
-                # Load image - could be from image generation or graphics commands
-                # if str(output.file_name) == "game.png":
-                #    self.game_image = pix.load_png(str(output.file_name))
-                # else:
                 self.current_image = pix.load_png(str(output.file_name))
             elif isinstance(output, PromptOutput):
                 self.console.cancel_line()
@@ -151,9 +152,9 @@ class Talkie:
                     self.ai_player.write_command(chr(e.key))
 
             if isinstance(e, pix.event.Text):
-                self.console.set_color(pix.color.LIGHT_BLUE, pix.color.BLACK)
+                self.console.set_color(self.prompt_color, self.background_cololor)
                 self.console.write(e.text)
-                self.console.set_color(pix.color.WHITE, pix.color.BLACK)
+                self.console.set_color(self.text_color, self.background_cololor)
 
                 if e.text[0] == "/":
                     cmd = e.text[1:].strip()
@@ -170,7 +171,7 @@ def main():
     args = cast("TalkieConfig", jsonargparse.auto_cli(TalkieConfig, as_positional=True))  # pyright: ignore[reportUnknownMemberType]
 
     # Initialize pixpy rendering components
-    screen = pix.open_display(size=(1280, 1024), full_screen=args.full_screen)
+    screen = pix.open_display(size=(args.window_width, args.window_height), full_screen=args.full_screen)
 
     logger.info("Starting game")
 
@@ -179,6 +180,7 @@ def main():
     args.prompts = yaml.safe_load(prompts_path.open())
 
     container = Container()
+    container[TalkieConfig] = args
     container[pix.Screen] = screen
 
     # Load OpenAI API key
@@ -193,15 +195,18 @@ def main():
     img_cache = FileCache(Path(".cache/img"))
     tts_cache = FileCache(Path(".cache/tts"))
 
-    container[OpenAIClient] = lambda c: OpenAIClient(c[OpenAI], model="gpt4")
-    # container[AdventureGuy] = lambda c: AdventureGuy(c[OpenAIClient], prompt="")
-    container[AdventureGuy] = None
-    container[TalkieConfig] = args
+    container[GptModel] = GptModel.GPT4
+
+    if args.adventure_guy:
+        container[AdventureGuy] = lambda c: AdventureGuy(
+            c[OpenAIClient], prompt=args.prompts["talk_prompt"]
+        )
+    else:
+        container[AdventureGuy] = None
     container[IFPlayer] = lambda c: IFPlayer(
         c[ImageDrawer], c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
     bind(container, FileCache, img_cache).setup(ImageGen)
-    # container[ImageGen] = lambda c: ImageGen(c[OpenAI], img_cache)
     voice = args.voice
     if voice is not None:
         bind(container, FileCache, tts_cache).setup(TextToSpeech)

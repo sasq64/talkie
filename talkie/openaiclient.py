@@ -1,3 +1,4 @@
+from enum import StrEnum
 import inspect
 import json
 import logging
@@ -89,10 +90,20 @@ def create_function(
     }
 
 
+class GptModel(StrEnum):
+    GPT4 = "gpt4"
+    GPT5MINI = "gpt5-mini"
+    GPT5NANO = "gpt5-nano"
+
+
+class Prompt(str):
+    __slots__ = ()
+
+
 class OpenAIClient:
     ## Public API
 
-    def __init__(self, openai: OpenAI, model: str = "gpt5-mini"):
+    def __init__(self, openai: OpenAI, model: GptModel = GptModel.GPT5MINI):
         self.executor = ThreadPoolExecutor(max_workers=2)
         self.client: Final = openai
         self.instructions: str = "You are a friendly chatbot."

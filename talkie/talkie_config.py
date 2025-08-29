@@ -14,8 +14,17 @@ class TalkieConfig:
     """Turn on text to speech with the given voice"""
 
     full_screen: bool = False
+    window_width: int = 1280
+    window_height: int = 1024
+
     prompt_file: Path | None = None
     prompts: dict[str, str] = field(default_factory=dict, init=False)
     text_color: int = 0xFFFFFF
+    prompt_color: int = 0x8080FF
     background_color: int = 0x000000
     text_font: Path | None = None
+    text_size: int = 32
+    border_size: int = 0
+
+    adventure_guy: bool = False
+    """Use 'adventure guy' to interpret prompts using AI"""
