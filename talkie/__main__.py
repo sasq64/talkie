@@ -3,7 +3,7 @@
 import logging
 from typing import override
 
-from .talkie import main
+from .main import main
 
 # logging.basicConfig(filename='talkie.log', encoding='utf-8', level=logging.DEBUG)
 

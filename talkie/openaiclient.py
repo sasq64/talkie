@@ -1,9 +1,9 @@
-from enum import StrEnum
 import inspect
 import json
 import logging
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
+from enum import StrEnum
 from typing import Final, Literal, TypeGuard
 
 from openai import OpenAI
