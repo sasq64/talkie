@@ -7,10 +7,9 @@ from typing import Final
 
 from .adventure_guy import AdventureGuy
 from .if_player import IFPlayer
-from .image_gen import ImageGen
 from .talkie_config import TalkieConfig
-from .text_to_speech import TextToSpeech
-from .voice_recorder import VoiceToText
+from pixtools import ImageGen, TextToSpeech
+from pixtools.voice_recorder import VoiceToText
 
 
 @dataclass
@@ -54,6 +53,8 @@ class AIPlayer:
         self.adventure_guy: AdventureGuy | None = adventure_guy
         self.smart_parse: bool = False
 
+        self.prompt_fields: dict[str, str] = {}
+
         self.tts: Final = text_to_speech
         self.voice: Final = voice_to_text
         self.player: Final = if_player
@@ -63,7 +64,6 @@ class AIPlayer:
         self.output: list[AIOutput] = []
 
         self.desc: str = ""
-        self.fields: dict[str, str | Path] = {}
         self.recording: bool = False
         self.vtt_future: Future[str] | None = None
 
@@ -79,15 +79,14 @@ class AIPlayer:
 
         result = self.player.read()
         if result:
-            self.fields = result
-            self.desc = str(self.fields["text"])
+            self.desc = result.text 
+            self.prompt_fields["text"] = result.text
             first_image_file = None
             self.output.append(TextOutput(self.desc))
 
-            if "image" in result:
-                img_file = Path(result["image"])
-                self.output.append(ImageOutput(img_file))
-                self.image_file = img_file
+            if result.image:
+                self.image_file = result.image 
+                self.output.append(ImageOutput(self.image_file))
 
             # Process TTS for paragraphs
             for paragraph in self.desc.split("\n\n"):
@@ -128,7 +127,7 @@ class AIPlayer:
             return
         if self.recording:
             self.vtt_future = self.voice.end_transcribe(
-                prompt=self.whisper_prompt.format(**self.fields)
+                prompt=self.whisper_prompt.format(**self.prompt_fields)
             )
             self.recording = False
 
@@ -156,12 +155,12 @@ class AIPlayer:
             if para and self.image_gen:
                 logging.info(f"Generate image with key '{para}'")
                 self.image_file = self.image_gen.generate_image(
-                    self.image_prompt.format(**self.fields), para
+                    self.image_prompt.format(**self.prompt_fields), para
                 )
                 self.output.append(ImageOutput(self.image_file))
         elif cmd == "mod" and self.image_gen:
             if self.image_file:
-                prompt = self.modernize_prompt.format(**self.fields)
+                prompt = self.modernize_prompt.format(**self.prompt_fields)
                 file_name = self.image_gen.generate_image_with_base(
                     prompt, self.image_file, para
                 )

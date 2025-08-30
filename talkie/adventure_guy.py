@@ -1,6 +1,6 @@
 from typing import Final
 
-from .openaiclient import OpenAIClient
+from pixtools import OpenAIClient
 
 
 class AdventureGuy:

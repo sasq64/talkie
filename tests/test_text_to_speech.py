@@ -7,9 +7,8 @@ from unittest.mock import Mock
 
 from openai import OpenAI
 import pytest
-from talkie.audio_player import AudioPlayer
-from talkie.cache import FileCache
-from talkie.text_to_speech import TextToSpeech
+from pixtools import AudioPlayer, TextToSpeech
+from pixtools.cache import FileCache
 
 
 @pytest.fixture
@@ -32,8 +31,9 @@ def test_speak_calls_openai_and_sends_to_audio_player(temp_dir: str):
     openai_client.audio.speech.create.return_value = response
 
     # Set up cache mock to return None (cache miss - caches nothing)
-    cache = Mock(spec_set=FileCache)
+    cache = Mock()
     cache.get.return_value = None
+    cache.cache_dir = "/tmp/test_cache"
 
     # Create TextToSpeech instance
     tts = TextToSpeech(

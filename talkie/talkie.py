@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from importlib import resources
+from math import cos, pi
 from typing import Final
 
 import pixpy as pix
@@ -8,6 +9,46 @@ from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .talkie_config import TalkieConfig
 from .utils.nerd import Nerd
 from .utils.wrap import wrap_lines
+
+
+def make_scanline_texture(
+    height: int,
+    pitch: float = 2.5,
+    dark: float = 0.55,
+    soft: bool = True,
+    gamma: float = 2.0,
+    offset: float = 0.0,
+) -> list[float]:
+    """
+    Generate a 1px-wide scanline texture for multiply blending.
+
+    Args:
+        height: Number of rows (same as your target surface height).
+        pitch: Distance in pixels between scanline centers (e.g. 2–3 looks nice).
+        dark: Minimum intensity at the darkest part of a line (0..1).
+        soft: If True, use a cosine falloff for softer lines; else hard 1px lines.
+        gamma: Curve for the soft falloff (higher = tighter dark core).
+        offset: Vertical phase offset in pixels (can animate by changing this).
+
+    Returns:
+        List[float] of length `height`, values in [0.0, 1.0].
+    """
+    if pitch <= 0:
+        raise ValueError("pitch must be > 0")
+    if not (0.0 <= dark <= 1.0):
+        raise ValueError("dark must be in [0, 1]")
+
+    out: list[float] = []
+    for y in range(height):
+        if soft:
+            # Phase 0..1, where 0 is line center
+            phase = ((y + offset) % pitch) / pitch
+            t = 0.5 * (1.0 + cos(2.0 * pi * phase))  # 1 at center, 0 halfway
+            v = dark + (1.0 - dark) * (t**gamma)  # raise floor to `dark`
+        else:
+            v = dark if ((y + offset) % pitch) < 1.0 else 1.0
+        out.append(v)
+    return out
 
 
 class Talkie:
@@ -22,17 +63,32 @@ class Talkie:
         font_path = config.text_font or data / "3270.ttf"
         tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
         print(tile_set.tile_size)
-        con_size = (screen.size / tile_set.tile_size).toi()
+
+        self.border = pix.Float2(config.border_size, config.border_size)
+
+        con_size = ((screen.size - self.border * 2) / tile_set.tile_size).toi()
+        print(con_size)
         self.console: Final = pix.Console(
             tile_set=tile_set, cols=con_size.x, rows=con_size.y
         )
 
         self.text_color = (config.text_color << 8) | 0xFF
         self.prompt_color = (config.prompt_color << 8) | 0xFF
-        self.background_cololor = (config.background_color << 8) | 0xFF
-        self.console.set_color(self.text_color, self.background_cololor)
-        self.console.set_color(self.text_color, self.background_cololor)
+        self.background_color = (config.background_color << 8) | 0xFF
+        self.console.set_color(self.text_color, self.background_color)
         self.console.clear()
+
+        self.scan_lines: pix.Image | None = None
+        if config.use_scanlines:
+            height = int(screen.size.y)
+            img = make_scanline_texture(height, dark=0.0, pitch=4, offset=0, soft=True)
+            self.scan_lines = pix.Image(
+                1,
+                [
+                    pix.blend_color(pix.color.BLACK, pix.color.WHITE, t) | 0xFF
+                    for t in img
+                ],
+            )
 
         font = pix.load_font(str(data / "SymbolsNerdFont-Regular.ttf"))
         sz = pix.Float2(48, 48)
@@ -51,8 +107,10 @@ class Talkie:
         self.ai_player.close()
 
     def update(self):
-        self.screen.draw(drawable=self.console, top_left=(0, 0), size=self.console.size)
-
+        self.screen.clear(self.text_color if self.border > pix.Float2.ZERO else self.background_color)
+        self.screen.draw(
+            drawable=self.console, top_left=self.border, size=self.console.size
+        )
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
             self.ai_player.stop_playing()
@@ -74,6 +132,11 @@ class Talkie:
                 sz /= 2
             xy = (self.screen.size - sz) / 2
             self.screen.draw(self.current_image, top_left=xy, size=sz)
+
+        if self.scan_lines:
+            self.screen.blend_mode = pix.BLEND_MULTIPLY
+            self.screen.draw(self.scan_lines, top_left=(0, 0), size=self.screen.size)
+            self.screen.blend_mode = pix.BLEND_NORMAL
 
         # Process game output
         self.ai_player.update()
@@ -117,9 +180,9 @@ class Talkie:
                     self.ai_player.write_command(chr(e.key))
 
             if isinstance(e, pix.event.Text):
-                self.console.set_color(self.prompt_color, self.background_cololor)
+                self.console.set_color(self.prompt_color, self.background_color)
                 self.console.write(e.text)
-                self.console.set_color(self.text_color, self.background_cololor)
+                self.console.set_color(self.text_color, self.background_color)
 
                 if e.text[0] == "/":
                     cmd = e.text[1:].strip()

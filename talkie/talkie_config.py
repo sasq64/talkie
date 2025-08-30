@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from talkie.text_to_speech import Voice
+from pixtools.text_to_speech import Voice
 
 
 @dataclass
@@ -25,6 +25,7 @@ class TalkieConfig:
     text_font: Path | None = None
     text_size: int = 32
     border_size: int = 0
+    use_scanlines: bool = False
 
     adventure_guy: bool = False
     """Use 'adventure guy' to interpret prompts using AI"""

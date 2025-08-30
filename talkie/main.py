@@ -12,13 +12,12 @@ from lagom import Container
 from openai import OpenAI
 
 from talkie.adventure_guy import AdventureGuy
-from talkie.cache import FileCache
 from talkie.if_player import IFPlayer
 from talkie.image_drawer import ImageDrawer
-from talkie.image_gen import ImageGen
-from talkie.openaiclient import GptModel, OpenAIClient
 from talkie.talkie import Talkie
-from talkie.text_to_speech import TextToSpeech
+from pixtools import ImageGen, OpenAIClient, TextToSpeech
+from pixtools.cache import FileCache
+from pixtools.openaiclient import GptModel
 
 from .talkie_config import TalkieConfig
 

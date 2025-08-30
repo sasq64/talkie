@@ -25,9 +25,9 @@ dependencies = [
     "pixpy",
     "openai",
     "pyaudio",
-    "pydub",
     "pyyaml",
     "lagom",
+    "pillow",
 ]
 
 [project.optional-dependencies]

@@ -1,5 +1,5 @@
-import asyncio
 import contextlib
+from dataclasses import dataclass
 import queue
 import re
 import subprocess
@@ -17,6 +17,11 @@ from .text_utils import parse_adventure_description, trim_lines, unwrap_text
 
 logger = getLogger(__name__)
 
+@dataclass
+class IFOuput:
+    text: str
+    all_text: str
+    image: Path | None
 
 class IFPlayer:
     def __init__(
@@ -73,19 +78,7 @@ class IFPlayer:
 
         self._closed: bool = False
 
-    async def read_async(self) -> dict[str, str | Path] | None:
-        """
-        Read stdout from running interpreter. Returns a dict containing
-        both the raw text and context aware parsing (like stripping the
-            status bar from frotz etc).
-        """
-        raw_text = await asyncio.to_thread(self.output_queue.get)
-        result = raw_text.decode()
-        self.text_output += result
-        self.last_result = time.time()
-        return self._handle_output()
-
-    def read(self) -> dict[str, str | Path] | None:
+    def read(self) -> IFOuput | None:
         """
         Read stdout from running interpreter. Returns a dict containing
         both the raw text and context aware parsing (like stripping the
@@ -100,7 +93,7 @@ class IFPlayer:
             pass
         return self._handle_output()
 
-    def _handle_output(self):
+    def _handle_output(self) -> IFOuput | None:
         if not self.text_output or time.time() - self.last_result < 0.25:
             return None
 
@@ -130,16 +123,14 @@ class IFPlayer:
                     _ = ps.pop(0)
                     break
             text = "\n\n".join(ps)
-        adv_fields = parse_adventure_description(text)
-        fields: dict[str, str | Path] = {}
-        fields["text"] = adv_fields["text"]
+        fields = parse_adventure_description(text)
         logger.debug(f"Parsed: '{text}' into:\n{fields}")
         self.transcript.append((":", str(fields["text"])))
         fields["full_text"] = self.text_output
-        if found_gfx:
-            fields["image"] = self.image_drawer.get_image()
+        image = self.image_drawer.get_image() if found_gfx else None
+        output = IFOuput(fields["text"], self.text_output, image)
         self.text_output = ""
-        return fields
+        return output
 
     def get_image(self) -> Path:
         return self.image_drawer.get_image()
