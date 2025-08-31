@@ -17,11 +17,13 @@ from .text_utils import parse_adventure_description, trim_lines, unwrap_text
 
 logger = getLogger(__name__)
 
+
 @dataclass
 class IFOuput:
     text: str
     all_text: str
     image: Path | None
+
 
 class IFPlayer:
     def __init__(

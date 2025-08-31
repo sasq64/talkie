@@ -79,13 +79,13 @@ class AIPlayer:
 
         result = self.player.read()
         if result:
-            self.desc = result.text 
+            self.desc = result.text
             self.prompt_fields["text"] = result.text
             first_image_file = None
             self.output.append(TextOutput(self.desc))
 
             if result.image:
-                self.image_file = result.image 
+                self.image_file = result.image
                 self.output.append(ImageOutput(self.image_file))
 
             # Process TTS for paragraphs
