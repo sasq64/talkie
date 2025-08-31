@@ -26,15 +26,35 @@ class Talkie:
 
         self.border = pix.Float2(config.border_size, config.border_size)
 
-        con_size = ((screen.size - self.border * 2) / tile_set.tile_size).toi()
-        print(con_size)
-        self.console: Final = pix.Console(
-            tile_set=tile_set, cols=con_size.x, rows=con_size.y
-        )
 
+        self.prefix = self.edit_prefix = ">"
         self.text_color = (config.text_color << 8) | 0xFF
-        self.prompt_color = (config.prompt_color << 8) | 0xFF
+        self.input_color = (config.input_color << 8) | 0xFF
+        self.input_bgcolor = (config.input_bgcolor << 8) | 0xFF
         self.background_color = (config.background_color << 8) | 0xFF
+
+        self.input_console : pix.Console | None
+        if config.inline_input:
+            sz = (screen.size - self.border * 2)
+            con_size = ( sz / tile_set.tile_size).toi()
+            self.input_console = None
+
+        else:
+            input_border : pix.Int2 = pix.Int2(5,5)
+            sz = (screen.size - self.border * 2 - input_border)
+            con_size = ( sz / tile_set.tile_size).toi()
+
+            self.input_console = pix.Console(
+                tile_set=tile_set, cols=con_size.x, rows=1
+            )
+
+            print(con_size)
+            self.input_console.set_color(self.input_color, self.input_bgcolor)
+            self.input_console.clear()
+
+        self.console : Final = pix.Console(
+            tile_set=tile_set, cols=con_size.x, rows=con_size.y - 1
+        )
         self.console.set_color(self.text_color, self.background_color)
         self.console.clear()
 
@@ -61,7 +81,10 @@ class Talkie:
 
         self.ai_player: Final = ai_player
         self.current_image: None | pix.Image = None
-        self.console.read_line()
+        if self.input_console:
+            self.input_console.read_line()
+        else:
+            self.console.read_line()
 
     def close(self):
         self.ai_player.close()
@@ -73,6 +96,16 @@ class Talkie:
         self.screen.draw(
             drawable=self.console, top_left=self.border, size=self.console.size
         )
+        if self.input_console:
+            sz = self.console.size
+            xy = sz.with_x0
+            input_border = pix.Int2(5,5)
+            self.screen.rect(xy, self.input_console.size + input_border*2 - (1,1))
+            self.screen.draw_color = pix.color.YELLOW
+            self.screen.line_width = 4
+            self.screen.draw(
+                drawable=self.input_console, top_left=xy + input_border, size=self.input_console.size
+            )
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
             self.ai_player.stop_playing()
@@ -103,10 +136,10 @@ class Talkie:
         # Process game output
         self.ai_player.update()
 
-        if self.ai_player.key_mode() and self.console.reading_line:
-            self.console.cancel_line()
-            cp = self.console.cursor_pos
-            self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
+        #if self.ai_player.key_mode() and self.console.reading_line:
+        #    self.console.cancel_line()
+        #    cp = self.console.cursor_pos
+        #    self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
         # elif not self.ai_player.key_mode() and not self.console.reading_line:
         #     self.console.write("\n>")
         #     self.console.read_line()
@@ -116,21 +149,24 @@ class Talkie:
             if isinstance(output, ImageOutput):
                 self.current_image = pix.load_png(str(output.file_name))
             elif isinstance(output, PromptOutput):
-                self.console.cancel_line()
-                self.console.write(output.text + "\n")
-                self.console.read_line()
+                self.write(output.text + "\n")
             elif isinstance(output, TextOutput):
-                if self.console.reading_line:
-                    self.console.cancel_line()
-                    cp = self.console.cursor_pos
-                    self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
-                self.console.write("\n")
-                for line in wrap_lines(
-                    output.text.splitlines(), self.console.grid_size.x - 1
-                ):
-                    self.console.write(line + "\n")
-                self.console.write("\n>")
-                self.console.read_line()
+                self.write(output.text)
+
+    def write(self, text: str):
+        reading_line = self.console.reading_line
+        if reading_line:
+            self.console.cancel_line()
+        for line in wrap_lines(
+            text.splitlines(), self.console.grid_size.x - 1
+    ):
+            self.console.write(line + "\n")
+        if reading_line:
+            self.console.write("\n")
+            self.console.cursor_pos = self.console.cursor_pos.with_x0
+            self.console.write(self.edit_prefix)
+            self.console.read_line()
+
 
     def update_events(self, events: list[pix.event.AnyEvent]):
         # Handle text input events
@@ -142,7 +178,9 @@ class Talkie:
                     self.ai_player.write_command(chr(e.key))
 
             if isinstance(e, pix.event.Text):
-                self.console.set_color(self.prompt_color, self.background_color)
+                self.console.cursor_pos = self.console.cursor_pos.with_x0
+                self.console.write(self.prefix)
+                self.console.set_color(self.input_color, self.background_color)
                 self.console.write(e.text)
                 self.console.set_color(self.text_color, self.background_color)
 
@@ -152,4 +190,7 @@ class Talkie:
                 else:
                     self.ai_player.stop_audio()
                     self.ai_player.write_command(e.text)
-                self.console.read_line()
+                if self.input_console:
+                    self.input_console.read_line()
+                else:
+                    self.console.read_line()
