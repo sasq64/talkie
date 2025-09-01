@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from importlib import resources
-from typing import Final
+from typing import Callable, Final
 
 import pixpy as pix
 
@@ -9,6 +9,30 @@ from .scanlines import make_scanline_texture
 from .talkie_config import TalkieConfig
 from .utils.nerd import Nerd
 from .utils.wrap import wrap_lines
+
+from .layout import flexbox_layout, Rectangle
+
+
+class Drawable:
+    def __init__(
+        self,
+        rect: Rectangle,
+        draw_cb: Callable[[pix.Screen, pix.Float2, pix.Float2], None],
+    ):
+        self.rect = rect
+        self.draw_cb = draw_cb
+        self.color = pix.color.WHITE
+
+    def draw(
+        self,
+        screen: pix.Screen,
+        xy: pix.Float2 | None = None,
+        size: pix.Float2 | None = None,
+    ):
+        xy = xy or pix.Float2(self.rect.x, self.rect.y)
+        size = size or pix.Float2(self.rect.width, self.rect.height)
+        screen.draw_color = self.color
+        self.draw_cb(screen, xy, size)
 
 
 class Talkie:
@@ -24,8 +48,32 @@ class Talkie:
         tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
         print(tile_set.tile_size)
 
-        self.border = pix.Float2(config.border_size, config.border_size)
+        fh = tile_set.tile_size.y
 
+        ui = f"""
+<window layout="vert" size="1280x1024">
+  <border layout="vert" border="60">
+    <main/>
+    <pane border="10">
+      <input size="x{fh}"/>
+    </pane>
+  </border>
+</window>
+            """
+
+        self.rects = flexbox_layout(ui)
+
+        # layout = XMLLayout(ui)
+        # layout.set_height("input", tile_set.tile_size.y)
+        # sz = screen.size.toi()
+        # self.rects = layout.layout((sz.x, sz.y))
+        self.items: dict[str, Rectangle] = {}
+
+        for r in self.rects:
+            self.items[r.name] = r
+            print(r)
+
+        self.border = pix.Float2(config.border_size, config.border_size)
 
         self.prefix = self.edit_prefix = ">"
         self.text_color = (config.text_color << 8) | 0xFF
@@ -33,30 +81,49 @@ class Talkie:
         self.input_bgcolor = (config.input_bgcolor << 8) | 0xFF
         self.background_color = (config.background_color << 8) | 0xFF
 
-        self.input_console : pix.Console | None
+        self.drawables: list[Drawable] = []
+
+        self.drawables.append(Drawable(self.items["border"], lambda s,xy,sz: s.filled_rect(xy,sz)))
+        self.drawables[-1].color = pix.color.LIGHT_BLUE
+
+        self.input_console: pix.Console | None
+
         if config.inline_input:
-            sz = (screen.size - self.border * 2)
-            con_size = ( sz / tile_set.tile_size).toi()
             self.input_console = None
-
         else:
-            input_border : pix.Int2 = pix.Int2(5,5)
-            sz = (screen.size - self.border * 2 - input_border)
-            con_size = ( sz / tile_set.tile_size).toi()
+            mi = self.items["input"]
+            con_size = pix.Int2(mi.width, mi.height) // tile_set.tile_size
+            input_console = pix.Console(tile_set=tile_set, cols=con_size.x, rows=1)
 
-            self.input_console = pix.Console(
-                tile_set=tile_set, cols=con_size.x, rows=1
+            d = Drawable(self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (4.4)))
+            d.color = pix.color.LIGHT_GREEN
+            self.drawables.append(d)
+
+            input_console.set_color(self.input_color, self.input_bgcolor)
+            input_console.clear()
+            self.drawables.append(
+                Drawable(
+                    self.items["input"],
+                    lambda s, xy, sz: s.draw(
+                        input_console, xy - (2, 2), input_console.size
+                    ),
+                )
             )
+            self.input_console = input_console
 
-            print(con_size)
-            self.input_console.set_color(self.input_color, self.input_bgcolor)
-            self.input_console.clear()
-
-        self.console : Final = pix.Console(
-            tile_set=tile_set, cols=con_size.x, rows=con_size.y - 1
+        mi = self.items["main"]
+        con_size = pix.Int2(mi.width, mi.height) // tile_set.tile_size
+        self.console: Final = pix.Console(
+            tile_set=tile_set, cols=con_size.x, rows=con_size.y
         )
         self.console.set_color(self.text_color, self.background_color)
         self.console.clear()
+        self.drawables.append(
+            Drawable(
+                self.items["main"],
+                lambda s, xy, sz: s.draw(self.console, xy, self.console.size),
+            )
+        )
 
         self.scan_lines: pix.Image | None = None
         if config.use_scanlines:
@@ -90,22 +157,14 @@ class Talkie:
         self.ai_player.close()
 
     def update(self):
+        self.screen.line_width = 4
+
         self.screen.clear(
             self.text_color if self.border > pix.Float2.ZERO else self.background_color
         )
-        self.screen.draw(
-            drawable=self.console, top_left=self.border, size=self.console.size
-        )
-        if self.input_console:
-            sz = self.console.size
-            xy = sz.with_x0
-            input_border = pix.Int2(5,5)
-            self.screen.rect(xy, self.input_console.size + input_border*2 - (1,1))
-            self.screen.draw_color = pix.color.YELLOW
-            self.screen.line_width = 4
-            self.screen.draw(
-                drawable=self.input_console, top_left=xy + input_border, size=self.input_console.size
-            )
+        for drawable in self.drawables:
+            drawable.draw(self.screen)
+
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
             self.ai_player.stop_playing()
@@ -136,7 +195,7 @@ class Talkie:
         # Process game output
         self.ai_player.update()
 
-        #if self.ai_player.key_mode() and self.console.reading_line:
+        # if self.ai_player.key_mode() and self.console.reading_line:
         #    self.console.cancel_line()
         #    cp = self.console.cursor_pos
         #    self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
@@ -157,16 +216,13 @@ class Talkie:
         reading_line = self.console.reading_line
         if reading_line:
             self.console.cancel_line()
-        for line in wrap_lines(
-            text.splitlines(), self.console.grid_size.x - 1
-    ):
+        for line in wrap_lines(text.splitlines(), self.console.grid_size.x - 1):
             self.console.write(line + "\n")
         if reading_line:
             self.console.write("\n")
             self.console.cursor_pos = self.console.cursor_pos.with_x0
             self.console.write(self.edit_prefix)
             self.console.read_line()
-
 
     def update_events(self, events: list[pix.event.AnyEvent]):
         # Handle text input events
