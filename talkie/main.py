@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import logging
+import tomllib
+import tyro
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
@@ -40,11 +42,11 @@ def bind[T](self: Container, typ: type[T], t: T) -> Resolver:
 
 logger = logging.getLogger()
 
-
 def main():
-    # args = tyro.cli(TalkieConfig)
+    #args = tyro.cli(TalkieConfig)
     jsonargparse.set_parsing_settings(docstring_parse_attribute_docstrings=True)
-    args = cast("TalkieConfig", jsonargparse.auto_cli(TalkieConfig, as_positional=True))  # pyright: ignore[reportUnknownMemberType]
+
+    args = cast("TalkieConfig", jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml"))
 
     # Initialize pixpy rendering components
     screen = pix.open_display(

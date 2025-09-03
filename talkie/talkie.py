@@ -10,7 +10,7 @@ from .talkie_config import TalkieConfig
 from .utils.nerd import Nerd
 from .utils.wrap import wrap_lines
 
-from .layout import flexbox_layout, Rectangle
+from .layout import find_node_by_name, flexbox_layout, Rectangle, layout_tree_to_rectangles, parse_xml_to_tree
 
 
 class Drawable:
@@ -48,25 +48,26 @@ class Talkie:
         tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
         print(tile_set.tile_size)
 
-        fh = tile_set.tile_size.y
-
-        ui = f"""
-<window layout="vert" size="1280x1024">
-  <border layout="vert" border="60">
+        ui = config.layout or f"""
+<window layout="vert">
+  <border layout="vert">
     <main/>
     <pane border="10">
-      <input size="x{fh}"/>
+      <input size="x20"/>
     </pane>
   </border>
 </window>
-            """
+"""
+        print(ui)
 
-        self.rects = flexbox_layout(ui)
+        #self.rects = flexbox_layout(ui)
+        tree = parse_xml_to_tree(ui)
+        input = find_node_by_name(tree, "input")
+        if input:
+            input.size = (None, str(tile_set.tile_size.y))
+        w,h = screen.size.toi()
+        self.rects = layout_tree_to_rectangles(tree, (w, h))
 
-        # layout = XMLLayout(ui)
-        # layout.set_height("input", tile_set.tile_size.y)
-        # sz = screen.size.toi()
-        # self.rects = layout.layout((sz.x, sz.y))
         self.items: dict[str, Rectangle] = {}
 
         for r in self.rects:
@@ -80,11 +81,15 @@ class Talkie:
         self.input_color = (config.input_color << 8) | 0xFF
         self.input_bgcolor = (config.input_bgcolor << 8) | 0xFF
         self.background_color = (config.background_color << 8) | 0xFF
+        self.border_color = (config.border_color << 8) | 0xFF
+        self.input_box_color = (config.input_box_color << 8) | 0xFF
 
         self.drawables: list[Drawable] = []
 
-        self.drawables.append(Drawable(self.items["border"], lambda s,xy,sz: s.filled_rect(xy,sz)))
-        self.drawables[-1].color = pix.color.LIGHT_BLUE
+        self.drawables.append(
+            Drawable(self.items["border"], lambda s, xy, sz: s.filled_rect(xy, sz))
+        )
+        self.drawables[-1].color = self.border_color
 
         self.input_console: pix.Console | None
 
@@ -95,8 +100,10 @@ class Talkie:
             con_size = pix.Int2(mi.width, mi.height) // tile_set.tile_size
             input_console = pix.Console(tile_set=tile_set, cols=con_size.x, rows=1)
 
-            d = Drawable(self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (4.4)))
-            d.color = pix.color.LIGHT_GREEN
+            lw = config.input_box_line
+            self.screen.line_width = lw
+            d = Drawable(self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (lw,lw)))
+            d.color = self.input_box_color 
             self.drawables.append(d)
 
             input_console.set_color(self.input_color, self.input_bgcolor)
@@ -157,10 +164,9 @@ class Talkie:
         self.ai_player.close()
 
     def update(self):
-        self.screen.line_width = 4
 
         self.screen.clear(
-            self.text_color if self.border > pix.Float2.ZERO else self.background_color
+            self.border_color if self.border > pix.Float2.ZERO else self.background_color
         )
         for drawable in self.drawables:
             drawable.draw(self.screen)

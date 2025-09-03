@@ -1,0 +1,15 @@
+text_size = 32
+text_color = 0xffff00
+input_color = 0x00ff00
+
+layout="""
+<window layout="vert" size="1280x1024">
+  <border layout="vert" border="0">
+    <main/>
+    <pane border="10">
+      <input size="x40"/>
+    </pane>
+  </border>
+</window>
+"""
+

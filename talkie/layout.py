@@ -338,6 +338,20 @@ def _parse_dimension(spec: Optional[str], container_size: int) -> Optional[int]:
         return int(spec)
 
 
+def find_node_by_name(root: LayoutNode, name: str) -> Optional[LayoutNode]:
+
+    """Find a LayoutNode by name in the tree starting from root"""
+    if root.name == name:
+        return root
+    
+    for child in root.children:
+        result = find_node_by_name(child, name)
+        if result is not None:
+            return result
+    
+    return None
+
+
 def flexbox_layout(xml: str) -> list[Rectangle]:
     """Main function: parse XML and produce positioned rectangles"""
     tree = parse_xml_to_tree(xml)
