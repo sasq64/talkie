@@ -26,11 +26,8 @@ class TalkieConfig:
     window_width: int = 1280
     window_height: int = 1024
 
-    layout: str | None = None
+    layout: str = ""
     """XML description of screen layout"""
-
-    prompt_file: Path | None = None
-    """yaml file with AI prompt data"""
 
     prompts: dict[str, str] = field(default_factory=dict[str, str])
 
@@ -38,10 +35,13 @@ class TalkieConfig:
     background_color: int = HexInt(0x000000)
     input_color: int = HexInt(0x8080FF)
     input_bgcolor: int = HexInt(0x000000)
-    input_box_color: int = HexInt(0x000000)
+    input_box_color: int = HexInt(0x000080)
     border_color: int = HexInt(0x000000)
 
-    input_box_line: int = 3
+    background_image: Path | None = None
+    tile_background: bool = False
+
+    input_box_line: int = 4
     """Width of bottom read line box"""
 
     text_font: Path | None = None
