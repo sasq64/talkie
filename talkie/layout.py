@@ -24,8 +24,8 @@ class LayoutNode:
     layout: str = "horiz"  # "horiz" or "vert"
     border: int = 0
     gap: int = 0
-    children: list["LayoutNode"] = field(default_factory=list)
-    attributes: dict[str, str] = field(default_factory=dict)
+    children: list["LayoutNode"] = field(default_factory=list["LayoutNode"])
+    attributes: dict[str, str] = field(default_factory=dict[str, str])
 
 
 def parse_xml_to_tree(xml: str) -> LayoutNode:
@@ -160,8 +160,12 @@ def _layout_children_horizontal(
     current_x = content_x
     for i, child in enumerate(children):
         # Calculate child dimensions
-        child_width = child_widths[i] if child_widths[i] is not None else flex_width
-        child_height = _parse_dimension(child.size[1], content_height) or content_height
+        child_width = child_widths[i]
+        if child_width is None:
+            child_width = flex_width
+        child_height = _parse_dimension(child.size[1], content_height)
+        if child_height is None:
+            child_height = content_height
 
         # Recursively layout child
         _layout_node_recursive(
@@ -191,7 +195,7 @@ def _layout_children_vertical(
     total_gap = node.gap * (len(children) - 1) if len(children) > 1 else 0
 
     # Parse child heights and calculate minimum required sizes
-    child_heights = []
+    child_heights: list[int | None] = []
     fixed_height_total = 0
     flex_count = 0
 
@@ -222,14 +226,13 @@ def _layout_children_vertical(
     current_y = content_y
     for i, child in enumerate(children):
         # Calculate child dimensions
-        child_width = _parse_dimension(child.size[0], content_width) or content_width
+        child_width = _parse_dimension(child.size[0], content_width)
+        if child_width is None:
+            child_width = content_width
 
-        if child_heights[i] is None:
-            # This is a truly flexible child
+        child_height = child_heights[i]
+        if child_height is None:
             child_height = flex_extra
-        else:
-            # This is a fixed or minimum size child
-            child_height = child_heights[i]
 
         # Recursively layout child
         _layout_node_recursive(

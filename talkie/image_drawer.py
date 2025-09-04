@@ -18,7 +18,7 @@ Command = Literal[
 class Bitmap:
     width: int = 0
     height: int = 0
-    palette: list[int] = field(default_factory=list)
+    palette: list[int] = field(default_factory=list[int])
     pixels: bytes = field(default_factory=bytes)
 
 
@@ -99,7 +99,7 @@ class ImageDrawer:
             p = self.palette[idx]
             rgba_data.append((p >> 24 & 0xFF, p >> 16 & 0xFF, p >> 8 & 0xFF, p & 0xFF))
 
-        game_image.putdata(rgba_data)
+        game_image.putdata(rgba_data)  # pyright: ignore[reportUnknownMemberType]
         png_path = Path("game.png")
         game_image.save(png_path)
         return png_path

@@ -26,7 +26,7 @@ class TalkieConfig:
     window_height: int = 1024
 
     prompt_file: Path | None = None
-    prompts: dict[str, str] = field(default_factory=dict, init=False)
+    prompts: dict[str, str] = field(default_factory=dict[str, str], init=False)
 
     text_color: int = HexInt(0xFFFFFF)
     background_color: int = HexInt(0x000000)

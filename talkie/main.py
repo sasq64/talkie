@@ -47,7 +47,7 @@ def main():
 
     args = cast(
         "TalkieConfig",
-        jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml"),
+        jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml"),  # pyright: ignore[reportUnknownMemberType]
     )
 
     # Initialize pixpy rendering components
@@ -84,7 +84,7 @@ def main():
             c[OpenAIClient], prompt=args.prompts["talk_prompt"]
         )
     else:
-        container[AdventureGuy] = None
+        container[AdventureGuy] = lambda c: None  # type: ignore[assignment]
     container[IFPlayer] = lambda c: IFPlayer(
         c[ImageDrawer], c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
@@ -93,7 +93,7 @@ def main():
     if voice is not None:
         bind(container, FileCache, tts_cache).setup(TextToSpeech)
     else:
-        container[TextToSpeech] = None
+        container[TextToSpeech] = lambda c: None  # type: ignore[assignment]
 
     talkie = container[Talkie]
 
