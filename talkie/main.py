@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 import logging
-import tomllib
-import tyro
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
@@ -13,13 +11,13 @@ import yaml
 from lagom import Container
 from openai import OpenAI
 
+from pixtools import ImageGen, OpenAIClient, TextToSpeech
+from pixtools.cache import FileCache
+from pixtools.openaiclient import GptModel
 from talkie.adventure_guy import AdventureGuy
 from talkie.if_player import IFPlayer
 from talkie.image_drawer import ImageDrawer
 from talkie.talkie import Talkie
-from pixtools import ImageGen, OpenAIClient, TextToSpeech
-from pixtools.cache import FileCache
-from pixtools.openaiclient import GptModel
 
 from .talkie_config import TalkieConfig
 
@@ -42,11 +40,15 @@ def bind[T](self: Container, typ: type[T], t: T) -> Resolver:
 
 logger = logging.getLogger()
 
+
 def main():
-    #args = tyro.cli(TalkieConfig)
+    # args = tyro.cli(TalkieConfig)
     jsonargparse.set_parsing_settings(docstring_parse_attribute_docstrings=True)
 
-    args = cast("TalkieConfig", jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml"))
+    args = cast(
+        "TalkieConfig",
+        jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml"),
+    )
 
     # Initialize pixpy rendering components
     screen = pix.open_display(

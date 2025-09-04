@@ -1,10 +1,10 @@
 import contextlib
-from dataclasses import dataclass
 import queue
 import re
 import subprocess
 import threading
 import time
+from dataclasses import dataclass
 from importlib import resources
 from io import BufferedReader
 from logging import getLogger
@@ -19,7 +19,7 @@ logger = getLogger(__name__)
 
 
 @dataclass
-class IFOuput:
+class IFOutput:
     text: str
     all_text: str
     image: Path | None
@@ -80,7 +80,7 @@ class IFPlayer:
 
         self._closed: bool = False
 
-    def read(self) -> IFOuput | None:
+    def read(self) -> IFOutput | None:
         """
         Read stdout from running interpreter. Returns a dict containing
         both the raw text and context aware parsing (like stripping the
@@ -95,7 +95,7 @@ class IFPlayer:
             pass
         return self._handle_output()
 
-    def _handle_output(self) -> IFOuput | None:
+    def _handle_output(self) -> IFOutput | None:
         if not self.text_output or time.time() - self.last_result < 0.25:
             return None
 
@@ -130,7 +130,7 @@ class IFPlayer:
         self.transcript.append((":", str(fields["text"])))
         fields["full_text"] = self.text_output
         image = self.image_drawer.get_image() if found_gfx else None
-        output = IFOuput(fields["text"], self.text_output, image)
+        output = IFOutput(fields["text"], self.text_output, image)
         self.text_output = ""
         return output
 

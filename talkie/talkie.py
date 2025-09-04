@@ -1,16 +1,16 @@
 #!/usr/bin/env python
+from collections.abc import Callable
 from importlib import resources
-from typing import Callable, Final
+from typing import Final
 
 import pixpy as pix
 
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
+from .layout import Layout, Rectangle
 from .scanlines import make_scanline_texture
 from .talkie_config import TalkieConfig
 from .utils.nerd import Nerd
 from .utils.wrap import wrap_lines
-
-from .layout import find_node_by_name, flexbox_layout, Rectangle, layout_tree_to_rectangles, parse_xml_to_tree
 
 
 class Drawable:
@@ -48,25 +48,23 @@ class Talkie:
         tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
         print(tile_set.tile_size)
 
-        ui = config.layout or f"""
+        ui = (
+            config.layout
+            or """
 <window layout="vert">
   <border layout="vert">
     <main/>
-    <pane border="10">
-      <input size="x20"/>
-    </pane>
+    <pane border="10"><input/></pane>
   </border>
 </window>
 """
+        )
         print(ui)
 
-        #self.rects = flexbox_layout(ui)
-        tree = parse_xml_to_tree(ui)
-        input = find_node_by_name(tree, "input")
-        if input:
-            input.size = (None, str(tile_set.tile_size.y))
-        w,h = screen.size.toi()
-        self.rects = layout_tree_to_rectangles(tree, (w, h))
+        layout = Layout(ui)
+        layout.set_size("input", height=tile_set.tile_size.y)
+        w, h = screen.size.toi()
+        self.rects = layout.layout(w, h)
 
         self.items: dict[str, Rectangle] = {}
 
@@ -102,8 +100,10 @@ class Talkie:
 
             lw = config.input_box_line
             self.screen.line_width = lw
-            d = Drawable(self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (lw,lw)))
-            d.color = self.input_box_color 
+            d = Drawable(
+                self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (lw, lw))
+            )
+            d.color = self.input_box_color
             self.drawables.append(d)
 
             input_console.set_color(self.input_color, self.input_bgcolor)
@@ -164,9 +164,10 @@ class Talkie:
         self.ai_player.close()
 
     def update(self):
-
         self.screen.clear(
-            self.border_color if self.border > pix.Float2.ZERO else self.background_color
+            self.border_color
+            if self.border > pix.Float2.ZERO
+            else self.background_color
         )
         for drawable in self.drawables:
             drawable.draw(self.screen)

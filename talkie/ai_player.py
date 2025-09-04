@@ -5,11 +5,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
+from pixtools import ImageGen, TextToSpeech
+from pixtools.voice_recorder import VoiceToText
+
 from .adventure_guy import AdventureGuy
 from .if_player import IFPlayer
 from .talkie_config import TalkieConfig
-from pixtools import ImageGen, TextToSpeech
-from pixtools.voice_recorder import VoiceToText
 
 
 @dataclass

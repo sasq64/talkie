@@ -6,7 +6,7 @@ from pixtools.text_to_speech import Voice
 
 class HexInt(int):
     def __repr__(self) -> str:  # used in help default printing
-        return "{:06x}".format(int(self))
+        return f"{int(self):06x}"
 
     __str__ = __repr__  # (optional) for symmetry
 
@@ -16,7 +16,7 @@ class TalkieConfig:
     game_file: Path
     """Game file to load"""
 
-    layout: str | None = None 
+    layout: str | None = None
     gfx_path: Path | None = None
     voice: Voice | None = None
     """Turn on text to speech with the given voice"""

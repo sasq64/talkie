@@ -23,14 +23,14 @@ def test_zork_basic_gameplay():
 
         for _ in range(max_attempts):
             result = player.read()
-            if result and "text" in result:
+            if result and hasattr(result, "text"):
                 break
             time.sleep(0.1)
 
         assert result is not None, "Failed to get initial game output"
-        assert "text" in result, "Result should contain 'text' field"
+        assert hasattr(result, "text"), "Result should have 'text' attribute"
 
-        initial_text = str(result["text"])
+        initial_text = str(result.text)
         assert "West of House" in initial_text, (
             f"Expected 'West of House' in initial text, got: {initial_text}"
         )
@@ -42,7 +42,7 @@ def test_zork_basic_gameplay():
         response = None
         for _ in range(max_attempts):
             response = player.read()
-            if response and "text" in response:
+            if response and hasattr(response, "text"):
                 break
             time.sleep(0.1)
 

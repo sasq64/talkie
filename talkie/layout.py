@@ -1,8 +1,7 @@
 """Flexbox-like layout system for XML UI definitions"""
 
-from dataclasses import dataclass, field
-from typing import Optional
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -21,7 +20,7 @@ class LayoutNode:
     """Intermediate representation of a UI element before layout"""
 
     name: str
-    size: tuple[Optional[str], Optional[str]]  # (width_spec, height_spec)
+    size: tuple[str | None, str | None]  # (width_spec, height_spec)
     layout: str = "horiz"  # "horiz" or "vert"
     border: int = 0
     gap: int = 0
@@ -63,7 +62,7 @@ def _parse_element_to_node(element: ET.Element) -> LayoutNode:
     )
 
 
-def _parse_size_spec(size_str: str) -> tuple[Optional[str], Optional[str]]:
+def _parse_size_spec(size_str: str) -> tuple[str | None, str | None]:
     """Parse size specification like '1280x720', '32x', 'x32', '50%x100%'"""
     if not size_str:
         return None, None
@@ -324,7 +323,7 @@ def _calculate_min_height(node: LayoutNode) -> int:
         return max_height + node.border * 2
 
 
-def _parse_dimension(spec: Optional[str], container_size: int) -> Optional[int]:
+def _parse_dimension(spec: str | None, container_size: int) -> int | None:
     """Parse dimension specification (pixels, percentage, or None for flex)"""
     if not spec:
         return None
@@ -338,27 +337,54 @@ def _parse_dimension(spec: Optional[str], container_size: int) -> Optional[int]:
         return int(spec)
 
 
-def find_node_by_name(root: LayoutNode, name: str) -> Optional[LayoutNode]:
-
+def find_node_by_name(root: LayoutNode, name: str) -> LayoutNode | None:
     """Find a LayoutNode by name in the tree starting from root"""
     if root.name == name:
         return root
-    
+
     for child in root.children:
         result = find_node_by_name(child, name)
         if result is not None:
             return result
-    
+
     return None
+
+
+@dataclass
+class Layout:
+    """Layout manager that owns the root node and provides layout operations"""
+
+    root: LayoutNode
+
+    def __init__(self, xml: str):
+        self.root = parse_xml_to_tree(xml)
+
+    def layout(
+        self, width: int | None = None, height: int | None = None
+    ) -> list[Rectangle]:
+        """Calculate layout and return positioned rectangles"""
+        # Get root container size from the root node
+        root_width = width or _parse_dimension(self.root.size[0], 0) or 800
+        root_height = height or _parse_dimension(self.root.size[1], 0) or 600
+
+        return layout_tree_to_rectangles(self.root, (root_width, root_height))
+
+    def set_size(
+        self, name: str, width: int | None = None, height: int | None = None
+    ) -> None:
+        """Set the size of a node by name"""
+        node = find_node_by_name(self.root, name)
+        if node is not None:
+            width_spec = str(width) if width is not None else None
+            height_spec = str(height) if height is not None else None
+            node.size = (width_spec, height_spec)
+
+    def find(self, name: str) -> LayoutNode | None:
+        """Find a node by name in the layout tree"""
+        return find_node_by_name(self.root, name)
 
 
 def flexbox_layout(xml: str) -> list[Rectangle]:
     """Main function: parse XML and produce positioned rectangles"""
-    tree = parse_xml_to_tree(xml)
-
-    # Get root container size from the root node
-    root_width = _parse_dimension(tree.size[0], 0) or 800  # Default fallback
-    root_height = _parse_dimension(tree.size[1], 0) or 600  # Default fallback
-
-    rectangles = layout_tree_to_rectangles(tree, (root_width, root_height))
-    return rectangles
+    layout = Layout(xml)
+    return layout.layout()
