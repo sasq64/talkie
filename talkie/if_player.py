@@ -49,6 +49,8 @@ class IFPlayer:
                 args = [str(data / "l9"), file_name.as_posix(), gfx_str]
             else:
                 args = [str(data / "l9"), file_name.as_posix()]
+        elif re.search(r"\.(mag|MAG)", file_name.name):
+                args = [str(data / "magnetic"), file_name.as_posix()]
         else:
             raise RuntimeError("Unknown format")
         print(args)
