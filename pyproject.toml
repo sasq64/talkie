@@ -28,6 +28,9 @@ dependencies = [
     "pyyaml",
     "lagom",
     "pillow",
+    "jsonargparse",
+    "docstring-parser",
+
 ]
 
 [project.optional-dependencies]
