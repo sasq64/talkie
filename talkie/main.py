@@ -7,7 +7,6 @@ from typing import cast
 
 import jsonargparse
 import pixpy as pix
-import yaml
 from lagom import Container
 from openai import OpenAI
 
@@ -45,10 +44,15 @@ def main():
     # args = tyro.cli(TalkieConfig)
     jsonargparse.set_parsing_settings(docstring_parse_attribute_docstrings=True)
 
+    # Load prompts.toml from talkie/data as default config
+    data = resources.files("talkie.data")
+
     args = cast(
         "TalkieConfig",
-        jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml"),  # pyright: ignore[reportUnknownMemberType]
+        jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml", default_config_files=[str(data / "prompts.toml"), str(data / "layout.toml")]),  # pyright: ignore[reportUnknownMemberType]
     )
+
+    print(args.prompts)
 
     # Initialize pixpy rendering components
     screen = (
@@ -58,10 +62,6 @@ def main():
     )
 
     logger.info("Starting game")
-
-    data = resources.files("talkie.data")
-    prompts_path = args.prompt_file or data / "prompts.yaml"
-    args.prompts = yaml.safe_load(prompts_path.open())
 
     container = Container()
     container[TalkieConfig] = args
