@@ -111,7 +111,7 @@ class Talkie:
             self.drawables.append(
                 Drawable(
                     self.items["input"],
-                    lambda s, xy, sz: s.draw(
+                    lambda s, xy, _: s.draw(
                         input_console, xy - (2, 2), input_console.size
                     ),
                 )
@@ -128,7 +128,7 @@ class Talkie:
         self.drawables.append(
             Drawable(
                 self.items["main"],
-                lambda s, xy, sz: s.draw(self.console, xy, self.console.size),
+                lambda s, xy, _: s.draw(self.console, xy, self.console.size),
             )
         )
 

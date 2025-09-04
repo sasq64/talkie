@@ -16,8 +16,9 @@ class TalkieConfig:
     game_file: Path
     """Game file to load"""
 
-    layout: str | None = None
     gfx_path: Path | None = None
+    """Path to graphics data, for games that use it"""
+
     voice: Voice | None = None
     """Turn on text to speech with the given voice"""
 
@@ -25,20 +26,29 @@ class TalkieConfig:
     window_width: int = 1280
     window_height: int = 1024
 
+    layout: str | None = None
+    """XML description of screen layout"""
+
     prompt_file: Path | None = None
-    prompts: dict[str, str] = field(default_factory=dict[str, str], init=False)
+    """yaml file with AI prompt data"""
+
+    prompts: dict[str, str] = field(default_factory=dict[str, str])
 
     text_color: int = HexInt(0xFFFFFF)
     background_color: int = HexInt(0x000000)
     input_color: int = HexInt(0x8080FF)
     input_bgcolor: int = HexInt(0x000000)
     input_box_color: int = HexInt(0x000000)
+    border_color: int = HexInt(0x000000)
+
     input_box_line: int = 3
+    """Width of bottom read line box"""
+
     text_font: Path | None = None
     text_size: int = 32
     border_size: int = 0
-    border_color: int = HexInt(0x000000)
     inline_input: bool = False
+    """Read input inline with text (oldschool) instead of bottom of screen"""
     use_scanlines: bool = False
 
     adventure_guy: bool = False

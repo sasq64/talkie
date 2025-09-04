@@ -51,8 +51,10 @@ def main():
     )
 
     # Initialize pixpy rendering components
-    screen = pix.open_display(
-        size=(args.window_width, args.window_height), full_screen=args.full_screen
+    screen = (
+        pix.open_display(full_screen=True)
+        if args.full_screen
+        else pix.open_display(size=(args.window_width, args.window_height))
     )
 
     logger.info("Starting game")
@@ -84,7 +86,7 @@ def main():
             c[OpenAIClient], prompt=args.prompts["talk_prompt"]
         )
     else:
-        container[AdventureGuy] = lambda c: None  # type: ignore[assignment]
+        container[AdventureGuy] = lambda _: None  # type: ignore[assignment]
     container[IFPlayer] = lambda c: IFPlayer(
         c[ImageDrawer], c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
@@ -93,7 +95,7 @@ def main():
     if voice is not None:
         bind(container, FileCache, tts_cache).setup(TextToSpeech)
     else:
-        container[TextToSpeech] = lambda c: None  # type: ignore[assignment]
+        container[TextToSpeech] = lambda _: None  # type: ignore[assignment]
 
     talkie = container[Talkie]
 
