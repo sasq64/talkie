@@ -1,0 +1,11 @@
+
+layout="""
+<window layout="vert" size="1280x1024">
+  <border layout="vert" border="5">
+    <main/>
+    <pane border="12">
+      <input size="x40"/>
+    </pane>
+  </border>
+</window>
+"""
