@@ -36,35 +36,44 @@ def main():
     build_dir = project_root / "build"
     target_dir = project_root / "talkie" / "data"
 
+    # List of subdirectories in tools to build
+    build_subdirs = ["level9", "Magnetic"]
+
     # Ensure build directory exists
     build_dir.mkdir(exist_ok=True)
 
-    # Run cmake configure
-    cmake_configure_cmd = ["cmake", str(tools_dir)]
-    run_command(cmake_configure_cmd, cwd=build_dir)
+    # Build each subdirectory
+    for subdir in build_subdirs:
+        subdir_path = tools_dir / subdir
+        if not subdir_path.exists():
+            print(f"Warning: {subdir_path} does not exist, skipping")
+            continue
 
-    # Run cmake build
-    cmake_build_cmd = ["cmake", "--build", "."]
-    run_command(cmake_build_cmd, cwd=build_dir)
+        subdir_build_dir = build_dir / subdir
+        subdir_build_dir.mkdir(exist_ok=True)
+
+        print(f"Building {subdir}...")
+
+        # Run cmake configure
+        cmake_configure_cmd = ["cmake", str(subdir_path)]
+        run_command(cmake_configure_cmd, cwd=subdir_build_dir)
+
+        # Run cmake build
+        cmake_build_cmd = ["cmake", "--build", "."]
+        run_command(cmake_build_cmd, cwd=subdir_build_dir)
 
     # Find and copy the level9 binary
     level9_binary = build_dir / "level9" / "level9"
-    if not level9_binary.exists():
-        # Try without subdirectory
-        level9_binary = build_dir / "level9"
+    target_path = target_dir / "l9"
+    print(f"Copying {level9_binary} to {target_path}")
+    shutil.copy2(level9_binary, target_path)
+    target_path.chmod(0o755)
 
-    if level9_binary.exists():
-        target_path = target_dir / "l9"
-        print(f"Copying {level9_binary} to {target_path}")
-        shutil.copy2(level9_binary, target_path)
-
-        # Make sure the binary is executable
-        target_path.chmod(0o755)
-        print(f"Successfully copied level9 binary to {target_path}")
-    else:
-        print("Error: level9 binary not found after build")
-        sys.exit(1)
-
+    magnetic_binary = build_dir / "Magnetic" / "bin" / "magnetic"
+    target_path = target_dir / "magnetic"
+    print(f"Copying {magnetic_binary} to {target_path}")
+    shutil.copy2(magnetic_binary, target_path)
+    target_path.chmod(0o755)
 
 if __name__ == "__main__":
     main()
