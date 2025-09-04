@@ -17,7 +17,7 @@ class Drawable:
     def __init__(
         self,
         rect: Rectangle,
-        draw_cb: Callable[[pix.Screen, pix.Float2, pix.Float2], None],
+        draw_cb: Callable[[pix.Canvas, pix.Float2, pix.Float2], None],
     ):
         self.rect = rect
         self.draw_cb = draw_cb
@@ -25,7 +25,7 @@ class Drawable:
 
     def draw(
         self,
-        screen: pix.Screen,
+        screen: pix.Canvas,
         xy: pix.Float2 | None = None,
         size: pix.Float2 | None = None,
     ):
@@ -48,21 +48,10 @@ class Talkie:
         tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
         print(tile_set.tile_size)
 
-        ui = (
-            config.layout
-            or """
-<window layout="vert">
-  <border layout="vert">
-    <main/>
-    <pane border="10"><input/></pane>
-  </border>
-</window>
-"""
-        )
-        print(ui)
-
-        layout = Layout(ui)
-        layout.set_size("input", height=tile_set.tile_size.y)
+        print(config.layout)
+        layout = Layout(config.layout)
+        fh = 0 if config.inline_input else tile_set.tile_size.y
+        layout.set_size("input", height=fh)
         w, h = screen.size.toi()
         self.rects = layout.layout(w, h)
 
@@ -74,6 +63,10 @@ class Talkie:
 
         self.border = pix.Float2(config.border_size, config.border_size)
 
+        self.bg : pix.Image | None = None
+        if config.background_image:
+            self.bg = pix.load_png(config.background_image)
+
         self.prefix = self.edit_prefix = ">"
         self.text_color = (config.text_color << 8) | 0xFF
         self.input_color = (config.input_color << 8) | 0xFF
@@ -81,6 +74,9 @@ class Talkie:
         self.background_color = (config.background_color << 8) | 0xFF
         self.border_color = (config.border_color << 8) | 0xFF
         self.input_box_color = (config.input_box_color << 8) | 0xFF
+
+        if self.bg and self.background_color == 0xFF:
+            self.background_color = 0x505050FF
 
         self.drawables: list[Drawable] = []
 
@@ -160,17 +156,25 @@ class Talkie:
         else:
             self.console.read_line()
 
+        self.canvas = pix.Image(size=screen.size)
+
     def close(self):
         self.ai_player.close()
 
     def update(self):
-        self.screen.clear(
-            self.border_color
-            if self.border > pix.Float2.ZERO
-            else self.background_color
-        )
+        if self.bg:
+            self.screen.draw_color = self.background_color
+            self.screen.draw(self.bg, top_left=(0,0), size=self.screen.size)
+            self.screen.draw_color = 0xffff_ffff
+        else:
+            self.screen.clear(
+                self.border_color
+                if self.border > pix.Float2.ZERO
+                else self.background_color
+            )
         for drawable in self.drawables:
-            drawable.draw(self.screen)
+            drawable.draw(self.canvas)
+        self.screen.draw(self.canvas)
 
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
