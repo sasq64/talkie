@@ -21,13 +21,15 @@ pytest_cache/
 .crush/
 
 build/
-/out.wav
+/*.wav
 /temp.png
 /talkie.log
 
 .coverage*
+coverage.xml
 
 .git/
+.zed/
 
 talkie/data/l9
 talkie/data/magnetic

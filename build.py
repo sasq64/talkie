@@ -75,5 +75,6 @@ def main():
     shutil.copy2(magnetic_binary, target_path)
     target_path.chmod(0o755)
 
+
 if __name__ == "__main__":
     main()

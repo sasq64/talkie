@@ -37,6 +37,7 @@ def test_zork_basic_gameplay():
 
         # Send command to open mailbox
         player.write("open mailbox\n")
+        player.write("open mailbox\n")
 
         # Wait for and read response
         response = None
@@ -45,6 +46,9 @@ def test_zork_basic_gameplay():
             if response and hasattr(response, "text"):
                 break
             time.sleep(0.1)
+        assert response
+        assert "reveals a leaflet" in response.text
+        assert "Score:" not in response.text
 
         assert response is not None, (
             "Failed to get response to 'open mailbox' command"

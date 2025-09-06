@@ -33,15 +33,13 @@ class IFPlayer:
         Start an interactive fiction game in a subprocess
         """
 
-        zcode = re.compile(r"\.z(ode|[123456789])$")
-        l9 = re.compile(r"\.l9$")
         data = resources.files("talkie.data")
         self.image_drawer = image_drawer
         self.key_mode: bool = False
 
-        if zcode.search(file_name.name):
+        if re.search(r"\.z(ode|[123456789])$", file_name.name):
             args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
-        elif l9.search(file_name.name):
+        elif re.search(r"\.l9$", file_name.name):
             if gfx_path:
                 gfx_str = gfx_path.as_posix()
                 if gfx_path.is_dir():
@@ -50,7 +48,7 @@ class IFPlayer:
             else:
                 args = [str(data / "l9"), file_name.as_posix()]
         elif re.search(r"\.(mag|MAG)", file_name.name):
-                args = [str(data / "magnetic"), file_name.as_posix()]
+            args = [str(data / "magnetic"), file_name.as_posix()]
         else:
             raise RuntimeError("Unknown format")
         print(args)
@@ -62,6 +60,8 @@ class IFPlayer:
             stderr=subprocess.PIPE,
         )
         self.output_queue: queue.Queue[bytes] = queue.Queue()
+        self.input_queue: queue.Queue[bytes] = queue.Queue()
+        self.last_write = time.time()
         self.transcript: list[tuple[str, str]] = []
         self.text_output: str = ""
         self.last_result: float = 0
@@ -98,7 +98,17 @@ class IFPlayer:
         return self._handle_output()
 
     def _handle_output(self) -> IFOutput | None:
-        if not self.text_output or time.time() - self.last_result < 0.25:
+
+        # We add delays between input so we have time to get ouput first.
+        # TODO: Investigate better way to accomplish that is using time
+        if not self.input_queue.empty() and time.time() - self.last_write > 0.4:
+                data = self.input_queue.get_nowait()
+                self.last_write = time.time()
+                if self.proc.stdin:
+                    _ = self.proc.stdin.write(data)
+                    self.proc.stdin.flush()
+
+        if not self.text_output or time.time() - self.last_result < 0.2:
             return None
 
         # We have a full set of text
@@ -141,13 +151,10 @@ class IFPlayer:
 
     def write(self, text: str):
         """Write text line to stdin of running interpreter."""
-
-        if self.proc.stdin is not None:
-            print(f"IN:'{text}'")
-            logger.info(f"IN: '{text}'")
-            _ = self.proc.stdin.write(text.encode())
-            self.transcript.append((">", text))
-            self.proc.stdin.flush()
+        self.input_queue.put(text.encode())
+        print(f"IN:'{text}'")
+        logger.info(f"IN: '{text}'")
+        self.transcript.append((">", text))
 
     def get_transcript(self) -> str:
         """Get the transcript of the game so far."""

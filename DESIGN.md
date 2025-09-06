@@ -31,6 +31,9 @@ Should be done after "look". Right now all text is used to generate image, but o
 first long-enough paragraph is used as cache key.
 Problem: Can be inconsistent.
 
+
+
+
 Setting;
 
 - auto: Generate on "look"
@@ -69,3 +72,7 @@ Issue: Uses pix for PNG handling, dependency should be avoided.
 
 The Talkie application. Depends on pix for all graphics.
 Shows images, renders text.
+
+Scripting or AI
+
+AIai_pl

@@ -1,5 +1,4 @@
 import logging
-import re
 from concurrent.futures import Future  # noqa: TC003
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,6 +10,7 @@ from pixtools.voice_recorder import VoiceToText
 from .adventure_guy import AdventureGuy
 from .if_player import IFPlayer
 from .talkie_config import TalkieConfig
+from .tts_chunk import split_for_tts
 
 
 @dataclass
@@ -89,27 +89,24 @@ class AIPlayer:
                 self.image_file = result.image
                 self.output.append(ImageOutput(self.image_file))
 
-            # Process TTS for paragraphs
-            for paragraph in self.desc.split("\n\n"):
-                paragraph = paragraph.strip()
-                if len(paragraph) > 0:
-                    if self.image_gen:
-                        image_file = self.image_gen.get_image(paragraph)
-                        logging.info(f"'{paragraph}' gave image {image_file}")
-                        if image_file and not first_image_file:
-                            first_image_file = image_file
-                            self.output.append(ImageOutput(image_file))
-
-                    if self.tts:
-                        pattern = re.compile(r"[.?!>:]$")
-                        if not pattern.search(paragraph):
-                            paragraph += ". "
-                        self.tts.speak(paragraph)
+            # Process paragraphs for TTS or image lookup
+            sections = self.desc.split("\n\n")
+            for text in sections:
+                text = text.strip()
+                if len(text) == 0:
+                    continue
+                if self.image_gen:
+                    image_file = self.image_gen.get_image(text)
+                    logging.info(f"'{text}' gave image {image_file}")
+                    if image_file and not first_image_file:
+                        first_image_file = image_file
+                        self.output.append(ImageOutput(image_file))
+                if self.tts:
+                    chunks = split_for_tts(text, max_chars=400)
+                    for chunk in chunks:
+                        self.tts.speak(chunk)
 
     def get_next_output(self) -> AIOutput | None:
-        # image_file = self.player.get_image()
-        # if image_file:
-        #    return ImageOutput(image_file)
         if len(self.output) == 0:
             return None
         return self.output.pop(0)
@@ -158,7 +155,8 @@ class AIPlayer:
                 self.image_file = self.image_gen.generate_image(
                     self.image_prompt.format(**self.prompt_fields), para
                 )
-                self.output.append(ImageOutput(self.image_file))
+                if self.image_file:
+                    self.output.append(ImageOutput(self.image_file))
         elif cmd == "mod" and self.image_gen:
             if self.image_file:
                 prompt = self.modernize_prompt.format(**self.prompt_fields)

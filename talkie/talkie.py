@@ -63,7 +63,7 @@ class Talkie:
 
         self.border = pix.Float2(config.border_size, config.border_size)
 
-        self.bg : pix.Image | None = None
+        self.bg: pix.Image | None = None
         if config.background_image:
             self.bg = pix.load_png(config.background_image)
 
@@ -164,8 +164,8 @@ class Talkie:
     def update(self):
         if self.bg:
             self.screen.draw_color = self.background_color
-            self.screen.draw(self.bg, top_left=(0,0), size=self.screen.size)
-            self.screen.draw_color = 0xffff_ffff
+            self.screen.draw(self.bg, top_left=(0, 0), size=self.screen.size)
+            self.screen.draw_color = 0xFFFF_FFFF
         else:
             self.screen.clear(
                 self.border_color

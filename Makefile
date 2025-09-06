@@ -4,6 +4,9 @@ check:
 	mypy --check-untyped-defs -p talkie
 	pyright talkie/*
 
+mypy:
+	mypy --check-untyped-defs -p talkie
+
 test:
 	python -m pytest
 

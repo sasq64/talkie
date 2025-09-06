@@ -9,10 +9,11 @@ import jsonargparse
 import pixpy as pix
 from lagom import Container
 from openai import OpenAI
-
 from pixtools import ImageGen, OpenAIClient, TextToSpeech
+from pixtools.audio_player import AudioPlayer
 from pixtools.cache import FileCache
 from pixtools.openaiclient import GptModel
+
 from talkie.adventure_guy import AdventureGuy
 from talkie.if_player import IFPlayer
 from talkie.image_drawer import ImageDrawer
@@ -49,7 +50,15 @@ def main():
 
     args = cast(
         "TalkieConfig",
-        jsonargparse.auto_cli(TalkieConfig, as_positional=True, parser_mode="toml", default_config_files=[str(data / "prompts.toml"), str(data / "layout.toml")]),  # pyright: ignore[reportUnknownMemberType]
+        jsonargparse.auto_cli(  # pyright: ignore[reportUnknownMemberType]
+            TalkieConfig,
+            as_positional=True,
+            parser_mode="toml",
+            default_config_files=[
+                str(data / "prompts.toml"),
+                str(data / "layout.toml"),
+            ],
+        ),
     )
 
     print(args.prompts)
@@ -93,7 +102,9 @@ def main():
     bind(container, FileCache, img_cache).setup(ImageGen)
     voice = args.voice
     if voice is not None:
-        bind(container, FileCache, tts_cache).setup(TextToSpeech)
+        container[TextToSpeech] = lambda c: TextToSpeech(
+            c[AudioPlayer], tts_cache, c[OpenAI], voice
+        )
     else:
         container[TextToSpeech] = lambda _: None  # type: ignore[assignment]
 
