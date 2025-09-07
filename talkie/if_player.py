@@ -48,7 +48,14 @@ class IFPlayer:
             else:
                 args = [str(data / "l9"), file_name.as_posix()]
         elif re.search(r"\.(mag|MAG)", file_name.name):
-            args = [str(data / "magnetic"), file_name.as_posix()]
+            if gfx_path:
+                args = [
+                    str(data / "magnetic"),
+                    file_name.as_posix(),
+                    gfx_path.as_posix(),
+                ]
+            else:
+                args = [str(data / "magnetic"), file_name.as_posix()]
         else:
             raise RuntimeError("Unknown format")
         print(args)
@@ -98,15 +105,14 @@ class IFPlayer:
         return self._handle_output()
 
     def _handle_output(self) -> IFOutput | None:
-
         # We add delays between input so we have time to get ouput first.
         # TODO: Investigate better way to accomplish that is using time
         if not self.input_queue.empty() and time.time() - self.last_write > 0.4:
-                data = self.input_queue.get_nowait()
-                self.last_write = time.time()
-                if self.proc.stdin:
-                    _ = self.proc.stdin.write(data)
-                    self.proc.stdin.flush()
+            data = self.input_queue.get_nowait()
+            self.last_write = time.time()
+            if self.proc.stdin:
+                _ = self.proc.stdin.write(data)
+                self.proc.stdin.flush()
 
         if not self.text_output or time.time() - self.last_result < 0.2:
             return None

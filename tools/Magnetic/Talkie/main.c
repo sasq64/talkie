@@ -37,9 +37,9 @@
 
 uint8_t ms_gfx_enabled = 0;
 
-//uint8_t buffer[80], xpos = 0, bufpos = 0, log_on = 0, ms_gfx_enabled,
-   //               filename[256];
-//FILE *logfile1 = 0, *logfile2 = 0;
+// uint8_t buffer[80], xpos = 0, bufpos = 0, log_on = 0, ms_gfx_enabled,
+//                filename[256];
+// FILE *logfile1 = 0, *logfile2 = 0;
 
 uint8_t ms_load_file(const char* name, uint8_t* ptr, uint16_t size)
 {
@@ -202,28 +202,29 @@ uint8_t ms_getchar(uint8_t trans)
 
 void ms_showpic(uint32_t c, uint8_t mode)
 {
-    /* Insert your favourite picture viewing code here
-       mode: 0 gfx off, 1 gfx on (thumbnails), 2 gfx on (normal) */
+    if (mode == 0) return; // graphics off
 
-    /*
-        printf("Display picture [%d]\n",c);
-    */
+    uint16_t w, h, pal[16];
+    uint8_t* bitmap = ms_extract(c, &w, &h, pal, 0);
 
-    /* Small bitmap retrieving example */
-
-    /*
-        {
-            uint16_t w, h, pal[16];
-            uint8_t *raw = 0, i;
-
-            raw = ms_extract(c,&w,&h,pal,0);
-            printf("\n\nExtract: [%d] %dx%d",c,w,h);
-            for (i = 0; i < 16; i++)
-                printf(", %3.3x",pal[i]);
-            printf("\n");
-            printf("Bitmap at: %8.8x\n",raw);
+    if (bitmap) {
+        printf("#[img %d %d %d %d]\n", c, w, h, 16);
+        printf("#[pal %d", c);
+        for (int i = 0; i < 16; i++) {
+            // Convert 3-bit RGB to 8-bit RGB (palette format: 00000RRR0GGG0BBB)
+            uint8_t red = ((pal[i] >> 8) & 0x07) * 36;   // scale 0-7 to 0-252
+            uint8_t green = ((pal[i] >> 4) & 0x07) * 36; // scale 0-7 to 0-252
+            uint8_t blue = (pal[i] & 0x07) * 36;         // scale 0-7 to 0-252
+            printf(" 0x%02X%02X%02X", red, green, blue);
         }
-    */
+        printf("]\n");
+        printf("#[pixels %d", c);
+        for (int i = 0; i < w * h; i++) {
+            printf(" 0x%02X", bitmap[i]);
+        }
+        printf("]\n");
+        printf("#[bitmap %d]\n", c);
+    }
 }
 
 void ms_fatal(const char* txt)
@@ -247,8 +248,10 @@ int main(int argc, char** argv)
     uint8_t running, i, *gamename = 0, *gfxname = 0, *hintname = 0;
     uint32_t dlimit, slimit;
 
-    if (sizeof(uint8_t) != 1 || sizeof(uint16_t) != 2 || sizeof(uint32_t) != 4) {
-        fprintf(stderr, "Unsupported platform: stdint types have unexpected sizes\n");
+    if (sizeof(uint8_t) != 1 || sizeof(uint16_t) != 2 ||
+        sizeof(uint32_t) != 4) {
+        fprintf(stderr,
+                "Unsupported platform: stdint types have unexpected sizes\n");
         exit(1);
     }
     dlimit = slimit = 0xffffffff;

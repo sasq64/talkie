@@ -386,3 +386,27 @@ class TestFlexboxLayout:
         # Pane should be minimum size for input
         assert pane == Rectangle("pane", 20, 956, 1240, 48)  # 20 + 936 = 956
         assert input_elem == Rectangle("input", 20, 956, 1240, 48)
+
+    def test_nospace_container(self):
+        """Test container with both flexible and fixed children stays flexible"""
+        xml = """<window layout="vert" size="1280x1024">
+          <border layout="vert" border="100">
+            <image nospace="true" border="20">
+              <bitmap/>
+            </image>
+            <main/>
+            <pane>
+              <input size="x48"/>
+            </pane>
+          </border>
+        </window>"""
+
+        rectangles = flexbox_layout(xml)
+
+        d : dict[str, Rectangle] = {}
+        for r in rectangles:
+            d[r.name] = r
+
+        assert d["image"] == Rectangle("image", 100, 100, 1080, 824)
+        assert d["main"] == Rectangle("main", 100, 100, 1080, 776)
+        assert d["pane"] == Rectangle("pane", 100, 876, 1080, 48)

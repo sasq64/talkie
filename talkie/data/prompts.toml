@@ -23,7 +23,7 @@ image_prompt="""
 Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details.
 NOTE:
 * Do not include distinct objects in the foreground that are not part of the description.
-* Do not include text from the description in the image.
+* Only include texts that clearly are from a sign. Do *not* inlcude *any* text unless it is from a sign.
 ```
 {text}
 ```
@@ -45,12 +45,17 @@ This is the last output from the game, and what the player might be referring to
 """
 
 #
-modernize_prompt="""
+xmodernize_prompt="""
 Redraw this line art as a high-resolution detailed illustration in the style of
 80s video game box art.
 For reference, this is the scene as written to the player:
 ```
 {text}
 ```
+"""
+
+modernize_prompt="""
+Redraw this lowres 8-bit image as a high-resolution detailed illustration in the style of
+80s video game box art. Do not change any details in the image, imagine how the image would have looked like it if was not limitied by colors and resolution, and generate that image.
 """
 

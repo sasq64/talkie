@@ -38,7 +38,7 @@ class ImageDrawer:
             0xFFFFFF,
         ]
         self.palette: list[int] = [0] * 64
-        self.bitmaps: list[Bitmap] = []
+        self.bitmaps: dict[int, Bitmap] = {}
 
     def add_text_command(self, s: str) -> bool:
         parts = s.split()
@@ -48,8 +48,7 @@ class ImageDrawer:
             case "img" if len(args) == 4:
                 no = args[0]
                 print(f"IMG {no}")
-                while len(self.bitmaps) <= no:
-                    self.bitmaps.append(Bitmap(args[1], args[2]))
+                self.bitmaps[no] = Bitmap(args[1], args[2])
                 return False
             case "pal" if len(args) >= 1:
                 no = args[0]
@@ -75,7 +74,7 @@ class ImageDrawer:
                 self.palette[args[0]] = col
             case "bitmap":
                 no = args[0]
-                if no >= len(self.bitmaps):
+                if no not in self.bitmaps:
                     return False
                 print(f"BITMAP {no}")
                 # x, y = args[1], args[2]

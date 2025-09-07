@@ -29,9 +29,9 @@
 #define MAGNETIC_DEFS_H
 
 /*****************************************************************************\
-* Type definitions for Magnetic 
+* Type definitions for Magnetic
 *
-* Note: When running into trouble please ensure that these types have the 
+* Note: When running into trouble please ensure that these types have the
 *       correct number of bits on your system !!!
 \*****************************************************************************/
 
@@ -42,7 +42,7 @@
 #include <stdint.h>
 
 /****************************************************************************\
-* Compile time switches 
+* Compile time switches
 \****************************************************************************/
 
 /* Switch:  SAVEMEM
@@ -64,7 +64,7 @@
 /****************************************************************************\
 * Abstract functions
 *
-* Note: These functions MUST be implemented by each port of Magnetic! 
+* Note: These functions MUST be implemented by each port of Magnetic!
 \****************************************************************************/
 
 /****************************************************************************\
@@ -82,7 +82,7 @@
 * Note: You probably want to put in a file requester!
 \****************************************************************************/
 
-uint8_t ms_load_file(const char * name, uint8_t * ptr, uint16_t size);
+uint8_t ms_load_file(const char* name, uint8_t* ptr, uint16_t size);
 
 /****************************************************************************\
 * Function: ms_save_file
@@ -99,7 +99,7 @@ uint8_t ms_load_file(const char * name, uint8_t * ptr, uint16_t size);
 * Note: You probably want to put in a file requester!
 \****************************************************************************/
 
-uint8_t ms_save_file(const char * name, uint8_t * ptr, uint16_t size);
+uint8_t ms_save_file(const char* name, uint8_t* ptr, uint16_t size);
 
 /****************************************************************************\
 * Function: ms_statuschar
@@ -182,12 +182,12 @@ void ms_showpic(uint32_t c, uint8_t mode);
 * Parameter:    int8_t* txt     message
 \****************************************************************************/
 
-void ms_fatal(const char * txt);
+void ms_fatal(const char* txt);
 
 /****************************************************************************\
 * Magnetic core functions
 *
-* Note: These functions SHOULD be used somewhere in your port! 
+* Note: These functions SHOULD be used somewhere in your port!
 \****************************************************************************/
 
 /****************************************************************************\
@@ -214,7 +214,8 @@ void ms_fatal(const char * txt);
 *       care! More information on animated pictures are below!
 \****************************************************************************/
 
-uint8_t *ms_extract(uint32_t c, uint16_t * w, uint16_t * h, uint16_t * pal, uint8_t * is_anim);
+uint8_t* ms_extract(uint32_t c, uint16_t* w, uint16_t* h, uint16_t* pal,
+                    uint8_t* is_anim);
 
 /****************************************************************************\
 * Magnetic animated pictures support
@@ -225,12 +226,13 @@ uint8_t *ms_extract(uint32_t c, uint16_t * w, uint16_t * h, uint16_t * pal, uint
 *
 * There are two types of animated images, however almost all images are type1.
 * A type1 image consists of four main elements:
-* 1) A static picture which is loaded straight at the beginning 
+* 1) A static picture which is loaded straight at the beginning
 * 2) A set of frames with a mask. These frames are just "small pictures", which
 *    are coded like the normal static pictures. The image mask determines
 *    how the frame is removed after it has been displayed. A mask is exactly
 *    1/8 the size of the image and holds 1 bit per pixel, saying "remove pixel"
-*    or leave pixel set when frame gets removed. It might be a good idea to check
+*    or leave pixel set when frame gets removed. It might be a good idea to
+check
 *    your system documentation for masking operations as your system might be
 *    able to use this mask data directly.
 * 3) Positioning tables. These hold animation sequences consisting of commands
@@ -256,8 +258,8 @@ uint8_t *ms_extract(uint32_t c, uint16_t * w, uint16_t * h, uint16_t * pal, uint
 
 struct ms_position
 {
-  int16_t x, y;
-  int16_t number;
+    int16_t x, y;
+    int16_t number;
 };
 
 /****************************************************************************\
@@ -273,10 +275,10 @@ struct ms_position
 * Note: The positions array holds size ms_positions structures. BEFORE calling
 *       ms_animate again, retrieve the frames for all the ms_positions
 *       structures with ms_get_anim_frame and display each one on the static
-*       main picture.  
+*       main picture.
 \****************************************************************************/
 
-uint8_t ms_animate(struct ms_position ** positions, uint16_t * count);
+uint8_t ms_animate(struct ms_position** positions, uint16_t* count);
 
 /****************************************************************************\
 * Function: ms_get_anim_frame
@@ -295,7 +297,8 @@ uint8_t ms_animate(struct ms_position ** positions, uint16_t * count);
 *       removal of the frame.
 \****************************************************************************/
 
-uint8_t * ms_get_anim_frame(int16_t number, uint16_t * width, uint16_t * height, uint8_t ** mask);
+uint8_t* ms_get_anim_frame(int16_t number, uint16_t* width, uint16_t* height,
+                           uint8_t** mask);
 
 /****************************************************************************\
 * Function: ms_anim_is_repeating
@@ -309,8 +312,8 @@ uint8_t ms_anim_is_repeating(void);
 
 /****************************************************************************\
 * Magnetic Windows hint support
-* 
-* The windowed Magnetic Scolls games included online hints. To add support 
+*
+* The windowed Magnetic Scolls games included online hints. To add support
 * for the hints to your magnetic port, you should implement the ms_showhints
 * function. It retrieves a pointer to an array of ms_hint structs
 * The root element is always hints[0]. The elcount determines the number
@@ -326,11 +329,11 @@ uint8_t ms_anim_is_repeating(void);
 
 struct ms_hint
 {
-  uint16_t  elcount;
-  uint16_t  nodetype;
-  uint8_t * content;
-  uint16_t  links[MAX_HITEMS];
-  uint16_t  parent;
+    uint16_t elcount;
+    uint16_t nodetype;
+    uint8_t* content;
+    uint16_t links[MAX_HITEMS];
+    uint16_t parent;
 };
 
 /****************************************************************************\
@@ -342,11 +345,11 @@ struct ms_hint
 * Return: 0 on error, 1 on success
 \****************************************************************************/
 
-uint8_t ms_showhints(struct ms_hint * hints);
+uint8_t ms_showhints(struct ms_hint* hints);
 
 /****************************************************************************\
 * Magnetic Windows sound support
-* 
+*
 * Wonderland contains music scores that are played when entering specific
 * locations in the game. The music data are actually MIDI events and can be
 * played through normal MIDI devices. The original game plays the MIDI score
@@ -372,7 +375,7 @@ uint8_t ms_showhints(struct ms_hint * hints);
 *       temporary file and use external players or libraries.
 \****************************************************************************/
 
-void ms_playmusic(uint8_t * midi_data, uint32_t length, uint16_t tempo);
+void ms_playmusic(uint8_t* midi_data, uint32_t length, uint16_t tempo);
 
 /****************************************************************************\
 * Function: ms_init
@@ -391,7 +394,8 @@ void ms_playmusic(uint8_t * midi_data, uint32_t length, uint16_t tempo);
 * Note: You must call this function before starting the ms_rungame loop
 \****************************************************************************/
 
-uint8_t ms_init(const char * name, const char * gfxname, const char * hntname, const char * sndname);
+uint8_t ms_init(const char* name, const char* gfxname, const char* hntname,
+                const char* sndname);
 
 /****************************************************************************\
 * Function: ms_rungame
@@ -472,4 +476,3 @@ void ms_status(void);
 uint32_t ms_count(void);
 
 #endif /* MAGNETIC_DEFS_H */
-

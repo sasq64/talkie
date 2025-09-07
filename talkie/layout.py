@@ -14,6 +14,9 @@ class Rectangle:
     width: int
     height: int
 
+    def __repr__(self) -> str:
+        return f"Rectangle(name='{self.name}', x={self.x}, y={self.y}, width={self.width}, height={self.height})"
+
 
 @dataclass
 class LayoutNode:
@@ -135,15 +138,36 @@ def _layout_children_horizontal(
     if not children:
         return
 
-    # Calculate total gap space
-    total_gap = node.gap * (len(children) - 1) if len(children) > 1 else 0
+    # First, handle nospace children - they get laid out as if they're the only child
+    nospace_children = [
+        child for child in children if child.attributes.get("nospace") == "true"
+    ]
+    for nospace_child in nospace_children:
+        _layout_node_recursive(
+            nospace_child,
+            content_x,
+            content_y,
+            content_width,
+            content_height,
+            rectangles,
+        )
+
+    # Then handle normal children (excluding nospace children)
+    normal_children = [
+        child for child in children if child.attributes.get("nospace") != "true"
+    ]
+    if not normal_children:
+        return
+
+    # Calculate total gap space for normal children only
+    total_gap = node.gap * (len(normal_children) - 1) if len(normal_children) > 1 else 0
 
     # Parse child widths
     child_widths: list[int | None] = []
     fixed_width_total = 0
     flex_count = 0
 
-    for child in children:
+    for child in normal_children:
         width = _parse_dimension(child.size[0], content_width)
         if width is None:
             flex_count += 1
@@ -156,9 +180,9 @@ def _layout_children_horizontal(
     remaining_width = content_width - fixed_width_total - total_gap
     flex_width = remaining_width // flex_count if flex_count > 0 else 0
 
-    # Position children
+    # Position normal children
     current_x = content_x
-    for i, child in enumerate(children):
+    for i, child in enumerate(normal_children):
         # Calculate child dimensions
         child_width = child_widths[i]
         if child_width is None:
@@ -174,7 +198,7 @@ def _layout_children_horizontal(
 
         # Advance position
         current_x += child_width
-        if i < len(children) - 1:  # Add gap except after last child
+        if i < len(normal_children) - 1:  # Add gap except after last child
             current_x += node.gap
 
 
@@ -191,15 +215,36 @@ def _layout_children_vertical(
     if not children:
         return
 
-    # Calculate total gap space
-    total_gap = node.gap * (len(children) - 1) if len(children) > 1 else 0
+    # First, handle nospace children - they get laid out as if they're the only child
+    nospace_children = [
+        child for child in children if child.attributes.get("nospace") == "true"
+    ]
+    for nospace_child in nospace_children:
+        _layout_node_recursive(
+            nospace_child,
+            content_x,
+            content_y,
+            content_width,
+            content_height,
+            rectangles,
+        )
+
+    # Then handle normal children (excluding nospace children)
+    normal_children = [
+        child for child in children if child.attributes.get("nospace") != "true"
+    ]
+    if not normal_children:
+        return
+
+    # Calculate total gap space for normal children only
+    total_gap = node.gap * (len(normal_children) - 1) if len(normal_children) > 1 else 0
 
     # Parse child heights and calculate minimum required sizes
     child_heights: list[int | None] = []
     fixed_height_total = 0
     flex_count = 0
 
-    for child in children:
+    for child in normal_children:
         height = _parse_dimension(child.size[1], content_height)
         if height is None:
             # For flex children, check if they need minimum space or can be flexible
@@ -222,9 +267,9 @@ def _layout_children_vertical(
         remaining_height // flex_count if flex_count > 0 and remaining_height > 0 else 0
     )
 
-    # Position children
+    # Position normal children
     current_y = content_y
-    for i, child in enumerate(children):
+    for i, child in enumerate(normal_children):
         # Calculate child dimensions
         child_width = _parse_dimension(child.size[0], content_width)
         if child_width is None:
@@ -241,7 +286,7 @@ def _layout_children_vertical(
 
         # Advance position
         current_y += child_height
-        if i < len(children) - 1:  # Add gap except after last child
+        if i < len(normal_children) - 1:  # Add gap except after last child
             current_y += node.gap
 
 

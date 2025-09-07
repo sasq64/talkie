@@ -33,3 +33,23 @@ IF "LOGIC" WILL
 - Prompt character
 
 
+## TODO
+
+### Miletone 1 - "Mostly playable"
+
+- [ ] Image generation: logic; active, auto etc
+- [ ] Image generation: paragraph selection
+- [ ] Image modernisation: Toggle image
+- [ ] Image gen: Extra prompt info to slash command
+- [ ] Store cached images & voice per game in distributable form
+
+- [ ] Identify game and add game specific prompts and configuration
+
+### Backlog
+
+- [ ] Better scan lines
+- [ ] Add timeline profiling
+
+
+
+

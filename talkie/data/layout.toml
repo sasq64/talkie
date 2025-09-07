@@ -6,6 +6,9 @@ layout="""
     <pane border="12">
       <input size="x40"/>
     </pane>
+  <imgcontainer nospace="true">
+    <image/>
+  </imgcontainer>
   </border>
 </window>
 """
