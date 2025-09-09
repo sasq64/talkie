@@ -61,6 +61,9 @@ def main():
         ),
     )
 
+    if args.image_cache is None:
+        args.image_cache = args.game_file.with_suffix(".json")
+
     print(args.prompts)
 
     # Initialize pixpy rendering components

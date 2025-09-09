@@ -44,6 +44,8 @@ class TalkieConfig:
     input_box_line: int = 4
     """Width of bottom read line box"""
 
+    image_cache: Path | None = None
+
     text_font: Path | None = None
     text_size: int = 32
     border_size: int = 0

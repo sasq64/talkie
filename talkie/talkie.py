@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from collections.abc import Callable
 from importlib import resources
+from pathlib import Path
 from typing import Final
 
 import pixpy as pix
@@ -9,6 +10,7 @@ from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .layout import Layout, Rectangle
 from .scanlines import make_scanline_texture
 from .talkie_config import TalkieConfig
+from .upscale import Upscaler
 from .utils.nerd import Nerd
 from .utils.wrap import wrap_lines
 
@@ -54,6 +56,8 @@ class Talkie:
         layout.set_size("input", height=fh)
         w, h = screen.size.toi()
         self.rects = layout.layout(w, h)
+
+        self.upscaler = Upscaler()
 
         self.items: dict[str, Rectangle] = {}
 
@@ -161,7 +165,30 @@ class Talkie:
     def close(self):
         self.ai_player.close()
 
+    def render_game_image(self):
+        if not self.current_image:
+            return
+
+        c = self.items.get("imgcontainer")
+        if c:
+            self.screen.draw_color = 0x00000080
+            self.screen.filled_rect(top_left=(c.x, c.y), size=(c.width, c.height))
+            self.screen.draw_color = pix.color.WHITE
+        img = self.items.get( "image" )
+        if img:
+            sz = self.current_image.size
+            while sz.y * 2 < img.height:
+               sz *= 2
+            while sz.y > img.height:
+               sz /= 2
+            xy = pix.Float2(img.x, img.y)
+            isize = pix.Float2(img.width, img.height)
+            xy += (isize - sz)/2
+            self.screen.draw(self.current_image, top_left=xy, size=sz)
+
+
     def update(self):
+        self.upscaler.check_upscale()
         if self.bg:
             self.screen.draw_color = self.background_color
             self.screen.draw(self.bg, top_left=(0, 0), size=self.screen.size)
@@ -186,17 +213,7 @@ class Talkie:
             self.ai_player.end_voice_recording()
 
         # Render current image overlay
-        if self.current_image:
-            self.screen.draw_color = 0x00000080
-            self.screen.filled_rect(top_left=(0, 0), size=self.screen.size)
-            self.screen.draw_color = pix.color.WHITE
-            sz = self.current_image.size
-            while sz.y * 2 < 640:
-                sz *= 2
-            while sz.y > 640:
-                sz /= 2
-            xy = (self.screen.size - sz) / 2
-            self.screen.draw(self.current_image, top_left=xy, size=sz)
+        self.render_game_image()
 
         if self.scan_lines:
             self.screen.blend_mode = pix.BLEND_MULTIPLY
@@ -239,7 +256,9 @@ class Talkie:
         # Handle text input events
         for e in events:
             if isinstance(e, pix.event.Key):
-                self.current_image = None
+                print(f"{e.key}")
+                if e.key == pix.key.ESCAPE:
+                    self.current_image = None
                 if e.key < 0x1000 and self.ai_player.key_mode():
                     print("KEY")
                     self.ai_player.write_command(chr(e.key))
@@ -253,7 +272,12 @@ class Talkie:
 
                 if e.text[0] == "/":
                     cmd = e.text[1:].strip()
-                    _ = self.ai_player.handle_slash_command(cmd)
+                    if cmd == "fast":
+                        result = self.upscaler.fast_upscale(Path("game.png"))
+                        if result:
+                            self.current_image = result
+                    else:
+                        _ = self.ai_player.handle_slash_command(cmd)
                 else:
                     self.ai_player.stop_audio()
                     self.ai_player.write_command(e.text)

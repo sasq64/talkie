@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
+from typing import TypedDict
+
 from pixtools import ImageGen, TextToSpeech
 from pixtools.voice_recorder import VoiceToText
 
@@ -34,6 +36,15 @@ class PromptOutput:
 
 
 AIOutput = TextOutput | AudioOuptut | ImageOutput | PromptOutput
+
+
+class ImageEntry(TypedDict):
+    prompt: str
+    hash: str
+
+class VoiceEntry(TypedDict):
+    phrase: str
+    hash: str
 
 
 class AIPlayer:
