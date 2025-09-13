@@ -1,0 +1,20 @@
+text_size = 16
+text_font="data/Topaz.ttf"
+text_color = 0xffffff
+input_color = 0x887ecb
+background_color=0x0000aa
+border_color=0x0000aa
+cursor_color=0xff7700
+inline_input=true
+use_scanlines=true
+window_width=1200
+window_height=960
+scale=2
+
+layout="""
+<window layout="vert">
+  <border layout="vert" border="40">
+    <main/>
+  </border>
+</window>
+"""

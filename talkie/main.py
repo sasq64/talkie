@@ -47,7 +47,6 @@ def main():
 
     # Load prompts.toml from talkie/data as default config
     data = resources.files("talkie.data")
-
     args = cast(
         "TalkieConfig",
         jsonargparse.auto_cli(  # pyright: ignore[reportUnknownMemberType]
@@ -88,8 +87,9 @@ def main():
     client = OpenAI(api_key=api_key)
     container[OpenAI] = client
 
-    img_cache = FileCache(Path(".cache/img"))
-    tts_cache = FileCache(Path(".cache/tts"))
+    container[FileCache] = FileCache(
+        name="talkie", source=args.game_file.with_suffix("").name
+    )
 
     container[GptModel] = GptModel.GPT4
 
@@ -102,11 +102,10 @@ def main():
     container[IFPlayer] = lambda c: IFPlayer(
         c[ImageDrawer], c[TalkieConfig].game_file, c[TalkieConfig].gfx_path
     )
-    bind(container, FileCache, img_cache).setup(ImageGen)
     voice = args.voice
     if voice is not None:
         container[TextToSpeech] = lambda c: TextToSpeech(
-            c[AudioPlayer], tts_cache, c[OpenAI], voice
+            c[AudioPlayer], c[FileCache], c[OpenAI], voice
         )
     else:
         container[TextToSpeech] = lambda _: None  # type: ignore[assignment]

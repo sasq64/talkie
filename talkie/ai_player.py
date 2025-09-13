@@ -42,6 +42,7 @@ class ImageEntry(TypedDict):
     prompt: str
     hash: str
 
+
 class VoiceEntry(TypedDict):
     phrase: str
     hash: str

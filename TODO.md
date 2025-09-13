@@ -24,7 +24,7 @@ Now write_key() should be used instead, for every key press
 
 
 
-IF "LOGIC" WILL
+IF "LOGIC" WILL:
 
 - Try to split incoming text printable/speakable parts
 
@@ -32,23 +32,29 @@ IF "LOGIC" WILL
 - Intepreter techincal output
 - Prompt character
 
+## REDUCED SCOPE
+
+Caching vs data files
+
+Consider audio only.
+
 
 ## TODO
 
 ### Miletone 1 - "Mostly playable"
 
-- [ ] Image generation: logic; active, auto etc
-- [ ] Image generation: paragraph selection
-- [ ] Image modernisation: Toggle image
-- [ ] Image gen: Extra prompt info to slash command
-- [ ] Store cached images & voice per game in distributable form
+- □ Image generation: logic; active, auto etc
+- □ Image generation: paragraph selection
+- □ Image modernisation: Toggle image
+- □ Image gen: Extra prompt info to slash command
+- □ Store cached images & voice per game in distributable form
 
-- [ ] Identify game and add game specific prompts and configuration
+- □ Identify game and add game specific prompts and configuration
 
 ### Backlog
 
-- [ ] Better scan lines
-- [ ] Add timeline profiling
+- □ Better scan lines
+- □ Add timeline profiling
 
 
 

@@ -37,6 +37,7 @@ class TalkieConfig:
     input_bgcolor: int = HexInt(0x000000)
     input_box_color: int = HexInt(0x000080)
     border_color: int = HexInt(0x000000)
+    cursor_color: int = HexInt(0xE08030)
 
     background_image: Path | None = None
     tile_background: bool = False
@@ -46,10 +47,12 @@ class TalkieConfig:
 
     image_cache: Path | None = None
 
+    scale: float = 1
+
     text_font: Path | None = None
-    text_size: int = 32
-    border_size: int = 0
-    inline_input: bool = False
+    text_size: int = 28
+    border_size: int = 8
+    inline_input: bool = True
     """Read input inline with text (oldschool) instead of bottom of screen"""
     use_scanlines: bool = False
 

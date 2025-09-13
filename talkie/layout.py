@@ -14,8 +14,10 @@ class Rectangle:
     width: int
     height: int
 
+    args: dict[str, str]
+
     def __repr__(self) -> str:
-        return f"Rectangle(name='{self.name}', x={self.x}, y={self.y}, width={self.width}, height={self.height})"
+        return f"Rectangle(name='{self.name}', x={self.x}, y={self.y}, width={self.width}, height={self.height})\nargs={self.args}"
 
 
 @dataclass
@@ -100,7 +102,7 @@ def _layout_node_recursive(
 ) -> None:
     """Recursively layout a node and its children"""
     # Add this node's rectangle
-    rectangles.append(Rectangle(node.name, x, y, width, height))
+    rectangles.append(Rectangle(node.name, x, y, width, height, node.attributes))
 
     if not node.children:
         return

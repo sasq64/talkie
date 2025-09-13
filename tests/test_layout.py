@@ -21,9 +21,9 @@ class TestFlexboxLayout:
         item1 = next(r for r in rectangles if r.name == "item1")
         item2 = next(r for r in rectangles if r.name == "item2")
 
-        assert container == Rectangle("container", 0, 0, 400, 100)
-        assert item1 == Rectangle("item1", 0, 0, 100, 50)
-        assert item2 == Rectangle("item2", 100, 0, 200, 60)
+        assert container == Rectangle("container", 0, 0, 400, 100, {"size": "400x100"})
+        assert item1 == Rectangle("item1", 0, 0, 100, 50, {"size": "100x50"})
+        assert item2 == Rectangle("item2", 100, 0, 200, 60, {"size": "200x60"})
 
     def test_simple_vertical_layout(self):
         """Test basic vertical layout with fixed sizes"""
@@ -38,9 +38,11 @@ class TestFlexboxLayout:
         item1 = next(r for r in rectangles if r.name == "item1")
         item2 = next(r for r in rectangles if r.name == "item2")
 
-        assert container == Rectangle("container", 0, 0, 200, 300)
-        assert item1 == Rectangle("item1", 0, 0, 100, 80)
-        assert item2 == Rectangle("item2", 0, 80, 150, 120)
+        assert container == Rectangle(
+            "container", 0, 0, 200, 300, {"size": "200x300", "layout": "vert"}
+        )
+        assert item1 == Rectangle("item1", 0, 0, 100, 80, {"size": "100x80"})
+        assert item2 == Rectangle("item2", 0, 80, 150, 120, {"size": "150x120"})
 
     def test_flexible_sizing_horizontal(self):
         """Test flexible sizing in horizontal layout"""
@@ -56,9 +58,9 @@ class TestFlexboxLayout:
         flex = next(r for r in rectangles if r.name == "flex")
         another = next(r for r in rectangles if r.name == "another")
 
-        assert fixed == Rectangle("fixed", 0, 0, 100, 50)
-        assert flex == Rectangle("flex", 100, 0, 300, 100)  # Takes remaining space
-        assert another == Rectangle("another", 400, 0, 200, 60)
+        assert fixed == Rectangle("fixed", 0, 0, 100, 50, {"size": "100x50"})
+        assert flex == Rectangle("flex", 100, 0, 300, 100, {})  # Takes remaining space
+        assert another == Rectangle("another", 400, 0, 200, 60, {"size": "200x60"})
 
     def test_flexible_sizing_vertical(self):
         """Test flexible sizing in vertical layout"""
@@ -74,9 +76,9 @@ class TestFlexboxLayout:
         flex = next(r for r in rectangles if r.name == "flex")
         another = next(r for r in rectangles if r.name == "another")
 
-        assert fixed == Rectangle("fixed", 0, 0, 100, 80)
-        assert flex == Rectangle("flex", 0, 80, 200, 300)  # Takes remaining space
-        assert another == Rectangle("another", 0, 380, 150, 120)
+        assert fixed == Rectangle("fixed", 0, 0, 100, 80, {"size": "100x80"})
+        assert flex == Rectangle("flex", 0, 80, 200, 300, {})  # Takes remaining space
+        assert another == Rectangle("another", 0, 380, 150, 120, {"size": "150x120"})
 
     def test_percentage_sizes(self):
         """Test percentage-based sizing"""
@@ -90,9 +92,11 @@ class TestFlexboxLayout:
         half = next(r for r in rectangles if r.name == "half")
         quarter = next(r for r in rectangles if r.name == "quarter")
 
-        assert half == Rectangle("half", 0, 0, 200, 200)  # 50% of 400, 100% of 200
+        assert half == Rectangle(
+            "half", 0, 0, 200, 200, {"size": "50%x100%"}
+        )  # 50% of 400, 100% of 200
         assert quarter == Rectangle(
-            "quarter", 200, 0, 100, 100
+            "quarter", 200, 0, 100, 100, {"size": "25%x50%"}
         )  # 25% of 400, 50% of 200
 
     def test_partial_sizes(self):
@@ -108,10 +112,10 @@ class TestFlexboxLayout:
         height_only = next(r for r in rectangles if r.name == "height_only")
 
         assert width_only == Rectangle(
-            "width_only", 0, 0, 100, 150
+            "width_only", 0, 0, 100, 150, {"size": "100x"}
         )  # Width fixed, height fills
         assert height_only == Rectangle(
-            "height_only", 100, 0, 200, 75
+            "height_only", 100, 0, 200, 75, {"size": "x75"}
         )  # Height fixed, width fills
 
     def test_borders(self):
@@ -127,10 +131,34 @@ class TestFlexboxLayout:
         child1 = next(r for r in rectangles if r.name == "child1")
         child2 = next(r for r in rectangles if r.name == "child2")
 
-        assert container == Rectangle("container", 0, 0, 200, 100)
+        assert container == Rectangle(
+            "container", 0, 0, 200, 100, {"size": "200x100", "border": "10"}
+        )
         # Children should be offset by border
-        assert child1 == Rectangle("child1", 10, 10, 50, 30)
-        assert child2 == Rectangle("child2", 60, 10, 60, 40)
+        assert child1 == Rectangle("child1", 10, 10, 50, 30, {"size": "50x30"})
+        assert child2 == Rectangle("child2", 60, 10, 60, 40, {"size": "60x40"})
+
+    def test_double_borders(self):
+        """Test border handling"""
+        xml = """<container size="300x200" border="10">
+            <panel border="20">
+                <child/>
+            </panel>
+        </container>"""
+
+        rectangles = flexbox_layout(xml)
+
+        container = next(r for r in rectangles if r.name == "container")
+        panel = next(r for r in rectangles if r.name == "panel")
+        child = next(r for r in rectangles if r.name == "child")
+
+        assert container == Rectangle(
+            "container", 0, 0, 300, 200, {"size": "300x200", "border": "10"}
+        )
+        # Panel should be offset by container border
+        assert panel == Rectangle("panel", 10, 10, 280, 180, {"border": "20"})
+        # Child should be offset by both container and panel borders
+        assert child == Rectangle("child", 30, 30, 240, 140, {})
 
     def test_gaps_horizontal(self):
         """Test gap handling in horizontal layout"""
@@ -146,9 +174,13 @@ class TestFlexboxLayout:
         item2 = next(r for r in rectangles if r.name == "item2")
         item3 = next(r for r in rectangles if r.name == "item3")
 
-        assert item1 == Rectangle("item1", 0, 0, 100, 50)
-        assert item2 == Rectangle("item2", 120, 0, 100, 60)  # 100 + 20 gap
-        assert item3 == Rectangle("item3", 240, 0, 100, 40)  # 220 + 20 gap
+        assert item1 == Rectangle("item1", 0, 0, 100, 50, {"size": "100x50"})
+        assert item2 == Rectangle(
+            "item2", 120, 0, 100, 60, {"size": "100x60"}
+        )  # 100 + 20 gap
+        assert item3 == Rectangle(
+            "item3", 240, 0, 100, 40, {"size": "100x40"}
+        )  # 220 + 20 gap
 
     def test_gaps_vertical(self):
         """Test gap handling in vertical layout"""
@@ -164,9 +196,13 @@ class TestFlexboxLayout:
         item2 = next(r for r in rectangles if r.name == "item2")
         item3 = next(r for r in rectangles if r.name == "item3")
 
-        assert item1 == Rectangle("item1", 0, 0, 100, 80)
-        assert item2 == Rectangle("item2", 0, 95, 150, 90)  # 80 + 15 gap
-        assert item3 == Rectangle("item3", 0, 200, 120, 100)  # 185 + 15 gap
+        assert item1 == Rectangle("item1", 0, 0, 100, 80, {"size": "100x80"})
+        assert item2 == Rectangle(
+            "item2", 0, 95, 150, 90, {"size": "150x90"}
+        )  # 80 + 15 gap
+        assert item3 == Rectangle(
+            "item3", 0, 200, 120, 100, {"size": "120x100"}
+        )  # 185 + 15 gap
 
     def test_borders_and_gaps_combined(self):
         """Test borders and gaps working together"""
@@ -181,8 +217,10 @@ class TestFlexboxLayout:
         item2 = next(r for r in rectangles if r.name == "item2")
 
         # Children offset by border, with gap between them
-        assert item1 == Rectangle("item1", 5, 5, 80, 60)
-        assert item2 == Rectangle("item2", 95, 5, 90, 70)  # 5 + 80 + 10 = 95
+        assert item1 == Rectangle("item1", 5, 5, 80, 60, {"size": "80x60"})
+        assert item2 == Rectangle(
+            "item2", 95, 5, 90, 70, {"size": "90x70"}
+        )  # 5 + 80 + 10 = 95
 
     def test_nested_layouts(self):
         """Test nested layout containers"""
@@ -206,12 +244,12 @@ class TestFlexboxLayout:
         sidebar = next(r for r in rectangles if r.name == "sidebar")
         main = next(r for r in rectangles if r.name == "main")
 
-        assert header == Rectangle("header", 0, 0, 400, 50)
-        assert logo == Rectangle("logo", 0, 0, 50, 50)
-        assert title == Rectangle("title", 50, 0, 350, 50)  # Flexible width
-        assert content == Rectangle("content", 0, 50, 400, 150)  # Flexible height
-        assert sidebar == Rectangle("sidebar", 0, 50, 100, 150)
-        assert main == Rectangle("main", 100, 50, 300, 150)  # Flexible width
+        assert header == Rectangle("header", 0, 0, 400, 50, {"size": "400x50"})
+        assert logo == Rectangle("logo", 0, 0, 50, 50, {"size": "50x50"})
+        assert title == Rectangle("title", 50, 0, 350, 50, {})  # Flexible width
+        assert content == Rectangle("content", 0, 50, 400, 150, {})  # Flexible height
+        assert sidebar == Rectangle("sidebar", 0, 50, 100, 150, {"size": "100x150"})
+        assert main == Rectangle("main", 100, 50, 300, 150, {})  # Flexible width
 
     def test_min_size_vs_flexible_behavior(self):
         """Test difference between containers with fixed content vs truly flexible"""
@@ -235,8 +273,8 @@ class TestFlexboxLayout:
         assert toolbar.height == 32  # Just enough for button
         # Content should take remaining space
         assert content.height == 268  # 300 - 32
-        assert button == Rectangle("button", 0, 0, 32, 32)
-        assert flex_child == Rectangle("flex_child", 0, 32, 400, 268)
+        assert button == Rectangle("button", 0, 0, 32, 32, {"size": "32x32"})
+        assert flex_child == Rectangle("flex_child", 0, 32, 400, 268, {})
 
     def test_multiple_flex_children(self):
         """Test space distribution among multiple flexible children"""
@@ -255,10 +293,10 @@ class TestFlexboxLayout:
         flex3 = next(r for r in rectangles if r.name == "flex3")
 
         # Each flex child gets (600 - 100) / 3 = 166 pixels (with rounding)
-        assert fixed == Rectangle("fixed", 0, 0, 100, 50)
-        assert flex1 == Rectangle("flex1", 100, 0, 166, 100)
-        assert flex2 == Rectangle("flex2", 266, 0, 166, 100)
-        assert flex3 == Rectangle("flex3", 432, 0, 166, 100)
+        assert fixed == Rectangle("fixed", 0, 0, 100, 50, {"size": "100x50"})
+        assert flex1 == Rectangle("flex1", 100, 0, 166, 100, {})
+        assert flex2 == Rectangle("flex2", 266, 0, 166, 100, {})
+        assert flex3 == Rectangle("flex3", 432, 0, 166, 100, {})
 
     def test_empty_container(self):
         """Test container with no children"""
@@ -267,7 +305,7 @@ class TestFlexboxLayout:
         rectangles = flexbox_layout(xml)
 
         assert len(rectangles) == 1
-        assert rectangles[0] == Rectangle("empty", 0, 0, 200, 100)
+        assert rectangles[0] == Rectangle("empty", 0, 0, 200, 100, {"size": "200x100"})
 
     def test_zero_border_and_gap(self):
         """Test explicit zero border and gap"""
@@ -281,8 +319,8 @@ class TestFlexboxLayout:
         child1 = next(r for r in rectangles if r.name == "child1")
         child2 = next(r for r in rectangles if r.name == "child2")
 
-        assert child1 == Rectangle("child1", 0, 0, 100, 50)
-        assert child2 == Rectangle("child2", 100, 0, 100, 50)
+        assert child1 == Rectangle("child1", 0, 0, 100, 50, {"size": "100x50"})
+        assert child2 == Rectangle("child2", 100, 0, 100, 50, {"size": "100x50"})
 
     def test_example_from_requirements(self):
         """Test the original example from the requirements"""
@@ -308,15 +346,19 @@ class TestFlexboxLayout:
         content1 = next(r for r in rectangles if r.name == "content1")
 
         # Verify expected behavior
-        assert window == Rectangle("window", 0, 0, 1280, 720)
+        assert window == Rectangle(
+            "window", 0, 0, 1280, 720, {"size": "1280x720", "layout": "vert"}
+        )
         assert toolbar == Rectangle(
-            "toolbar", 0, 0, 1280, 42
+            "toolbar", 0, 0, 1280, 42, {"layout": "horiz", "border": "5"}
         )  # Sized to fit buttons + border
-        assert area == Rectangle("area", 0, 42, 1280, 678)  # Takes remaining space
-        assert button0 == Rectangle("button0", 5, 5, 32, 32)
-        assert button1 == Rectangle("button1", 37, 5, 32, 32)
-        assert content0 == Rectangle("content0", 5, 47, 634, 668)
-        assert content1 == Rectangle("content1", 641, 47, 634, 668)
+        assert area == Rectangle(
+            "area", 0, 42, 1280, 678, {"border": "5", "gap": "2"}
+        )  # Takes remaining space
+        assert button0 == Rectangle("button0", 5, 5, 32, 32, {"size": "32x32"})
+        assert button1 == Rectangle("button1", 37, 5, 32, 32, {"size": "32x32"})
+        assert content0 == Rectangle("content0", 5, 47, 634, 668, {})
+        assert content1 == Rectangle("content1", 641, 47, 634, 668, {})
 
     def test_mixed_percentage_and_pixel_sizes(self):
         """Test mixing percentage and pixel sizes"""
@@ -332,11 +374,11 @@ class TestFlexboxLayout:
         percent = next(r for r in rectangles if r.name == "percent")
         flex = next(r for r in rectangles if r.name == "flex")
 
-        assert fixed == Rectangle("fixed", 0, 0, 100, 50)
+        assert fixed == Rectangle("fixed", 0, 0, 100, 50, {"size": "100x50"})
         assert percent == Rectangle(
-            "percent", 100, 0, 100, 100
+            "percent", 100, 0, 100, 100, {"size": "25%x50%"}
         )  # 25% of 400, 50% of 200
-        assert flex == Rectangle("flex", 200, 0, 200, 200)  # Remaining space
+        assert flex == Rectangle("flex", 200, 0, 200, 200, {})  # Remaining space
 
     def test_large_border_edge_case(self):
         """Test edge case where border is larger than container"""
@@ -350,7 +392,9 @@ class TestFlexboxLayout:
         # Child should not appear if content area is too small
         children = [r for r in rectangles if r.name == "child"]
 
-        assert container == Rectangle("container", 0, 0, 50, 50)
+        assert container == Rectangle(
+            "container", 0, 0, 50, 50, {"size": "50x50", "border": "30"}
+        )
         assert (
             len(children) == 0
         )  # Child should not be rendered due to insufficient space
@@ -375,17 +419,21 @@ class TestFlexboxLayout:
         input_elem = next(r for r in rectangles if r.name == "input")
 
         # Border should take full window size (flexible)
-        assert window == Rectangle("window", 0, 0, 1280, 1024)
-        assert border == Rectangle("border", 0, 0, 1280, 1024)
+        assert window == Rectangle(
+            "window", 0, 0, 1280, 1024, {"layout": "vert", "size": "1280x1024"}
+        )
+        assert border == Rectangle(
+            "border", 0, 0, 1280, 1024, {"layout": "vert", "border": "20"}
+        )
 
         # Main should take remaining space after pane
         assert main == Rectangle(
-            "main", 20, 20, 1240, 936
+            "main", 20, 20, 1240, 936, {}
         )  # 1024 - 40 (border) - 48 (pane) = 936
 
         # Pane should be minimum size for input
-        assert pane == Rectangle("pane", 20, 956, 1240, 48)  # 20 + 936 = 956
-        assert input_elem == Rectangle("input", 20, 956, 1240, 48)
+        assert pane == Rectangle("pane", 20, 956, 1240, 48, {})  # 20 + 936 = 956
+        assert input_elem == Rectangle("input", 20, 956, 1240, 48, {"size": "x48"})
 
     def test_nospace_container(self):
         """Test container with both flexible and fixed children stays flexible"""
@@ -403,10 +451,34 @@ class TestFlexboxLayout:
 
         rectangles = flexbox_layout(xml)
 
-        d : dict[str, Rectangle] = {}
+        d: dict[str, Rectangle] = {}
         for r in rectangles:
             d[r.name] = r
 
-        assert d["image"] == Rectangle("image", 100, 100, 1080, 824)
-        assert d["main"] == Rectangle("main", 100, 100, 1080, 776)
-        assert d["pane"] == Rectangle("pane", 100, 876, 1080, 48)
+        assert d["image"] == Rectangle(
+            "image", 100, 100, 1080, 824, {"nospace": "true", "border": "20"}
+        )
+        assert d["main"] == Rectangle("main", 100, 100, 1080, 776, {})
+        assert d["pane"] == Rectangle("pane", 100, 876, 1080, 48, {})
+
+    def test_custom_attributes_retained(self):
+        """Test that custom attributes are retained in Rectangle.args"""
+        xml = """<container size="200x100" custom="value" id="main" border="5">
+            <child size="50x30" data_type="text" role="button"/>
+        </container>"""
+
+        rectangles = flexbox_layout(xml)
+
+        container = next(r for r in rectangles if r.name == "container")
+        child = next(r for r in rectangles if r.name == "child")
+
+        # Container should have all its attributes including layout ones
+        assert container.args["custom"] == "value"
+        assert container.args["id"] == "main"
+        assert container.args["border"] == "5"
+        assert container.args["size"] == "200x100"
+
+        # Child should have its custom attributes
+        assert child.args["data_type"] == "text"
+        assert child.args["role"] == "button"
+        assert child.args["size"] == "50x30"

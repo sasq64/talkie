@@ -1,3 +1,4 @@
+text_font="data/Jetbrains.ttf"
 
 layout="""
 <window layout="vert" size="1280x1024">
@@ -11,4 +12,4 @@ layout="""
   </imgcontainer>
   </border>
 </window>
-"""
+"""  

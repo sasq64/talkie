@@ -50,11 +50,13 @@ class Talkie:
         tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
         print(tile_set.tile_size)
 
+        scale = config.scale
+
         print(config.layout)
         layout = Layout(config.layout)
         fh = 0 if config.inline_input else tile_set.tile_size.y
         layout.set_size("input", height=fh)
-        w, h = screen.size.toi()
+        w, h = (screen.size // scale).toi()
         self.rects = layout.layout(w, h)
 
         self.upscaler = Upscaler()
@@ -84,10 +86,11 @@ class Talkie:
 
         self.drawables: list[Drawable] = []
 
-        self.drawables.append(
-            Drawable(self.items["border"], lambda s, xy, sz: s.filled_rect(xy, sz))
-        )
-        self.drawables[-1].color = self.border_color
+        if "border" in self.items:
+            self.drawables.append(
+                Drawable(self.items["border"], lambda s, xy, sz: s.filled_rect(xy, sz))
+            )
+            self.drawables[-1].color = self.border_color
 
         self.input_console: pix.Console | None
 
@@ -97,6 +100,7 @@ class Talkie:
             mi = self.items["input"]
             con_size = pix.Int2(mi.width, mi.height) // tile_set.tile_size
             input_console = pix.Console(tile_set=tile_set, cols=con_size.x, rows=1)
+            input_console.cursor_color = (config.cursor_color << 8) | 0xFF
 
             lw = config.input_box_line
             self.screen.line_width = lw
@@ -119,12 +123,14 @@ class Talkie:
             self.input_console = input_console
 
         mi = self.items["main"]
+        print(f"MAIN SIZE {mi}")
         con_size = pix.Int2(mi.width, mi.height) // tile_set.tile_size
         self.console: Final = pix.Console(
             tile_set=tile_set, cols=con_size.x, rows=con_size.y
         )
         self.console.set_color(self.text_color, self.background_color)
         self.console.clear()
+        self.console.cursor_color = (config.cursor_color << 8) | 0xFF
         self.drawables.append(
             Drawable(
                 self.items["main"],
@@ -135,7 +141,9 @@ class Talkie:
         self.scan_lines: pix.Image | None = None
         if config.use_scanlines:
             height = int(screen.size.y)
-            img = make_scanline_texture(height, dark=0.0, pitch=4, offset=0, soft=True)
+            img = make_scanline_texture(
+                height, dark=0, pitch=scale, offset=0, soft=True
+            )
             self.scan_lines = pix.Image(
                 1,
                 [
@@ -143,6 +151,8 @@ class Talkie:
                     for t in img
                 ],
             )
+
+        self.canvas = pix.Image(size=screen.size // scale)
 
         font = pix.load_font(str(data / "SymbolsNerdFont-Regular.ttf"))
         sz = pix.Float2(48, 48)
@@ -160,8 +170,6 @@ class Talkie:
         else:
             self.console.read_line()
 
-        self.canvas = pix.Image(size=screen.size)
-
     def close(self):
         self.ai_player.close()
 
@@ -174,18 +182,17 @@ class Talkie:
             self.screen.draw_color = 0x00000080
             self.screen.filled_rect(top_left=(c.x, c.y), size=(c.width, c.height))
             self.screen.draw_color = pix.color.WHITE
-        img = self.items.get( "image" )
+        img = self.items.get("image")
         if img:
             sz = self.current_image.size
             while sz.y * 2 < img.height:
-               sz *= 2
+                sz *= 2
             while sz.y > img.height:
-               sz /= 2
+                sz /= 2
             xy = pix.Float2(img.x, img.y)
             isize = pix.Float2(img.width, img.height)
-            xy += (isize - sz)/2
+            xy += (isize - sz) / 2
             self.screen.draw(self.current_image, top_left=xy, size=sz)
-
 
     def update(self):
         self.upscaler.check_upscale()
@@ -201,7 +208,7 @@ class Talkie:
             )
         for drawable in self.drawables:
             drawable.draw(self.canvas)
-        self.screen.draw(self.canvas)
+        self.screen.draw(self.canvas, size=self.screen.size)
 
         # Handle keyboard input
         if pix.was_pressed(pix.key.ESCAPE):
