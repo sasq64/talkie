@@ -87,7 +87,7 @@ def main():
     client = OpenAI(api_key=api_key)
     container[OpenAI] = client
 
-    container[FileCache] = FileCache(
+    container[FileCache] = lambda : FileCache(
         name="talkie", source=args.game_file.with_suffix("").name
     )
 
