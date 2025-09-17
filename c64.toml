@@ -13,7 +13,7 @@ scale=3
 
 layout="""
 <window layout="vert">
-  <border fill="border" layout="vert" border="40">
+  <border layout="vert" border="40">
     <main/>
   </border>
 </window>

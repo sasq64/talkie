@@ -2,9 +2,7 @@ import logging
 from concurrent.futures import Future  # noqa: TC003
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final
-
-from typing import TypedDict
+from typing import Final, TypedDict
 
 from pixtools import ImageGen, TextToSpeech
 from pixtools.voice_recorder import VoiceToText

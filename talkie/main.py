@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 import logging
+from argparse import Action, ArgumentParser
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, Any, cast
 
 import jsonargparse
 import pixpy as pix
 from lagom import Container
 from openai import OpenAI
-from pixtools import ImageGen, OpenAIClient, TextToSpeech
+from pixtools import OpenAIClient, TextToSpeech
 from pixtools.audio_player import AudioPlayer
 from pixtools.cache import FileCache
 from pixtools.openaiclient import GptModel
@@ -40,9 +41,23 @@ def bind[T](self: Container, typ: type[T], t: T) -> Resolver:
 
 logger = logging.getLogger()
 
+if TYPE_CHECKING:
+    ParserBase = ArgumentParser
+    YesNoAction = type[Action]
+else:
+    ParserBase = cast("type[ArgumentParser]", jsonargparse.ArgumentParser)
+    YesNoAction = cast("type[Action]", jsonargparse.ActionYesNo)
+
+
+class ParserWithYesNo(ParserBase):
+    def add_argument(self, *args: str, **kwargs: Any) -> Action:
+        if kwargs.get("type") is bool:
+            kwargs.pop("type")
+            kwargs["action"] = YesNoAction
+        return super().add_argument(*args, **kwargs)
 
 def main():
-    # args = tyro.cli(TalkieConfig)
+    # args = tyro.cli(TalkieConfig )
     jsonargparse.set_parsing_settings(docstring_parse_attribute_docstrings=True)
 
     # Load prompts.toml from talkie/data as default config
@@ -51,6 +66,7 @@ def main():
         "TalkieConfig",
         jsonargparse.auto_cli(  # pyright: ignore[reportUnknownMemberType]
             TalkieConfig,
+            parser_class=ParserWithYesNo,  # pyright: ignore[reportArgumentType]
             as_positional=True,
             parser_mode="toml",
             default_config_files=[

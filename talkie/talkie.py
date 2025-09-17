@@ -77,7 +77,7 @@ class Talkie:
         self.text_color = (config.text_color << 8) | 0xFF
         self.input_color = (config.input_color << 8) | 0xFF
         self.input_bgcolor = (config.input_bgcolor << 8) | 0xFF
-        self.background_color = (config.background_color << 8) | 0xFF
+        self.background_color = (config.background_color << 8) | 0x00
         self.border_color = (config.border_color << 8) | 0xFF
         self.input_box_color = (config.input_box_color << 8) | 0xFF
 
@@ -85,12 +85,6 @@ class Talkie:
             self.background_color = 0x505050FF
 
         self.drawables: list[Drawable] = []
-
-        if "border" in self.items:
-            self.drawables.append(
-                Drawable(self.items["border"], lambda s, xy, sz: s.filled_rect(xy, sz))
-            )
-            self.drawables[-1].color = self.border_color
 
         self.input_console: pix.Console | None
 
@@ -102,13 +96,14 @@ class Talkie:
             input_console = pix.Console(tile_set=tile_set, cols=con_size.x, rows=1)
             input_console.cursor_color = (config.cursor_color << 8) | 0xFF
 
-            lw = config.input_box_line
-            self.screen.line_width = lw
-            d = Drawable(
-                self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (lw, lw))
-            )
-            d.color = self.input_box_color
-            self.drawables.append(d)
+            if "pane" in self.items:
+                lw = config.input_box_line
+                self.screen.line_width = lw
+                d = Drawable(
+                    self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (lw, lw))
+                )
+                d.color = self.input_box_color
+                self.drawables.append(d)
 
             input_console.set_color(self.input_color, self.input_bgcolor)
             input_console.clear()
@@ -202,10 +197,9 @@ class Talkie:
             self.screen.draw_color = 0xFFFF_FFFF
         else:
             self.screen.clear(
-                self.border_color
-                if self.border > pix.Float2.ZERO
-                else self.background_color
+                self.background_color
             )
+        self.canvas.clear(self.border_color)
         for drawable in self.drawables:
             drawable.draw(self.canvas)
         self.screen.draw(self.canvas, size=self.screen.size)

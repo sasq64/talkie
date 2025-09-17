@@ -1,7 +1,5 @@
-text_font="data/Jetbrains.ttf"
-
 layout="""
-<window layout="vert" size="1280x1024">
+<window layout="vert">
   <border layout="vert" border="5">
     <main/>
     <pane border="12">
