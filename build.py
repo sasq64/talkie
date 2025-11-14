@@ -10,12 +10,15 @@ import sys
 from pathlib import Path
 
 
-def run_command(cmd, cwd=None, check=True):
+def run_command(cmd_in: list[str | Path], cwd: Path | None = None, check: bool = True):
     """Run a command and return the result."""
+
+    cmd = list([str(c) for c in cmd_in])
+    cwd2 = str(cwd) if cwd else None
     print(f"Running: {' '.join(cmd)} {'(in ' + str(cwd) + ')' if cwd else ''}")
     try:
         result = subprocess.run(
-            cmd, cwd=cwd, check=check, capture_output=True, text=True
+            cmd, cwd=cwd2, check=check, capture_output=True, text=True
         )
         if result.stdout:
             print(result.stdout)
@@ -37,7 +40,7 @@ def main():
     target_dir = project_root / "talkie" / "data"
 
     # List of subdirectories in tools to build
-    build_subdirs = ["level9", "Magnetic"]
+    build_subdirs = ["level9", "Magnetic", "frotz"]
 
     # Ensure build directory exists
     build_dir.mkdir(exist_ok=True)
@@ -54,13 +57,15 @@ def main():
 
         print(f"Building {subdir}...")
 
-        # Run cmake configure
-        cmake_configure_cmd = ["cmake", str(subdir_path)]
-        run_command(cmake_configure_cmd, cwd=subdir_build_dir)
-
-        # Run cmake build
-        cmake_build_cmd = ["cmake", "--build", "."]
-        run_command(cmake_build_cmd, cwd=subdir_build_dir)
+        if (subdir_path / "CMakeLists.txt").exists():
+            # Run cmake configure
+            cmake_configure_cmd = ["cmake", str(subdir_path)]
+            run_command(cmake_configure_cmd, cwd=subdir_build_dir)
+            # Run cmake build
+            cmake_build_cmd = ["cmake", "--build", "."]
+            run_command(cmake_build_cmd, cwd=subdir_build_dir)
+        else:
+            run_command(["make", "-C", subdir_path, "dfrotz"])
 
     # Find and copy the level9 binary
     level9_binary = build_dir / "level9" / "level9"
@@ -73,6 +78,12 @@ def main():
     target_path = target_dir / "magnetic"
     print(f"Copying {magnetic_binary} to {target_path}")
     shutil.copy2(magnetic_binary, target_path)
+    target_path.chmod(0o755)
+
+    frotz_binary = tools_dir / "frotz" / "dfrotz"
+    target_path = target_dir / "dfrotz"
+    print(f"Copying {frotz_binary} to {target_path}")
+    shutil.copy2(frotz_binary, target_path)
     target_path.chmod(0o755)
 
 
