@@ -56,6 +56,7 @@ class ParserWithYesNo(ParserBase):
             kwargs["action"] = YesNoAction
         return super().add_argument(*args, **kwargs)
 
+
 def main():
     # args = tyro.cli(TalkieConfig )
     jsonargparse.set_parsing_settings(docstring_parse_attribute_docstrings=True)
@@ -103,7 +104,7 @@ def main():
     client = OpenAI(api_key=api_key)
     container[OpenAI] = client
 
-    container[FileCache] = lambda : FileCache(
+    container[FileCache] = lambda: FileCache(
         name="talkie", source=args.game_file.with_suffix("").name
     )
 

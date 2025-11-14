@@ -3,6 +3,7 @@ from collections.abc import Callable
 from importlib import resources
 from pathlib import Path
 from typing import Final
+from array import array
 
 import pixpy as pix
 
@@ -12,7 +13,11 @@ from .scanlines import make_scanline_texture
 from .talkie_config import TalkieConfig
 from .upscale import Upscaler
 from .utils.nerd import Nerd
-from .utils.wrap import wrap_lines
+from .utils.wrap import wrap_array, wrap_lines
+
+
+def invert(color: int) -> int:
+    return (0xFFFFFF00 - (color & 0xFFFFFF00)) | (color & 0xFF)
 
 
 class Drawable:
@@ -22,6 +27,7 @@ class Drawable:
         draw_cb: Callable[[pix.Canvas, pix.Float2, pix.Float2], None],
     ):
         self.rect = rect
+        self.visible = True
         self.draw_cb = draw_cb
         self.color = pix.color.WHITE
 
@@ -31,6 +37,8 @@ class Drawable:
         xy: pix.Float2 | None = None,
         size: pix.Float2 | None = None,
     ):
+        if not self.visible:
+            return
         xy = xy or pix.Float2(self.rect.x, self.rect.y)
         size = size or pix.Float2(self.rect.width, self.rect.height)
         screen.draw_color = self.color
@@ -47,27 +55,13 @@ class Talkie:
         self.screen: Final = screen
         data = resources.files("talkie.data")
         font_path = config.text_font or data / "3270.ttf"
-        tile_set = pix.TileSet(font_file=str(font_path), size=config.text_size)
-        print(tile_set.tile_size)
+        self.font = pix.load_font(str(font_path))
+        self.text_size = config.text_size
+        self.tile_set = pix.TileSet(font=self.font, size=config.text_size)
 
-        scale = config.scale
-
-        print(config.layout)
-        layout = Layout(config.layout)
-        fh = 0 if config.inline_input else tile_set.tile_size.y
-        layout.set_size("input", height=fh)
-        w, h = (screen.size // scale).toi()
-        self.rects = layout.layout(w, h)
-
-        self.upscaler = Upscaler()
-
-        self.items: dict[str, Rectangle] = {}
-
-        for r in self.rects:
-            self.items[r.name] = r
-            print(r)
-
-        self.border = pix.Float2(config.border_size, config.border_size)
+        self.config = config
+        self.margins: list[float] = [0, 0.02, 0.05, 0.1, 0.2]
+        self.key_mode = False
 
         self.bg: pix.Image | None = None
         if config.background_image:
@@ -84,70 +78,22 @@ class Talkie:
         if self.bg and self.background_color == 0xFF:
             self.background_color = 0x505050FF
 
-        self.drawables: list[Drawable] = []
+        self.upscaler = Upscaler()
 
-        self.input_console: pix.Console | None
+        self.border = pix.Float2(config.border_size, config.border_size)
 
-        if config.inline_input:
-            self.input_console = None
-        else:
-            mi = self.items["input"]
-            con_size = pix.Int2(mi.width, mi.height) // tile_set.tile_size
-            input_console = pix.Console(tile_set=tile_set, cols=con_size.x, rows=1)
-            input_console.cursor_color = (config.cursor_color << 8) | 0xFF
-
-            if "pane" in self.items:
-                lw = config.input_box_line
-                self.screen.line_width = lw
-                d = Drawable(
-                    self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (lw, lw))
-                )
-                d.color = self.input_box_color
-                self.drawables.append(d)
-
-            input_console.set_color(self.input_color, self.input_bgcolor)
-            input_console.clear()
-            self.drawables.append(
-                Drawable(
-                    self.items["input"],
-                    lambda s, xy, _: s.draw(
-                        input_console, xy - (2, 2), input_console.size
-                    ),
-                )
-            )
-            self.input_console = input_console
-
-        mi = self.items["main"]
-        print(f"MAIN SIZE {mi}")
-        con_size = pix.Int2(mi.width, mi.height) // tile_set.tile_size
-        self.console: Final = pix.Console(
-            tile_set=tile_set, cols=con_size.x, rows=con_size.y
-        )
-        self.console.set_color(self.text_color, self.background_color)
-        self.console.clear()
-        self.console.cursor_color = (config.cursor_color << 8) | 0xFF
-        self.drawables.append(
-            Drawable(
-                self.items["main"],
-                lambda s, xy, _: s.draw(self.console, xy, self.console.size),
-            )
+        print(config.layout)
+        self.layout = Layout(config.layout)
+        self.console = pix.Console(tile_set=self.tile_set, cols=10, rows=10)
+        self.input_console: pix.Console = pix.Console(
+            tile_set=self.tile_set, cols=10, rows=1
         )
 
-        self.scan_lines: pix.Image | None = None
-        if config.use_scanlines:
-            height = int(screen.size.y)
-            img = make_scanline_texture(
-                height, dark=0, pitch=scale, offset=0, soft=True
-            )
-            self.scan_lines = pix.Image(
-                1,
-                [
-                    pix.blend_color(pix.color.BLACK, pix.color.WHITE, t) | 0xFF
-                    for t in img
-                ],
-            )
+        self.lines: list[array[int]] = []
+        # self.lines: list[str] = []
+        self.top: int = 0
 
-        self.canvas = pix.Image(size=screen.size // scale)
+        self.do_layout()
 
         font = pix.load_font(str(data / "SymbolsNerdFont-Regular.ttf"))
         sz = pix.Float2(48, 48)
@@ -160,29 +106,131 @@ class Talkie:
 
         self.ai_player: Final = ai_player
         self.current_image: None | pix.Image = None
-        if self.input_console:
-            self.input_console.read_line()
-        else:
-            self.console.read_line()
+        self.input_console.read_line()
+
+    def do_layout(self):
+
+        fh = self.tile_set.tile_size.y
+        self.layout.set_size("input", height=fh)
+
+        scale = self.config.scale
+        w, h = (self.screen.size // scale).toi()
+        self.rects = self.layout.layout(w, h)
+        self.items: dict[str, Rectangle] = {}
+
+        for r in self.rects:
+            self.items[r.name] = r
+            # print(r)
+
+        self.drawables: list[Drawable] = []
+
+        mi = self.items["input"]
+        con_size = pix.Int2(mi.width, mi.height) // self.tile_set.tile_size
+        edit_line = self.input_console.edit_line
+        edit_pos = self.input_console.edit_pos
+        self.input_console.cancel_line()
+        self.input_console = pix.Console(
+            tile_set=self.tile_set, cols=con_size.x, rows=1
+        )
+        self.input_console.cursor_color = (self.config.cursor_color << 8) | 0xFF
+
+        self.pane_drawable: Drawable | None = None
+        if "pane" in self.items:
+            lw = self.config.input_box_line
+            self.screen.line_width = lw
+            d = Drawable(
+                self.items["pane"], lambda s, xy, sz: s.rect(xy, sz - (lw, lw))
+            )
+            d.color = self.input_box_color
+            self.drawables.append(d)
+            self.pane_drawable = self.drawables[-1]
+
+        mi = self.items["main"]
+        print(f"MAIN SIZE {mi}")
+        con_size = pix.Int2(mi.width, mi.height) // self.tile_set.tile_size
+        self.console = pix.Console(
+            tile_set=self.tile_set, cols=con_size.x, rows=con_size.y
+        )
+
+        self.console.autoscroll = False
+        self.console.set_color(self.text_color, self.background_color)
+        self.console.clear()
+        self.console.cursor_color = (self.config.cursor_color << 8) | 0xFF
+
+        self.input_console.set_color(self.input_color, self.input_bgcolor)
+        self.input_console.clear()
+        self.input_console.cursor_pos = (0, 0)
+        self.input_console.cursor_on = True
+        self.input_console.read_line()
+        self.input_console.set_line(edit_line)
+        self.input_console.edit_pos = edit_pos
+
+        self.drawables.append(
+            Drawable(
+                self.items["input"],
+                lambda s, xy, _: s.draw(
+                    self.input_console, xy - (2, 2), self.input_console.size
+                ),
+            )
+        )
+        self.input_drawable = self.drawables[-1]
+
+        self.refresh()
+
+        self.drawables.append(
+            Drawable(
+                self.items["main"],
+                lambda s, xy, _: s.draw(self.console, xy, self.console.size),
+            )
+        )
+        self.canvas = pix.Image(size=self.screen.size // scale)
+
+        self.scan_lines: pix.Image | None = None
+        if self.config.use_scanlines:
+            height = int(self.screen.size.y)
+            img = make_scanline_texture(
+                height, dark=0, pitch=scale, offset=0, soft=True
+            )
+            self.scan_lines = pix.Image(
+                1,
+                [
+                    pix.blend_color(pix.color.BLACK, pix.color.WHITE, t) | 0xFF
+                    for t in img
+                ],
+            )
+
+        self.input_drawable.visible = not self.key_mode
+        if self.pane_drawable:
+            self.pane_drawable.visible = not self.key_mode
 
     def close(self):
         self.ai_player.close()
+
+    def toggle_image(self):
+        imgc = self.layout.find("imgcontainer")
+        if imgc:
+            a = imgc.attributes.get("nospace")
+            if a == "true":
+                imgc.attributes["nospace"] = "false"
+            else:
+                imgc.attributes["nospace"] = "true"
+            self.do_layout()
 
     def render_game_image(self):
         if not self.current_image:
             return
 
         c = self.items.get("imgcontainer")
-        if c:
-            self.screen.draw_color = 0x00000080
-            self.screen.filled_rect(top_left=(c.x, c.y), size=(c.width, c.height))
-            self.screen.draw_color = pix.color.WHITE
+        # if c:
+        #     self.screen.draw_color = 0x00000080
+        #     self.screen.filled_rect(top_left=(c.x, c.y), size=(c.width, c.height))
+        #     self.screen.draw_color = pix.color.WHITE
         img = self.items.get("image")
         if img:
             sz = self.current_image.size
-            while sz.y * 2 < img.height:
+            while sz.y * 2 < img.height and sz.x * 2 < img.width:
                 sz *= 2
-            while sz.y > img.height:
+            while sz.y > img.height and sz.x < img.width:
                 sz /= 2
             xy = pix.Float2(img.x, img.y)
             isize = pix.Float2(img.width, img.height)
@@ -190,15 +238,21 @@ class Talkie:
             self.screen.draw(self.current_image, top_left=xy, size=sz)
 
     def update(self):
+
+        km = self.ai_player.key_mode()
+        if km != self.key_mode:
+            self.key_mode = km
+            self.input_drawable.visible = not km
+            if self.pane_drawable:
+                self.pane_drawable.visible = not km
+
         self.upscaler.check_upscale()
         if self.bg:
             self.screen.draw_color = self.background_color
             self.screen.draw(self.bg, top_left=(0, 0), size=self.screen.size)
             self.screen.draw_color = 0xFFFF_FFFF
         else:
-            self.screen.clear(
-                self.background_color
-            )
+            self.screen.clear(self.background_color)
         self.canvas.clear(self.border_color)
         for drawable in self.drawables:
             drawable.draw(self.canvas)
@@ -241,35 +295,118 @@ class Talkie:
             elif isinstance(output, TextOutput):
                 self.write(output.text)
 
-    def write(self, text: str):
-        reading_line = self.console.reading_line
-        if reading_line:
-            self.console.cancel_line()
-        for line in wrap_lines(text.splitlines(), self.console.grid_size.x - 1):
-            self.console.write(line + "\n")
-        if reading_line:
-            self.console.write("\n")
-            self.console.cursor_pos = self.console.cursor_pos.with_x0
-            self.console.write(self.edit_prefix)
-            self.console.read_line()
+    def refresh(self):
+        n = self.top
+        y = 0
+        self.console.clear()
+        self.console.cursor_pos = (0, 0)
+        w = self.console.grid_size.x - 1
+        h = self.console.grid_size.y - 1
+        lines: list[array[int]] = []
+        n = len(self.lines) - 1
+        print("## REFRESH")
+        space = array("Q", [0x20])
+        while n >= 0:
+            line = self.lines[n]
+            n -= 1
+            screen_lines = wrap_array([line], w, space)
+            screen_lines.reverse()
+            for screen_line in screen_lines:
+                lines.append(screen_line)
+                y += 1
+                if y >= h:
+                    break
+            if y >= h:
+                break
+        lines.reverse()
+        pos = pix.Int2(0, 0)
+        for line in lines:
+            # self.console.set_color(self.text_color, self.background_color)
+            fg = self.text_color
+            bg = self.background_color
+            for c in line:
+                self.console.put(pos, c & 0xFFFFFFFF, (c >> 24) | 0xFF, bg)
+                pos += (1, 0)
+            pos = pos.with_x0 + (0, 1)
+
+    def write(self, text: str, color: int | None = None):
+        print(f"WRITE '{text}'")
+        if color is None:
+            color = self.text_color
+        color = (color >> 8) << 32
+        add = len(self.lines) > 0
+        for line in text.splitlines():
+            a = array("Q", [ord(c) | color for c in line])
+            if add:
+                self.lines[-1].extend(a)
+                add = False
+            else:
+                self.lines.append(a)
+        if text.endswith("\n"):
+            self.lines.append(array("Q"))
+        self.refresh()
+
+    def ctrl_commands(self, key: str):
+        if key == "-":
+            self.text_size -= 2
+            self.tile_set = pix.TileSet(font=self.font, size=self.text_size)
+        elif key == "=" or key == "+":
+            self.text_size += 2
+            self.tile_set = pix.TileSet(font=self.font, size=self.text_size)
+        elif key == "p":
+            self.toggle_image()
+        elif key == "l":
+            self.background_color = invert(self.background_color)
+            self.text_color = invert(self.text_color)
+            self.input_color = invert(self.input_color)
+            self.input_bgcolor = invert(self.input_bgcolor)
+            self.border_color = invert(self.border_color)
+            new_lines: list[array[int]] = []
+            for line in self.lines:
+                nl = array(
+                    "Q",
+                    [
+                        (i & 0xFFFFFFFF) | (0xFFFFFF00000000 - (i & 0xFFFFFF00000000))
+                        for i in line
+                    ],
+                )
+                new_lines.append(nl)
+            self.lines = new_lines
+
+        elif key == "m":
+            self.margins = self.margins[1:] + self.margins[:1]
+            m = int(self.margins[0] * self.screen.width)
+            self.layout.set_size("left", m, None)
+            self.layout.set_size("right", m, None)
+        else:
+            return
+        self.do_layout()
 
     def update_events(self, events: list[pix.event.AnyEvent]):
         # Handle text input events
         for e in events:
+            if isinstance(e, pix.event.Resize):
+                self.do_layout()
+
             if isinstance(e, pix.event.Key):
-                print(f"{e.key}")
+                if e.mods:
+                    self.ctrl_commands(chr(e.key))
+
+                print(f"KEY {e.key}")
                 if e.key == pix.key.ESCAPE:
                     self.current_image = None
-                if e.key < 0x1000 and self.ai_player.key_mode():
-                    print("KEY")
+                elif e.key < 0x1000 and self.key_mode:
                     self.ai_player.write_command(chr(e.key))
 
             if isinstance(e, pix.event.Text):
-                self.console.cursor_pos = self.console.cursor_pos.with_x0
-                self.console.write(self.prefix)
-                self.console.set_color(self.input_color, self.background_color)
-                self.console.write(e.text)
-                self.console.set_color(self.text_color, self.background_color)
+                print(f"TEXT {e.text}")
+                # self.write("\n" + self.prefix)
+                self.write(e.text, self.input_color)
+                # self.console.cursor_pos = self.console.cursor_pos.with_x0
+                # self.console.write(self.prefix)
+                # self.console.set_color(self.input_color, self.background_color)
+                # self.console.write(e.text)
+                # self.console.set_color(self.text_color, self.background_color)
 
                 if e.text[0] == "/":
                     cmd = e.text[1:].strip()

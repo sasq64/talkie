@@ -38,7 +38,7 @@ class IFPlayer:
         self.key_mode: bool = False
 
         if re.search(r"\.z(ode|[123456789])$", file_name.name):
-            args = ["dfrotz", "-m", "-w", "1000", file_name.as_posix()]
+            args = [str(data / "dfrotz"), "-m", "-w", "255", file_name.as_posix()]
         elif re.search(r"\.l9$", file_name.name):
             if gfx_path:
                 gfx_str = gfx_path.as_posix()
@@ -106,7 +106,7 @@ class IFPlayer:
 
     def _handle_output(self) -> IFOutput | None:
         # We add delays between input so we have time to get ouput first.
-        # TODO: Investigate better way to accomplish that is using time
+        # TODO: Investigate better way to accomplish that than using time
         if not self.input_queue.empty() and time.time() - self.last_write > 0.4:
             data = self.input_queue.get_nowait()
             self.last_write = time.time()
@@ -118,10 +118,13 @@ class IFPlayer:
             return None
 
         # We have a full set of text
+
+        # Handle meta commands
+
         meta = re.compile(r"#\[(.*?)\]\n?")
-        text = trim_lines(self.text_output)
+        # text = trim_lines(self.text_output)
         found_gfx = False
-        for line in text.splitlines():
+        for line in self.text_output.splitlines():
             for m in re.finditer(meta, line):
                 match = m.group(1)
                 if match == "keymode":
@@ -131,8 +134,15 @@ class IFPlayer:
                 if self.image_drawer.add_text_command(match):
                     found_gfx = True
 
-        text = meta.sub("", text)
+        # Remove meta
+        text = meta.sub("", self.text_output)
 
+        image = self.image_drawer.get_image() if found_gfx else None
+        output = IFOutput(text, self.text_output, image)
+        self.text_output = ""
+        return output
+
+    def frotz_fix(self, text: str):
         text = unwrap_text(text)
         ps = text.split("\n\n")
         if len(ps) > 2:

@@ -49,7 +49,7 @@ def parse_adventure_description(text: str) -> dict[str, str]:
             "trademark": r"^.*trademark.*nfocom.*$",
             "release": r"^Release.*Serial.*$",
             "warning": r"^Warning:.*$",
-            "prompt": r"\n+>",
+            # "prompt": r"\n+>",
             "copyright": r"^Copyright (.*)$",
         },
     )
@@ -62,18 +62,22 @@ def unwrap_text(text: str, colum: int = 200) -> str:
 
     pattern = re.compile(r"[.?!>:]$")
     new_lines: list[str] = []
-    last_line: str = ""
+    long_line: str = ""
     for line in text.splitlines():
         if len(line) > colum and not pattern.search(line):
-            last_line = last_line + " " + line if last_line != "" else line
+            long_line = long_line + " " + line if long_line != "" else line
         else:
-            if last_line != "":
-                new_lines.append(last_line + " " + line)
-                last_line = ""
+            if long_line != "":
+                if long_line[0] == ">":
+                    new_lines.append(long_line)
+                    new_lines.append(line)
+                else:
+                    new_lines.append(long_line + " " + line)
+                long_line = ""
             else:
                 new_lines.append(line)
-    if last_line != "":
-        new_lines.append(last_line)
+    if long_line != "":
+        new_lines.append(long_line)
 
     return "\n".join(new_lines)
 

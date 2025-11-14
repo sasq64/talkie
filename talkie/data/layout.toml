@@ -1,13 +1,15 @@
 layout="""
-<window layout="vert">
+<window layout="horiz">
+  <left size="40x"/>
   <border layout="vert" border="5">
+    <imgcontainer nospace="false" size="x60%">
+      <image/>
+    </imgcontainer>
     <main/>
     <pane border="12">
       <input size="x40"/>
     </pane>
-  <imgcontainer nospace="true">
-    <image/>
-  </imgcontainer>
   </border>
+  <right size="40x"/>
 </window>
 """  

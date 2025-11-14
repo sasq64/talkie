@@ -21,12 +21,15 @@ This is the transription:
 # This prompt is used when generating image from room descriptions.
 image_prompt="""
 Following is a description of a scene from a interactive fiction (text adventure). Generate an image to go with it. Use a 80s retro semi realistic style. Don't include too many details.
-NOTE:
-* Do not include distinct objects in the foreground that are not part of the description.
-* Only include texts that clearly are from a sign. Do *not* inlcude *any* text unless it is from a sign.
 ```
 {text}
 ```
+
+RULES:
+* Do not include text in the image.
+* Do not include distinct objects in the foreground that are not part of the description.
+* Do not include text in the image.
+
 """
 
 whisper_prompt="""

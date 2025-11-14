@@ -37,7 +37,7 @@ class TalkieConfig:
 
     input_color: int = HexInt(0x8080FF)
     input_bgcolor: int = HexInt(0x000000)
-    input_box_color: int = HexInt(0x000080)
+    input_box_color: int = HexInt(0x8020C0)
     border_color: int = HexInt(0x000000)
     """The color of everything that is not a text area"""
 
@@ -54,7 +54,7 @@ class TalkieConfig:
     scale: float = 1
 
     text_font: Path | None = None
-    text_size: int = 28
+    text_size: int = 24
     border_size: int = 8
     inline_input: bool = True
     """Read input inline with text (oldschool) instead of bottom of screen"""
