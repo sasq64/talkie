@@ -1,16 +1,15 @@
 #!/usr/bin/env python
+from array import array
 from collections.abc import Callable
 from importlib import resources
 from pathlib import Path
 from typing import Final
-from array import array
 
 import pixpy as pix
 
-from .line_console import LineConsole
-
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .layout import Layout, Rectangle
+from .line_console import LineConsole
 from .scanlines import make_scanline_texture
 from .talkie_config import TalkieConfig
 from .upscale import Upscaler
@@ -47,6 +46,11 @@ class Drawable:
         self.draw_cb(screen, xy, size)
 
 
+IMAGE_OFF = 1
+IMAGE_HIDE = 2
+IMAGE_SHOW = 3
+
+
 class Talkie:
     def __init__(
         self,
@@ -64,6 +68,7 @@ class Talkie:
         self.config = config
         self.margins: list[float] = [0, 0.02, 0.05, 0.1, 0.2]
         self.key_mode = False
+        self.show_image = IMAGE_OFF
 
         self.bg: pix.Image | None = None
         if config.background_image:
@@ -92,10 +97,9 @@ class Talkie:
             tile_set=self.tile_set, cols=10, rows=1
         )
 
-        self.lines: list[array[int]] = []
-        # self.lines: list[str] = []
-        self.top: int = 0
-
+        imgc = self.layout.find("imgcontainer")
+        if imgc:
+            imgc.attributes["nospace"] = "true"
         self.do_layout()
 
         font = pix.load_font(str(data / "SymbolsNerdFont-Regular.ttf"))
@@ -151,9 +155,8 @@ class Talkie:
         mi = self.items["main"]
         print(f"MAIN SIZE {mi}")
         con_size = pix.Int2(mi.width, mi.height) // self.tile_set.tile_size
-        self.console = LineConsole(
-            tile_set=self.tile_set, cols=con_size.x, rows=con_size.y
-        )
+
+        self.console.resize(con_size.x, con_size.y)
 
         # self.console.set_color(self.text_color, self.background_color)
         # self.console.cursor_color = (self.config.cursor_color << 8) | 0xFF
@@ -181,7 +184,7 @@ class Talkie:
         self.drawables.append(
             Drawable(
                 self.items["main"],
-                lambda s, xy, _: s.draw(self.console, xy, self.console.size),
+                lambda s, xy, _: self.console.draw(s, xy, self.console.size),
             )
         )
         self.canvas = pix.Image(size=self.screen.size // scale)
@@ -208,24 +211,23 @@ class Talkie:
         self.ai_player.close()
 
     def toggle_image(self):
+        if self.show_image == IMAGE_OFF:
+            return
         imgc = self.layout.find("imgcontainer")
         if imgc:
             a = imgc.attributes.get("nospace")
             if a == "true":
                 imgc.attributes["nospace"] = "false"
+                self.show_image = IMAGE_SHOW
             else:
                 imgc.attributes["nospace"] = "true"
+                self.show_image = IMAGE_HIDE
             self.do_layout()
 
     def render_game_image(self):
-        if not self.current_image:
+        if not self.current_image or self.show_image != IMAGE_SHOW:
             return
 
-        c = self.items.get("imgcontainer")
-        # if c:
-        #     self.screen.draw_color = 0x00000080
-        #     self.screen.filled_rect(top_left=(c.x, c.y), size=(c.width, c.height))
-        #     self.screen.draw_color = pix.color.WHITE
         img = self.items.get("image")
         if img:
             sz = self.current_image.size
@@ -279,18 +281,14 @@ class Talkie:
         # Process game output
         self.ai_player.update()
 
-        # if self.ai_player.key_mode() and self.console.reading_line:
-        #    self.console.cancel_line()
-        #    cp = self.console.cursor_pos
-        #    self.console.clear_area(0, cp.y, self.console.grid_size.x, 1)
-        # elif not self.ai_player.key_mode() and not self.console.reading_line:
-        #     self.console.write("\n>")
-        #     self.console.read_line()
-
         output = self.ai_player.get_next_output()
         if output:
             if isinstance(output, ImageOutput):
                 self.current_image = pix.load_png(str(output.file_name))
+                if self.show_image == IMAGE_OFF:
+                    self.show_image = IMAGE_HIDE
+                    self.toggle_image()
+                    self.do_layout()
             elif isinstance(output, PromptOutput):
                 self.write(output.text + "\n")
             elif isinstance(output, TextOutput):
@@ -305,10 +303,14 @@ class Talkie:
     def ctrl_commands(self, key: str):
         if key == "-":
             self.text_size -= 2
-            self.tile_set = pix.TileSet(font=self.font, size=self.text_size)
+            self.tile_set = self.console.tile_set = pix.TileSet(
+                font=self.font, size=self.text_size
+            )
         elif key == "=" or key == "+":
             self.text_size += 2
-            self.tile_set = pix.TileSet(font=self.font, size=self.text_size)
+            self.tile_set = self.console.tile_set = pix.TileSet(
+                font=self.font, size=self.text_size
+            )
         elif key == "p":
             self.toggle_image()
         elif key == "l":
@@ -317,17 +319,7 @@ class Talkie:
             self.input_color = invert(self.input_color)
             self.input_bgcolor = invert(self.input_bgcolor)
             self.border_color = invert(self.border_color)
-            new_lines: list[array[int]] = []
-            for line in self.lines:
-                nl = array(
-                    "Q",
-                    [
-                        (i & 0xFFFFFFFF) | (0xFFFFFF00000000 - (i & 0xFFFFFF00000000))
-                        for i in line
-                    ],
-                )
-                new_lines.append(nl)
-            self.lines = new_lines
+            self.console.reverse_color()
 
         elif key == "m":
             self.margins = self.margins[1:] + self.margins[:1]
@@ -356,13 +348,7 @@ class Talkie:
 
             if isinstance(e, pix.event.Text):
                 print(f"TEXT {e.text}")
-                # self.write("\n" + self.prefix)
                 self.write(e.text, self.input_color)
-                # self.console.cursor_pos = self.console.cursor_pos.with_x0
-                # self.console.write(self.prefix)
-                # self.console.set_color(self.input_color, self.background_color)
-                # self.console.write(e.text)
-                # self.console.set_color(self.text_color, self.background_color)
 
                 if e.text[0] == "/":
                     cmd = e.text[1:].strip()
@@ -375,7 +361,4 @@ class Talkie:
                 else:
                     self.ai_player.stop_audio()
                     self.ai_player.write_command(e.text)
-                if self.input_console:
-                    self.input_console.read_line()
-                else:
-                    self.console.read_line()
+                self.input_console.read_line()

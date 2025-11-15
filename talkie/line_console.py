@@ -1,4 +1,5 @@
 from array import array
+
 import pixpy as pix
 
 from talkie.utils.wrap import wrap_array
@@ -15,10 +16,30 @@ class LineConsole:
         self.fg_color = pix.color.WHITE
         self.bg_color = pix.color.BLACK
 
+    @property
+    def size(self):
+        return self.console.size
+
     def resize(self, cols: int, rows: int):
         self.console = pix.Console(tile_set=self.tile_set, cols=cols, rows=rows)
         self.console.autoscroll = False
         self.refresh()
+
+    def draw(self, screen: pix.Canvas, xy: pix.Float2, size: pix.Float2):
+        screen.draw(self.console, xy, size)
+
+    def reverse_color(self):
+        new_lines: list[array[int]] = []
+        for line in self.lines:
+            nl = array(
+                "Q",
+                [
+                    (i & 0xFFFFFFFF) | (0xFFFFFF00000000 - (i & 0xFFFFFF00000000))
+                    for i in line
+                ],
+            )
+            new_lines.append(nl)
+        self.lines = new_lines
 
     def refresh(self):
         n = self.top
