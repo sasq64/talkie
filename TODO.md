@@ -58,4 +58,23 @@ Consider audio only.
 
 
 
+## AI CONVERSATION
+
+Input line -> AI
+
+Functions:
+ game_command()
+ ai_question()
+
+
+Question -> AI2
+
+  get_transcript()
+  find_game()
+  start_game()
+
+
+
+
+
 

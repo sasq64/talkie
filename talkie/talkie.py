@@ -7,6 +7,8 @@ from array import array
 
 import pixpy as pix
 
+from .line_console import LineConsole
+
 from .ai_player import AIPlayer, ImageOutput, PromptOutput, TextOutput
 from .layout import Layout, Rectangle
 from .scanlines import make_scanline_texture
@@ -84,7 +86,8 @@ class Talkie:
 
         print(config.layout)
         self.layout = Layout(config.layout)
-        self.console = pix.Console(tile_set=self.tile_set, cols=10, rows=10)
+        self.console = LineConsole(tile_set=self.tile_set, cols=10, rows=10)
+        # self.console = pix.Console(tile_set=self.tile_set, cols=10, rows=10)
         self.input_console: pix.Console = pix.Console(
             tile_set=self.tile_set, cols=10, rows=1
         )
@@ -148,14 +151,12 @@ class Talkie:
         mi = self.items["main"]
         print(f"MAIN SIZE {mi}")
         con_size = pix.Int2(mi.width, mi.height) // self.tile_set.tile_size
-        self.console = pix.Console(
+        self.console = LineConsole(
             tile_set=self.tile_set, cols=con_size.x, rows=con_size.y
         )
 
-        self.console.autoscroll = False
-        self.console.set_color(self.text_color, self.background_color)
-        self.console.clear()
-        self.console.cursor_color = (self.config.cursor_color << 8) | 0xFF
+        # self.console.set_color(self.text_color, self.background_color)
+        # self.console.cursor_color = (self.config.cursor_color << 8) | 0xFF
 
         self.input_console.set_color(self.input_color, self.input_bgcolor)
         self.input_console.clear()
@@ -296,55 +297,10 @@ class Talkie:
                 self.write(output.text)
 
     def refresh(self):
-        n = self.top
-        y = 0
-        self.console.clear()
-        self.console.cursor_pos = (0, 0)
-        w = self.console.grid_size.x - 1
-        h = self.console.grid_size.y - 1
-        lines: list[array[int]] = []
-        n = len(self.lines) - 1
-        print("## REFRESH")
-        space = array("Q", [0x20])
-        while n >= 0:
-            line = self.lines[n]
-            n -= 1
-            screen_lines = wrap_array([line], w, space)
-            screen_lines.reverse()
-            for screen_line in screen_lines:
-                lines.append(screen_line)
-                y += 1
-                if y >= h:
-                    break
-            if y >= h:
-                break
-        lines.reverse()
-        pos = pix.Int2(0, 0)
-        for line in lines:
-            # self.console.set_color(self.text_color, self.background_color)
-            fg = self.text_color
-            bg = self.background_color
-            for c in line:
-                self.console.put(pos, c & 0xFFFFFFFF, (c >> 24) | 0xFF, bg)
-                pos += (1, 0)
-            pos = pos.with_x0 + (0, 1)
+        self.console.refresh()
 
     def write(self, text: str, color: int | None = None):
-        print(f"WRITE '{text}'")
-        if color is None:
-            color = self.text_color
-        color = (color >> 8) << 32
-        add = len(self.lines) > 0
-        for line in text.splitlines():
-            a = array("Q", [ord(c) | color for c in line])
-            if add:
-                self.lines[-1].extend(a)
-                add = False
-            else:
-                self.lines.append(a)
-        if text.endswith("\n"):
-            self.lines.append(array("Q"))
-        self.refresh()
+        self.console.write(text, color)
 
     def ctrl_commands(self, key: str):
         if key == "-":

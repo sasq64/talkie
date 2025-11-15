@@ -8,9 +8,10 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Sequence
 
 
-def run_command(cmd_in: list[str | Path], cwd: Path | None = None, check: bool = True):
+def run_command(cmd_in: Sequence[str | Path], cwd: Path | None = None, check: bool = True):
     """Run a command and return the result."""
 
     cmd = list([str(c) for c in cmd_in])

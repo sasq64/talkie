@@ -25,6 +25,11 @@ class IFOutput:
     image: Path | None
 
 
+IS_FROTZ = 1
+IS_LEVEL9 = 2
+IS_MAGNETIC = 3
+
+
 class IFPlayer:
     def __init__(
         self, image_drawer: ImageDrawer, file_name: Path, gfx_path: Path | None = None
@@ -36,9 +41,13 @@ class IFPlayer:
         data = resources.files("talkie.data")
         self.image_drawer = image_drawer
         self.key_mode: bool = False
+        self.game = 0
 
-        if re.search(r"\.z(ode|[123456789])$", file_name.name):
+        if re.search(r"\.z(ode|[123456789]|blorb)$", file_name.name):
             args = [str(data / "dfrotz"), "-m", "-w", "255", file_name.as_posix()]
+            self.game = IS_FROTZ
+        elif re.search(r"\.gblorb$", file_name.name):
+            args = [str(data / "glulxe"), "-q", file_name.as_posix()]
         elif re.search(r"\.l9$", file_name.name):
             if gfx_path:
                 gfx_str = gfx_path.as_posix()
@@ -91,9 +100,7 @@ class IFPlayer:
 
     def read(self) -> IFOutput | None:
         """
-        Read stdout from running interpreter. Returns a dict containing
-        both the raw text and context aware parsing (like stripping the
-            status bar from frotz etc).
+        Read output from game process.
         """
         try:
             raw_text = self.output_queue.get_nowait()
@@ -102,9 +109,7 @@ class IFPlayer:
             self.last_result = time.time()
         except queue.Empty:
             pass
-        return self._handle_output()
 
-    def _handle_output(self) -> IFOutput | None:
         # We add delays between input so we have time to get ouput first.
         # TODO: Investigate better way to accomplish that than using time
         if not self.input_queue.empty() and time.time() - self.last_write > 0.4:
@@ -122,7 +127,6 @@ class IFPlayer:
         # Handle meta commands
 
         meta = re.compile(r"#\[(.*?)\]\n?")
-        # text = trim_lines(self.text_output)
         found_gfx = False
         for line in self.text_output.splitlines():
             for m in re.finditer(meta, line):
@@ -137,12 +141,15 @@ class IFPlayer:
         # Remove meta
         text = meta.sub("", self.text_output)
 
+        if self.game == IS_FROTZ:
+            text = self.frotz_fix(text)
+
         image = self.image_drawer.get_image() if found_gfx else None
         output = IFOutput(text, self.text_output, image)
         self.text_output = ""
         return output
 
-    def frotz_fix(self, text: str):
+    def frotz_fix(self, text: str) -> str:
         text = unwrap_text(text)
         ps = text.split("\n\n")
         if len(ps) > 2:
@@ -154,21 +161,19 @@ class IFPlayer:
                     break
             text = "\n\n".join(ps)
         fields = parse_adventure_description(text)
-        logger.debug(f"Parsed: '{text}' into:\n{fields}")
-        self.transcript.append((":", str(fields["text"])))
-        fields["full_text"] = self.text_output
-        image = self.image_drawer.get_image() if found_gfx else None
-        output = IFOutput(fields["text"], self.text_output, image)
-        self.text_output = ""
-        return output
+        return fields["text"]
+        # logger.debug(f"Parsed: '{text}' into:\n{fields}")
+        # self.transcript.append((":", str(fields["text"])))
+        # fields["full_text"] = self.text_output
 
     def get_image(self) -> Path:
         return self.image_drawer.get_image()
 
     def write(self, text: str):
-        """Write text line to stdin of running interpreter."""
+        """
+        Write text to stdin of running game.
+        """
         self.input_queue.put(text.encode())
-        print(f"IN:'{text}'")
         logger.info(f"IN: '{text}'")
         self.transcript.append((">", text))
 
