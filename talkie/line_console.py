@@ -6,7 +6,6 @@ from talkie.utils.wrap import wrap_array
 
 
 class LineConsole:
-
     def __init__(self, tile_set: pix.TileSet, cols: int, rows: int):
         self.tile_set = tile_set
         self.console = pix.Console(tile_set=self.tile_set, cols=cols, rows=rows)

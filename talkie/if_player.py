@@ -13,7 +13,7 @@ from typing import Final
 
 from talkie.image_drawer import ImageDrawer
 
-from .text_utils import parse_adventure_description, trim_lines, unwrap_text
+from .text_utils import parse_adventure_description, unwrap_text
 
 logger = getLogger(__name__)
 
@@ -53,9 +53,9 @@ class IFPlayer:
                 gfx_str = gfx_path.as_posix()
                 if gfx_path.is_dir():
                     gfx_str += "/"
-                args = [str(data / "l9"), file_name.as_posix(), gfx_str]
+                args = [str(data / "level9"), file_name.as_posix(), gfx_str]
             else:
-                args = [str(data / "l9"), file_name.as_posix()]
+                args = [str(data / "level9"), file_name.as_posix()]
         elif re.search(r"\.(mag|MAG)", file_name.name):
             if gfx_path:
                 args = [

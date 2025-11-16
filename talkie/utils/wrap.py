@@ -1,6 +1,7 @@
-from typing import TypeVar
-import pixpy as pix
 from array import array
+from typing import TypeVar
+
+import pixpy as pix
 
 
 def wrap_lines(lines: list[str], max_len: int, break_chars: str = " ") -> list[str]:
@@ -36,7 +37,6 @@ def wrap_text(text: str, font: pix.Font, size: int, width: float) -> list[str]:
     start = 0
     length = len(text)
 
-    # print(f"len {length}")
     while start < length:
         # Binary search for max character count fitting in width
         low = 1
@@ -56,8 +56,6 @@ def wrap_text(text: str, font: pix.Font, size: int, width: float) -> list[str]:
             else:
                 high = mid - 1
 
-        # print(f"break '{text}' at {high} = {text[start:start+high]}")
-
         # Try to break at a space for better word boundaries
         line_end = start + best
         space_pos = text.rfind(" ", start, line_end)
@@ -72,7 +70,6 @@ def wrap_text(text: str, font: pix.Font, size: int, width: float) -> list[str]:
         while start < length and text[start] == " ":
             start += 1
 
-    # /"lenprint(f"{lines}")
     return lines
 
 

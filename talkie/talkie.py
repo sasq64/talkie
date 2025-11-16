@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from array import array
 from collections.abc import Callable
 from importlib import resources
 from pathlib import Path
@@ -14,7 +13,6 @@ from .scanlines import make_scanline_texture
 from .talkie_config import TalkieConfig
 from .upscale import Upscaler
 from .utils.nerd import Nerd
-from .utils.wrap import wrap_array, wrap_lines
 
 
 def invert(color: int) -> int:
@@ -92,7 +90,6 @@ class Talkie:
         print(config.layout)
         self.layout = Layout(config.layout)
         self.console = LineConsole(tile_set=self.tile_set, cols=10, rows=10)
-        # self.console = pix.Console(tile_set=self.tile_set, cols=10, rows=10)
         self.input_console: pix.Console = pix.Console(
             tile_set=self.tile_set, cols=10, rows=1
         )
@@ -116,7 +113,6 @@ class Talkie:
         self.input_console.read_line()
 
     def do_layout(self):
-
         fh = self.tile_set.tile_size.y
         self.layout.set_size("input", height=fh)
 
@@ -241,7 +237,6 @@ class Talkie:
             self.screen.draw(self.current_image, top_left=xy, size=sz)
 
     def update(self):
-
         km = self.ai_player.key_mode()
         if km != self.key_mode:
             self.key_mode = km
