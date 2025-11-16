@@ -22,6 +22,8 @@ pytest_cache/
 
 build/
 /*.wav
+*.sav
+/game.png
 /temp.png
 /talkie.log
 
@@ -31,6 +33,7 @@ coverage.xml
 .git/
 .zed/
 
-talkie/data/l9
+talkie/data/level9
+talkie/data/glulxe
 talkie/data/magnetic
 talkie/data/dfrotz

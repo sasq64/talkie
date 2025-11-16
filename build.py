@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Sequence
 
 
-def run_command(cmd_in: Sequence[str | Path], cwd: Path | None = None, check: bool = True):
+def run_command(
+    cmd_in: Sequence[str | Path], cwd: Path | None = None, check: bool = True
+):
     """Run a command and return the result."""
 
     cmd = list([str(c) for c in cmd_in])
@@ -41,7 +43,7 @@ def main():
     target_dir = project_root / "talkie" / "data"
 
     # List of subdirectories in tools to build
-    build_subdirs = ["level9", "Magnetic", "frotz"]
+    build_subdirs = ["level9", "Magnetic", "frotz", "cheapglk", "glulxe"]
 
     # Ensure build directory exists
     build_dir.mkdir(exist_ok=True)
@@ -65,26 +67,24 @@ def main():
             # Run cmake build
             cmake_build_cmd = ["cmake", "--build", "."]
             run_command(cmake_build_cmd, cwd=subdir_build_dir)
-        else:
+        elif subdir == "frotz":
             run_command(["make", "-C", subdir_path, "dfrotz"])
+        else:
+            run_command(["make", "-C", subdir_path])
 
-    # Find and copy the level9 binary
-    level9_binary = build_dir / "level9" / "level9"
-    target_path = target_dir / "l9"
-    print(f"Copying {level9_binary} to {target_path}")
-    shutil.copy2(level9_binary, target_path)
-    target_path.chmod(0o755)
+    copy_bin(build_dir / "level9" / "level9")
+    copy_bin(tools_dir / "frotz" / "dfrotz")
+    copy_bin(build_dir / "Magnetic" / "bin" / "magnetic")
+    copy_bin(tools_dir / "glulxe" / "glulxe")
 
-    magnetic_binary = build_dir / "Magnetic" / "bin" / "magnetic"
-    target_path = target_dir / "magnetic"
-    print(f"Copying {magnetic_binary} to {target_path}")
-    shutil.copy2(magnetic_binary, target_path)
-    target_path.chmod(0o755)
 
-    frotz_binary = tools_dir / "frotz" / "dfrotz"
-    target_path = target_dir / "dfrotz"
-    print(f"Copying {frotz_binary} to {target_path}")
-    shutil.copy2(frotz_binary, target_path)
+def copy_bin(source: Path):
+    project_root = Path(__file__).parent
+    target_dir = project_root / "talkie" / "data"
+    name = source.stem
+    target_path = target_dir / name
+    print(f"Copying {name} to {target_dir}")
+    shutil.copy2(source, target_dir / name)
     target_path.chmod(0o755)
 
 
