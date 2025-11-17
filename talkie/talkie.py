@@ -229,7 +229,7 @@ class Talkie:
             sz = self.current_image.size
             while sz.y * 2 < img.height and sz.x * 2 < img.width:
                 sz *= 2
-            while sz.y > img.height and sz.x < img.width:
+            while sz.y > img.height or sz.x > img.width:
                 sz /= 2
             xy = pix.Float2(img.x, img.y)
             isize = pix.Float2(img.width, img.height)

@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include "level9.h"
 
 #define TEXTBUFFER_SIZE 10240
@@ -192,24 +193,34 @@ L9BOOL os_get_game_file(char* NewName, int Size)
     return TRUE;
 }
 
+
+#if defined(_Windows) || defined(__MSDOS__) || defined(_WIN32) ||              \
+    defined(__WIN32__)
+#define PATH_SEP '\\'
+#else
+#define PATH_SEP '/'
+#endif
+
 void os_set_filenumber(char* NewName, int Size, int n)
 {
     char* p;
     int i;
 
-#if defined(_Windows) || defined(__MSDOS__) || defined(_WIN32) ||              \
-    defined(__WIN32__)
-    p = strrchr(NewName, '\\');
-#else
-    p = strrchr(NewName, '/');
-#endif
+    char new_char = '0' + n;
+    p = strrchr(NewName, PATH_SEP);
     if (p == NULL) p = NewName;
     for (i = strlen(p) - 1; i >= 0; i--) {
         if (isdigit(p[i])) {
-            p[i] = '0' + n;
-            return;
+            struct stat ss;
+            char old_char = p[i];
+            p[i] = new_char;
+            if (stat(NewName, &ss) == 0) {
+                return;
+            }
+            p[i] = old_char;
         }
     }
+
 }
 
 void os_graphics(int mode)

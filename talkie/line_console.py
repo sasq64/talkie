@@ -24,7 +24,7 @@ class LineConsole:
         self.console.autoscroll = False
         self.refresh()
 
-    def draw(self, screen: pix.Canvas, xy: pix.Float2, size: pix.Float2):
+    def draw(self, screen: pix.Canvas, xy: pix.Float2, size: pix.Float2 | pix.Int2):
         screen.draw(self.console, xy, size)
 
     def reverse_color(self):
